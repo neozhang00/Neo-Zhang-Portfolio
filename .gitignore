@@ -1,0 +1,15 @@
+# Claude Code internal config
+.claude/
+
+# OS / editor cruft
+.DS_Store
+.idea/
+.vscode/
+Thumbs.db
+
+# Node (in case the screenshot/dev tools are reinstalled)
+node_modules/
+package-lock.json
+
+# Local screenshot output
+temporary screenshots/
