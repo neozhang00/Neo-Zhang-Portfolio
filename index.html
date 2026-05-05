@@ -31,9 +31,9 @@
 </script>
 <style>
   html { scroll-behavior: smooth; }
-  body { font-family: 'Inter', system-ui, sans-serif; color: #0c0c0d; background: #ece6df; -webkit-font-smoothing: antialiased; min-width: 950px; }
+  body { font-family: 'Inter', system-ui, sans-serif; color: #0c0c0d; background: #ece6df; -webkit-font-smoothing: antialiased; min-width: 1000px; }
 
-  /* Below the design width (950), JS sets --page-scale and adds .page-scaled.
+  /* Below the design width (1000), JS sets --page-scale and adds .page-scaled.
      We use CSS zoom which scales both layout and visuals (so scrollbars/heights
      reflow to the scaled size, no horizontal scrollbar). */
   body.page-scaled { zoom: var(--page-scale, 1); }
@@ -107,7 +107,7 @@
   }
   .nav-mobile-panel a:hover { background: #EDE9E1; border-color: #3a3a3a; color: #000; }
 
-  @media (max-width: 950px) {
+  @media (max-width: 1000px) {
     .nav-desktop { display: none !important; }
     .nav-mobile-trigger {
       display: inline-flex;
@@ -147,7 +147,9 @@
      A reusable layout: spell-card image (left, no border) + video frame
      (center, image overlaps it) + caption block (right). The whole group
      is centered horizontally on the page regardless of viewport width.
-     Total group width: 894px. Total height: 342px (image height).
+     Total group width: 730px. Total height: 271px (image height).
+     Layout: image 168×271 at x=0; video 424×238 at x=152 (overlapped 16px by image);
+     caption 145px wide at x=585 (9px gap from video right edge).
 
      Usage:
      <div class="spellcard-a-wrap">
@@ -164,7 +166,7 @@
   .spellcard-a-wrap { position: relative; }
   .spellcard-a {
     position: relative;
-    width: 708px;
+    width: 730px;
     height: 271px;
     left: 50%;
     transform: translateX(-50%);
@@ -193,8 +195,25 @@
   }
   .spellcard-a__caption {
     position: absolute;
-    left: 582px; top: 20px;
-    width: 126px;
+    left: 585px; top: 32px;
+    width: 136px;   /* 9px symmetric inner padding (text right at 721, rect right at 730 = 9px gap) */
+  }
+  /* Background "tab" extending out from the video frame's right edge.
+     Sits behind the video (z-index: -1) so the overlap is hidden, and the
+     visible portion appears to emerge seamlessly from the video frame.
+     Height auto-scales with caption content (top/bottom both -10px → 10px
+     symmetric padding around the text). */
+  .spellcard-a__caption::before {
+    content: '';
+    position: absolute;
+    left: -19px;       /* 9px gap-fill + 10px hidden overlap with video */
+    top: -10px;        /* 10px above caption text top */
+    bottom: -10px;     /* 10px below caption text bottom — scales with content */
+    width: 164px;      /* visible 154px (video right → caption right) + 10px hidden overlap */
+    background: rgba(50, 65, 88, 0.8);   /* Secondary #324158 @ 80% opacity */
+    border-radius: 0 6px 6px 0;          /* flat left, rounded right (matches video's 6px) */
+    border-right: 3px solid #EDE9E1;     /* Primary color right edge */
+    z-index: -1;
   }
   .spellcard-a__caption-title {
     font-weight: 700;
@@ -209,7 +228,224 @@
     font-size: 12.5px;
     font-weight: 600;
     line-height: 1.625;
-    text-align: justify;
+    text-align: left;
+  }
+  /* Bulleted list for caption body — matches caption-body typography. */
+  .spellcard-a__caption-list {
+    margin: 8px 0 0 0;
+    padding-left: 16px;
+    color: rgba(236, 230, 223, 0.85);
+    font-size: 12.5px;
+    font-weight: 600;
+    line-height: 1.625;
+    text-align: left;
+    list-style-type: disc;
+  }
+  .spellcard-a__caption-list li + li { margin-top: 4px; }
+
+  /* ============================================================
+     Process_Template_Below
+     A reusable vertical two-piece layout: Secondary-color caption tab
+     stacked above a Primary-bordered image. The caption's ::before tab
+     tucks 10px under the image's top edge (image at z-index auto,
+     ::before at z-index -1, wrap creates a stacking context via
+     isolation: isolate). Image scales to match wrap width (= rectangle
+     width).
+
+     Usage:
+     <div class="process-tb">
+       <div class="process-tb__caption">
+         <p class="spellcard-a__caption-title">Title</p>
+         <p class="spellcard-a__caption-body">Body text…</p>
+       </div>
+       <img class="process-tb__image" src="…" alt="…" />
+     </div>
+
+     Add the .expandable-image class (or call ImageViewNav(imgEl)) to
+     enable click-to-fullscreen lightbox on the image.
+     ============================================================ */
+  .process-tb {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;                  /* matches the 10px symmetric vertical padding around text */
+    width: 730px;               /* matches SpellCard_Template_A group width */
+    margin: 45px auto 0;        /* yields 40px visible gap to preceding [DESIGN PROCESS] divider (45 + 5 caption margin - 10 ::before top offset = 40) */
+    isolation: isolate;         /* scope ::before z-index: -1 to this block */
+  }
+  .process-tb__caption {
+    position: relative;
+    padding: 0 9px;             /* 9px symmetric L/R inner padding */
+    margin-top: 5px;            /* lower caption + rectangle 5px (matches spell card pattern) */
+  }
+  .process-tb__caption::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: -10px;                 /* 10px above text — visible top of rectangle */
+    bottom: -20px;              /* 10px past image top (10px flex gap + 10px under image) */
+    background: rgba(50, 65, 88, 0.8);   /* Secondary #324158 @ 80% opacity */
+    border-radius: 6px 6px 0 0;           /* both top corners rounded */
+    border-top: 3px solid #EDE9E1;        /* Primary color top edge */
+    z-index: -1;
+  }
+  .process-tb__image {
+    width: 100%;                /* scales to wrap width = rectangle width */
+    height: auto;
+    display: block;
+    border: 3px solid #EDE9E1;  /* Primary color border, matches video frames */
+    border-radius: 6px;
+  }
+
+  /* Fighting Spirit caption "tab" — same inner gaps as spellcard caption
+     (9px left, 0 right, 10px top, 10px bottom), mirrored geometry: visible
+     top edge emerges from image bottom (image z-index: 6 hides any overlap),
+     right edge tucks under the video frame. Bottom-right corner rounded;
+     bottom edge gets the Primary border. */
+  .fs-caption::before {
+    content: '';
+    position: absolute;
+    left: -9px;
+    right: -10px;
+    top: -15px;
+    bottom: -10px;
+    background: rgba(50, 65, 88, 0.8);
+    border-radius: 0 0 6px 6px;
+    border-bottom: 3px solid #EDE9E1;
+    z-index: -1;
+  }
+
+  /* ============================================================
+     Process_Template_Right
+     Horizontal counterpart of Process_Template_Below: caption tab on
+     the LEFT, image on the RIGHT. The caption's ::before tab tucks
+     10px under the image's left edge. Top-left + bottom-left corners
+     are rounded; the Primary border runs down the LEFT edge.
+
+     Caption : image width = 1 : 3 (via flex: 1 / flex: 3). Wrap 730px,
+     no flex gap → caption 182.5, image 547.5. Caption + image = 730px,
+     matching Process_Template_Below's total width (= Ideation's image width).
+     Text is top-aligned in the caption with 9px symmetric vertical padding;
+     rectangle bottom auto-follows the text (caption is not stretched to
+     image height).
+
+     Usage:
+     <div class="process-tr">
+       <div class="process-tr__caption">
+         <p class="spellcard-a__caption-title">Title</p>
+         <p class="spellcard-a__caption-body">Body text…</p>
+       </div>
+       <img class="process-tr__image" src="…" alt="…" />
+     </div>
+
+     Constraint: image height should be ≥ caption text height so the
+     rectangle's hidden right edge stays covered. With Sunderfolk text
+     and a ~2.5–3:1 aspect image, this is comfortably true.
+     ============================================================ */
+  .process-tr {
+    display: flex;
+    gap: 0;                         /* no flex gap — caption text-box abuts image directly */
+    width: 730px;
+    margin: 24px auto 0;
+    isolation: isolate;             /* scope ::before z-index: -1 to this block */
+    align-items: flex-start;        /* caption keeps natural height; rectangle auto-follows text */
+  }
+  .process-tr__caption {
+    flex: 1 1 0;                    /* 1 part of 4 (1:3 ratio) */
+    min-width: 0;
+    position: relative;
+    padding: 9px 10px;              /* 9 top/bottom (symmetric), 10 left/right */
+    margin-top: 5px;                /* lower caption + rectangle 5px below image top (matches spell card pattern) */
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;    /* anchor text to top */
+    box-sizing: border-box;
+  }
+  .process-tr__caption::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;                       /* rectangle ends exactly at image left edge — element width = 293 */
+    background: rgba(50, 65, 88, 0.8);    /* Secondary #324158 @ 80% opacity */
+    border-radius: 6px 0 0 6px;            /* both LEFT corners rounded */
+    border-left: 3px solid #EDE9E1;        /* Primary color left edge */
+    z-index: -1;
+  }
+  .process-tr__image {
+    flex: 3 1 0;                    /* 3 parts of 4 (1:3 ratio) */
+    min-width: 0;                   /* prevent flex min-width: auto from using intrinsic 5207px */
+    height: auto;
+    display: block;
+    border: 3px solid #EDE9E1;      /* Primary color border, matches video frames */
+    border-radius: 6px;
+    align-self: flex-start;         /* preserve aspect ratio */
+    box-sizing: border-box;
+  }
+
+  /* ============================================================
+     Process_Template_Left
+     Mirror of Process_Template_Right: image on the LEFT, caption
+     tab on the RIGHT. The caption's right edge has the Primary
+     border; top-right + bottom-right corners are rounded; the
+     caption's left edge sits flush against the image.
+
+     Default ratio image : caption = 2 : 1 (via flex: 2 / flex: 1).
+     Wrap 730px, no flex gap → image ≈ 486.7, caption ≈ 243.3.
+     Text top-aligned with 9px symmetric vertical padding; rectangle
+     bottom auto-follows the text (caption is not stretched to
+     image height).
+
+     Usage:
+     <div class="process-tl">
+       <img class="process-tl__image" src="…" alt="…" />
+       <div class="process-tl__caption">
+         <p class="spellcard-a__caption-title">Title</p>
+         <p class="spellcard-a__caption-body">Body…</p>
+       </div>
+     </div>
+     ============================================================ */
+  .process-tl {
+    display: flex;
+    gap: 0;
+    width: 730px;
+    margin: 24px auto 0;
+    isolation: isolate;
+    align-items: flex-start;
+  }
+  .process-tl__image {
+    flex: 2 1 0;                    /* 2 parts of 3 (2:1 ratio) */
+    min-width: 0;
+    height: auto;
+    display: block;
+    border: 3px solid #EDE9E1;
+    border-radius: 6px;
+    align-self: flex-start;
+    box-sizing: border-box;
+  }
+  .process-tl__caption {
+    flex: 1 1 0;                    /* 1 part of 3 */
+    min-width: 0;
+    position: relative;
+    padding: 9px 10px;
+    margin-top: 5px;                /* lower caption + rectangle 5px below image top (matches spell card pattern) */
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    box-sizing: border-box;
+  }
+  .process-tl__caption::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: rgba(50, 65, 88, 0.8);
+    border-radius: 0 6px 6px 0;     /* both RIGHT corners rounded */
+    border-right: 3px solid #EDE9E1;
+    z-index: -1;
   }
 
   /* shared banner styling — flat color, button-style shadow */
@@ -222,7 +458,7 @@
     margin-left: auto;
     margin-right: auto;
   }
-  .yellow-card { background: #FFEF90; }
+  .yellow-card { background: #FFEF90; width: 730px; }
   .lav-card    { background: #B797FF; }
   .wurm-card   { background: #FF8888; }
 
@@ -413,7 +649,7 @@
   .carousel-arrow {
     position: absolute; top: 0;
     transform: translateY(-50%);
-    width: 52px; height: 52px;
+    width: 52px; height: 78px;
     border-radius: 8px;
     border: 2px solid #ece6df;
     background: rgba(20,20,25,0.55);
@@ -428,8 +664,8 @@
   .carousel-arrow:hover { background: rgba(20,20,25,0.85); transform: translateY(-50%) scale(1.05); }
   /* Anchor arrows just outside the widest carousel content (~894px wide centered).
      Below the body min-width, this naturally pushes them past the viewport edge. */
-  .carousel-arrow.prev { left: calc(50% - 515px); }
-  .carousel-arrow.next { left: auto; right: calc(50% - 515px); }
+  .carousel-arrow.prev { left: calc(50% - 535px); }
+  .carousel-arrow.next { left: auto; right: calc(50% - 535px); }
 
   .carousel-dots {
     display: flex; justify-content: center; gap: 10px;
@@ -451,7 +687,7 @@
     /* extend well past section bounds so blur halo lands outside the visible area */
     inset: -40px;
     background-color: #0c0c0d; /* dark backstop in case blur fades to transparent */
-    background-image: url('WixWebsitePhotos/Sunderfolk_RubbleMaze_Screenshot.jpg');
+    background-image: url('WebsiteAssets/Sunderfolk_2025/Sunderfolk_Images/Sunderfolk_RubbleMaze_Screenshot.jpg');
     background-size: cover;
     background-position: center;
     background-attachment: fixed;
@@ -460,6 +696,48 @@
     pointer-events: none;
   }
   .section-rubble-bg > *:not(.carousel-arrow):not(.arrow-rail) { position: relative; z-index: 1; }
+
+  /* ===== Expandable image + lightbox ===== */
+  .expandable-image { cursor: zoom-in; }
+  .image-lightbox {
+    position: fixed;
+    inset: 0;
+    z-index: 100;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    padding: 5vh 5vw;
+    background: rgba(0, 0, 0, 0.8);
+    cursor: zoom-out;
+    touch-action: none;          /* let pointer events drive pan, not browser scroll */
+  }
+  .image-lightbox.is-open { display: flex; }
+  .image-lightbox img {
+    max-width: 100%;
+    max-height: 100%;
+    width: auto;
+    height: auto;
+    object-fit: contain;
+    display: block;
+    transform-origin: center center;
+    user-select: none;
+    -webkit-user-drag: none;     /* prevent native image-drag fighting our pointer drag */
+  }
+  .image-lightbox__hint {
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+    /* top is set in JS to track image's current visible bottom edge */
+    margin: 0;
+    color: rgba(255, 255, 255, 0.7);
+    font-size: 12px;
+    text-align: center;
+    font-family: Arial, 'Helvetica Neue', Helvetica, sans-serif;
+    letter-spacing: 0.08em;
+    user-select: none;
+    pointer-events: none;
+    white-space: nowrap;
+  }
 
   /* ===== Cinemascope hero with parallax ===== */
   .hero-cine {
@@ -475,7 +753,7 @@
     position: absolute;
     /* enlarge a bit beyond bounds so parallax translation has room */
     top: -12%; left: 0; right: 0; bottom: -12%;
-    background-image: url('WixWebsitePhotos/Sunderfolk_PrimaryArt_16x9.png');
+    background-image: url('WebsiteAssets/Sunderfolk_2025/Sunderfolk_Images/Sunderfolk_PrimaryArt_16x9.png');
     background-repeat: no-repeat;
     /* zoomed enough to crop the dark cliff/mist below the characters out of frame */
     background-size: 131.1% auto;
@@ -528,15 +806,15 @@
   <div class="relative h-full w-full flex flex-col items-center justify-center text-cream text-center px-6">
     <h1 class="h-display text-cream leading-none drop-shadow-[0_4px_20px_rgba(0,0,0,0.6)]" style="font-size: clamp(48px, 6.1vw, 88px);">Sunderfolk</h1>
     <div class="mt-3 flex justify-center items-center" style="gap: clamp(28px, 3.2vw, 48px);">
-      <img src="WixWebsitePhotos/Sunderfolk_NYXAward_PCGameFamily.png" alt="NYX Award — PC Game Family" class="object-contain drop-shadow-[0_4px_16px_rgba(0,0,0,0.5)]" style="height: clamp(72px, 7.6vw, 110px);" />
-      <img src="WixWebsitePhotos/Sunderfolk_NYXAward_BestInnovation.png" alt="NYX Award — Best Innovation" class="object-contain drop-shadow-[0_4px_16px_rgba(0,0,0,0.5)]" style="height: clamp(72px, 7.6vw, 110px);" />
+      <img src="WebsiteAssets/Sunderfolk_2025/Sunderfolk_Images/Sunderfolk_NYXAward_PCGameFamily.png" alt="NYX Award — PC Game Family" class="object-contain drop-shadow-[0_4px_16px_rgba(0,0,0,0.5)]" style="height: clamp(72px, 7.6vw, 110px);" />
+      <img src="WebsiteAssets/Sunderfolk_2025/Sunderfolk_Images/Sunderfolk_NYXAward_BestInnovation.png" alt="NYX Award — Best Innovation" class="object-contain drop-shadow-[0_4px_16px_rgba(0,0,0,0.5)]" style="height: clamp(72px, 7.6vw, 110px);" />
     </div>
   </div>
 </section>
 
 <!-- ============================ Section_Summary ============================ -->
 <section class="bg-paper border-y-[5px] border-[#324158]">
-  <div class="container-x pt-[20px] pb-16 md:pb-20">
+  <div class="container-x pt-[20px] pb-16 md:pb-20" style="zoom: 1.1;">
     <div class="flex flex-wrap items-center justify-center gap-5 md:gap-7">
       <a href="#" class="pill">OFFICIAL SITE</a>
       <a href="#" class="pill">STEAM PAGE</a>
@@ -562,7 +840,7 @@
   <!-- title strip -->
   <div class="text-cream py-12 md:py-14">
     <div class="container-x text-center">
-      <h2 class="text-[31px] md:text-[43px] tracking-wide uppercase -mt-[20px]" style="font-family:'Arial Black','Arial Bold',Arial,sans-serif; font-weight:900;">&ndash; COMBAT DESIGN &ndash;</h2>
+      <h2 class="text-[31px] md:text-[43px] tracking-wide uppercase -mt-[20px]" style="font-family:'Arial Black','Arial Bold',Arial,sans-serif; font-weight:900; zoom: 1.21;">&ndash; COMBAT DESIGN &ndash;</h2>
       <div class="mt-6 flex justify-center" style="gap: 10px;">
         <button class="combat-btn combat-btn-hero" data-carousel-go="0">HERO CLASS</button>
         <button class="combat-btn combat-btn-boss" data-carousel-go="1">BOSS</button>
@@ -581,13 +859,13 @@
     <div class="char-track" id="char-track">
 
     <!-- ===== VANGUARD (Hero, yellow) ===== -->
-    <div class="char-slide"><div class="container-x py-12 md:py-16">
+    <div class="char-slide"><div class="container-x py-12 md:py-16" style="zoom: 1.21;">
     <div id="vanguard">
       <!-- Yellow hero banner -->
       <article class="yellow-card" style="height: 117px; margin-top: -67px; overflow: visible;">
         <!-- portrait clip: top can escape, bottom hidden by frame's pseudo border -->
         <div class="portrait-clip">
-          <img src="WixWebsitePhotos/Sunderfolk_Vanguard_Profile_02.png" alt="Vanguard hero art"
+          <img src="WebsiteAssets/Sunderfolk_2025/Sunderfolk_Images/Sunderfolk_Vanguard_Profile_02.png" alt="Vanguard hero art"
                class="absolute"
                style="left: 155px; bottom: -25px; height: 200px; width: auto; object-fit: contain; clip-path: inset(30px 0 0 0);" />
         </div>
@@ -610,18 +888,15 @@
         <div class="relative" style="width: 732px; height: 281px; left: 50%; transform: translateX(-50%);">
           <!-- Video frame at the right of the group -->
           <div class="frame absolute" style="left: 232px; top: 0; width: 500px; height: 281px; border: 3px solid #EDE9E1; border-radius: 6px; box-shadow: none;">
-            <iframe class="vimeo-player" src="https://player.vimeo.com/video/1141007901?fl=ip&fe=ec&autoplay=1&loop=1&muted=1&controls=0&playsinline=1" style="width: 100%; height: 100%; border: 0; display: block;" allow="autoplay; fullscreen; picture-in-picture"></iframe>
-            <div class="video-click-overlay" style="position: absolute; inset: 0; cursor: pointer; z-index: 5;">
-              <svg class="video-pause-icon" viewBox="0 0 24 24" aria-hidden="true"><rect x="6" y="4" width="4" height="16" rx="1"/><rect x="14" y="4" width="4" height="16" rx="1"/></svg>
-            </div>
+            <video src="WebsiteAssets/Sunderfolk_2025/Sundefolk_Videos/Vanguard_Passive_Retaliate_001.mp4" autoplay loop muted playsinline style="width: 100%; height: 100%; object-fit: cover; display: block;"></video>
           </div>
 
           <!-- Fighting Spirit image at the left of the group -->
-          <img src="WixWebsitePhotos/Sunderfolk_Vanguard_PassiveAbility_Desc.png" alt="Fighting Spirit — passive ability description"
+          <img src="WebsiteAssets/Sunderfolk_2025/Sunderfolk_Images/Sunderfolk_Vanguard_PassiveAbility_Desc.png" alt="Fighting Spirit — passive ability description"
                class="absolute" style="left: 0; top: 19px; width: 307px; height: auto; max-width: none; z-index: 6; border: 3px solid #EDE9E1; border-radius: 6px; box-shadow: none;" />
 
-          <!-- Caption: below the image, left aligned with image, right ~7px from video left -->
-          <p class="absolute text-cream/85 leading-relaxed" style="top: 116px; left: 0; width: 224px; font-size: 12.5px; font-weight: 600; text-align: justify;">
+          <!-- Caption: text positioned with 9px left + 0 right + 10px top + 10px bottom inner gaps to match SpellCard_Template_A. -->
+          <p class="fs-caption absolute text-cream/85 leading-relaxed" style="top: 115px; left: 12px; width: 220px; font-size: 12.5px; font-weight: 600; text-align: left;">
             For each Grit, the Vanguard takes 1 less damage when attacked and deals 2 damage to the attacker, reinforcing their role as both a frontliner and a DPS.
           </p>
         </div>
@@ -630,12 +905,9 @@
       <!-- SpellCard_Template_A: Into the Fray (image top sits 15px below Video 1) -->
       <div class="spellcard-a-wrap" style="margin-top: 15px;">
         <div class="spellcard-a">
-          <img class="spellcard-a__image" src="WixWebsitePhotos/Sunderfolk_Vanguard_SpellCard_IntoTheFray.png" alt="Into the Fray spell card" />
+          <img class="spellcard-a__image" src="WebsiteAssets/Sunderfolk_2025/Sunderfolk_Images/Sunderfolk_Vanguard_SpellCard_IntoTheFray.png" alt="Into the Fray spell card" />
           <div class="spellcard-a__video" style="padding: 0;">
-            <iframe class="vimeo-player" src="https://player.vimeo.com/video/1141007946?fl=ip&fe=ec&autoplay=1&loop=1&muted=1&controls=0&playsinline=1" style="width: 100%; height: 100%; border: 0; display: block;" allow="autoplay; fullscreen; picture-in-picture"></iframe>
-            <div class="video-click-overlay" style="position: absolute; inset: 0; cursor: pointer; z-index: 5;">
-              <svg class="video-pause-icon" viewBox="0 0 24 24" aria-hidden="true"><rect x="6" y="4" width="4" height="16" rx="1"/><rect x="14" y="4" width="4" height="16" rx="1"/></svg>
-            </div>
+            <video src="WebsiteAssets/Sunderfolk_2025/Sundefolk_Videos/Vanguard_Spell_IntoTheFray_001.mp4" autoplay loop muted playsinline style="width: 100%; height: 100%; object-fit: cover; display: block;"></video>
           </div>
           <div class="spellcard-a__caption">
             <p class="spellcard-a__caption-title">Into the Fray</p>
@@ -649,54 +921,60 @@
       <!-- SpellCard_Template_A: Bladefall -->
       <div class="spellcard-a-wrap" style="margin-top: 15px;">
         <div class="spellcard-a">
-          <img class="spellcard-a__image" src="WixWebsitePhotos/Sunderfolk_Vanguard_SpellCard_Bladefall.png" alt="Bladefall spell card" />
+          <img class="spellcard-a__image" src="WebsiteAssets/Sunderfolk_2025/Sunderfolk_Images/Sunderfolk_Vanguard_SpellCard_Bladefall.png" alt="Bladefall spell card" />
           <div class="spellcard-a__video" style="padding: 0;">
-            <iframe class="vimeo-player" src="https://player.vimeo.com/video/1141007917?fl=ip&fe=ec&autoplay=1&loop=1&muted=1&controls=0&playsinline=1" style="width: 100%; height: 100%; border: 0; display: block;" allow="autoplay; fullscreen; picture-in-picture"></iframe>
-            <div class="video-click-overlay" style="position: absolute; inset: 0; cursor: pointer; z-index: 5;">
-              <svg class="video-pause-icon" viewBox="0 0 24 24" aria-hidden="true"><rect x="6" y="4" width="4" height="16" rx="1"/><rect x="14" y="4" width="4" height="16" rx="1"/></svg>
-            </div>
+            <video src="WebsiteAssets/Sunderfolk_2025/Sundefolk_Videos/Vanguard_Spell_Bladefall_001.mp4" autoplay loop muted playsinline style="width: 100%; height: 100%; object-fit: cover; display: block;"></video>
           </div>
           <div class="spellcard-a__caption">
             <p class="spellcard-a__caption-title">Bladefall</p>
             <p class="spellcard-a__caption-body">
-              Bladefall is an early spell that reinforces the Vanguard's frontliner role by granting a damage bonus when positioned next to multiple monsters.
+              One of the 3 early spells, Bladefall reinforces the Vanguard's role as frontliner by granting extra damage for each adjacent enemy.
             </p>
           </div>
         </div>
       </div>
 
-      <!-- Design Process -->
-      <h3 class="h-display text-[22px] md:text-[26px] mt-16 underline underline-offset-4">Design Process</h3>
-      <div class="grid md:grid-cols-2 gap-5 mt-6">
-        <div class="proc-box bg-beat2 text-ink">
-          <h5>Ideation</h5>
-          <ul class="list-disc pl-5 space-y-1.5">
-            <li>Understand the intended product goal for the new playable hero.</li>
-            <li>Brainstorm the hero's core mechanic and fantasy.</li>
-          </ul>
+      <!-- Divider beneath the second spell card, with [DESIGN PROCESS] label breaking the line -->
+      <div style="display: flex; align-items: center; gap: 5px; width: 730px; margin: 35px auto 0;">
+        <div style="flex: 1; height: 5px; background: #EDE9E1;"></div>
+        <span style="font-family: 'Arial Black','Arial Bold',Arial,sans-serif; font-weight: 900; font-size: 18px; color: #EDE9E1; white-space: nowrap;">[DESIGN PROCESS]</span>
+        <div style="flex: 1; height: 5px; background: #EDE9E1;"></div>
+      </div>
+
+      <!-- Ideation block — uses Process_Template_Below. -->
+      <div class="process-tb">
+        <div class="process-tb__caption">
+          <p class="spellcard-a__caption-title">Ideation</p>
+          <p class="spellcard-a__caption-body">Understand the intended product goal for the new playable hero and brainstorm the hero's class, core mechanics, and deck modifications.</p>
         </div>
-        <div class="proc-box bg-beat3 text-ink">
-          <h5>Passive Ability</h5>
-          <ul class="list-disc pl-5 space-y-1.5">
-            <li>Based on the core mechanic, ideate and present multiple options for the Vanguard's passive ability.</li>
-            <li>Collaborate with the lead designer and game director to refine designs until final design is selected.</li>
-          </ul>
+        <img class="process-tb__image expandable-image"
+             src="WebsiteAssets/Sunderfolk_2025/Sunderfolk_Images/Sunderfolk_Vanguard_Ideation_01.jpg"
+             alt="Vanguard ideation reference" />
+      </div>
+
+      <!-- Passive Ability block — uses Process_Template_Right. -->
+      <div class="process-tr">
+        <div class="process-tr__caption">
+          <p class="spellcard-a__caption-title">Passive Ability</p>
+          <p class="spellcard-a__caption-body">Brainstorm passive ability options based on the core mechanic, then collaborate with the lead designer and game director to finalize the design.</p>
         </div>
-        <div class="proc-box bg-beat4 text-ink">
-          <h5>Spell Cards</h5>
-          <ul class="list-disc pl-5 space-y-1.5">
-            <li>Design cards that synergize with the passive ability.</li>
-            <li>Starting cards that teach the hero's passive ability and core mechanic during tutorial.</li>
-            <li>Cards that offer unique strategies aligned with the hero's fantasy and product goal.</li>
-            <li>Ultimate card that addresses a key problem space (team collaboration and Vanguard identity).</li>
-          </ul>
-        </div>
-        <div class="proc-box bg-beat1 text-ink">
-          <h5>Implementation, Playtest, and Iteration</h5>
-          <ul class="list-disc pl-5 space-y-1.5">
-            <li>Implement the first pass of the design in-engine and create a playable prototype.</li>
-            <li>Conduct multiple playtests, gather feedback, and iterate on the Vanguard's passive and spell cards.</li>
-            <li>Debug code, support animation/VFX hookups, and write description while ensuring all implementation is bug-free.</li>
+        <img class="process-tr__image expandable-image"
+             src="WebsiteAssets/Sunderfolk_2025/Sunderfolk_Images/Sunderfolk_Vanguard_PassiveAbility_01.jpg"
+             alt="Passive ability ideation reference" />
+      </div>
+
+      <!-- Spell Cards block — uses Process_Template_Left. -->
+      <div class="process-tl">
+        <img class="process-tl__image expandable-image"
+             src="WebsiteAssets/Sunderfolk_2025/Sunderfolk_Images/Sunderfolk_Vanguard_SpellCard_01.jpg"
+             alt="Spell cards reference" />
+        <div class="process-tl__caption">
+          <p class="spellcard-a__caption-title">Spell Cards</p>
+          <p class="spellcard-a__caption-body">Design 10 unique cards with distinct functions to support flexible deck composition:</p>
+          <ul class="spellcard-a__caption-list">
+            <li>Starting cards that teach the class's core mechanics and passive ability.</li>
+            <li>Unique abilities for different scenarios and encounters.</li>
+            <li>An Ultimate card that plays into the Vanguard's class identity and team synergy.</li>
           </ul>
         </div>
       </div>
@@ -722,12 +1000,12 @@
     </div></div><!-- /vanguard slide -->
 
     <!-- ===== CHAMPION (Boss, lavender) ===== -->
-    <div class="char-slide"><div class="container-x py-12 md:py-16">
+    <div class="char-slide"><div class="container-x py-12 md:py-16" style="zoom: 1.21;">
     <div id="champion">
       <!-- Purple Champion banner -->
       <article class="lav-card" style="height: 117px; margin-top: -67px; overflow: visible;">
         <div class="portrait-clip">
-          <img src="WixWebsitePhotos/Sunderfolk_Champion_Profile_02.png" alt="Champion boss art"
+          <img src="WebsiteAssets/Sunderfolk_2025/Sunderfolk_Images/Sunderfolk_Champion_Profile_02.png" alt="Champion boss art"
                class="absolute"
                style="left: 155px; bottom: -95px; height: 232px; width: auto; object-fit: contain;" />
         </div>
@@ -761,13 +1039,13 @@
       <h3 class="h-display text-[22px] md:text-[26px] mt-14 underline underline-offset-4">Spell Cards</h3>
       <div class="grid md:grid-cols-3 gap-6 mt-6">
         <div class="spellcard-img">
-          <img src="WixWebsitePhotos/Sunderfolk_Champion_SpellCard_BombsAway.png" alt="Bombs Away spell card" class="w-full h-auto block" />
+          <img src="WebsiteAssets/Sunderfolk_2025/Sunderfolk_Images/Sunderfolk_Champion_SpellCard_BombsAway.png" alt="Bombs Away spell card" class="w-full h-auto block" />
         </div>
         <div class="spellcard-img">
-          <img src="WixWebsitePhotos/Sunderfolk_Champion_SpellCard_Galvanize.png" alt="Galvanize spell card" class="w-full h-auto block" />
+          <img src="WebsiteAssets/Sunderfolk_2025/Sunderfolk_Images/Sunderfolk_Champion_SpellCard_Galvanize.png" alt="Galvanize spell card" class="w-full h-auto block" />
         </div>
         <div class="spellcard-img">
-          <img src="WixWebsitePhotos/Sunderfolk_Champion_SpellCard_RallyUp.png" alt="Rally Up spell card" class="w-full h-auto block" />
+          <img src="WebsiteAssets/Sunderfolk_2025/Sunderfolk_Images/Sunderfolk_Champion_SpellCard_RallyUp.png" alt="Rally Up spell card" class="w-full h-auto block" />
         </div>
       </div>
       <ul class="mt-6 list-disc pl-5 text-cream/85 space-y-1.5 text-[14.5px] leading-7">
@@ -782,7 +1060,7 @@
         <div>
           <div class="flex items-start gap-3">
             <div class="frame w-[88px] h-[88px] flex-none">
-              <img src="WixWebsitePhotos/Sunderfolk_Boss_UnstableRedcap.png" alt="Unstable Redcap" class="w-full h-full object-cover" />
+              <img src="WebsiteAssets/Sunderfolk_2025/Sunderfolk_Images/Sunderfolk_Boss_UnstableRedcap.png" alt="Unstable Redcap" class="w-full h-full object-cover" />
             </div>
             <div class="flex-1">
               <p class="font-bold underline underline-offset-4">Unstable Redcap</p>
@@ -795,7 +1073,7 @@
         <div>
           <div class="flex items-start gap-3">
             <div class="frame w-[88px] h-[88px] flex-none">
-              <img src="WixWebsitePhotos/Sunderfolk_Boss_ArcherWarrior.png" alt="Archer Warrior" class="w-full h-full object-cover" />
+              <img src="WebsiteAssets/Sunderfolk_2025/Sunderfolk_Images/Sunderfolk_Boss_ArcherWarrior.png" alt="Archer Warrior" class="w-full h-full object-cover" />
             </div>
             <div class="flex-1">
               <p class="font-bold underline underline-offset-4">Archer Warrior</p>
@@ -806,7 +1084,7 @@
         <div>
           <div class="flex items-start gap-3">
             <div class="frame w-[88px] h-[88px] flex-none">
-              <img src="WixWebsitePhotos/Sunderfolk_Boss_SpearWarrior.png" alt="Spear Warrior" class="w-full h-full object-cover" />
+              <img src="WebsiteAssets/Sunderfolk_2025/Sunderfolk_Images/Sunderfolk_Boss_SpearWarrior.png" alt="Spear Warrior" class="w-full h-full object-cover" />
             </div>
             <div class="flex-1">
               <p class="font-bold underline underline-offset-4">Spear Warrior</p>
@@ -836,12 +1114,12 @@
     </div></div><!-- /champion slide -->
 
     <!-- ===== WURM (Monster, pink) ===== -->
-    <div class="char-slide"><div class="container-x py-12 md:py-16">
+    <div class="char-slide"><div class="container-x py-12 md:py-16" style="zoom: 1.21;">
     <div id="wurm">
       <!-- Red Wurm banner -->
       <article class="wurm-card" style="height: 117px; margin-top: -67px; overflow: visible;">
         <div class="portrait-clip">
-          <img src="WixWebsitePhotos/Sunderfolk_TunnelWurm_Profile_01.png" alt="Wurm monster art"
+          <img src="WebsiteAssets/Sunderfolk_2025/Sunderfolk_Images/Sunderfolk_TunnelWurm_Profile_01.png" alt="Wurm monster art"
                class="absolute"
                style="left: 135px; bottom: -50px; height: 231px; width: auto; object-fit: contain;" />
         </div>
@@ -868,7 +1146,7 @@
         </div>
         <div class="md:col-span-7">
           <div class="frame aspect-video">
-            <img src="WixWebsitePhotos/Sunderfolk_TunnelWurm_InGame.png" alt="Wurm in-game" class="w-full h-full object-cover" />
+            <img src="WebsiteAssets/Sunderfolk_2025/Sunderfolk_Images/Sunderfolk_TunnelWurm_InGame.png" alt="Wurm in-game" class="w-full h-full object-cover" />
           </div>
         </div>
       </div>
@@ -902,6 +1180,12 @@
   </div><!-- /char-carousel -->
 </section>
 
+<!-- Image lightbox (used by .expandable-image elements) -->
+<div class="image-lightbox" id="image-lightbox" aria-hidden="true" role="dialog">
+  <img src="" alt="" />
+  <p class="image-lightbox__hint">Scroll to zoom in/out. Drag to move the image. Click to exit viewing mode.</p>
+</div>
+
 <!-- ============================ MISSION & ENCOUNTER ============================ -->
 <section id="mission-design" class="anchor relative overflow-hidden bg-ink text-cream">
   <div class="bg-ink py-12 md:py-14">
@@ -927,28 +1211,28 @@
         <p class="font-bold underline underline-offset-4">Tavern Trouble (Tutorial)</p>
         <p class="text-cream/80 mt-1 text-[14.5px] leading-7">Learn about the game's basic controls, lovely characters, and your role in the Sunderland.</p>
         <div class="frame mt-3 aspect-[16/9] img-treat">
-          <img src="WixWebsitePhotos/SF_TownWideshot.png" alt="Tavern Trouble screenshot" class="w-full h-full object-cover" />
+          <img src="WebsiteAssets/Sunderfolk_2025/Sunderfolk_Images/SF_TownWideshot.png" alt="Tavern Trouble screenshot" class="w-full h-full object-cover" />
         </div>
       </div>
       <div>
         <p class="font-bold underline underline-offset-4">Sacred Thrown (Boss Battle)</p>
         <p class="text-cream/80 mt-1 text-[14.5px] leading-7">Reclaim the Sacred Bug's throne from the first multi-hex Boss in the game!</p>
         <div class="frame mt-3 aspect-[16/9] img-treat">
-          <img src="WixWebsitePhotos/SF_Combat2.png" alt="Sacred Thrown screenshot" class="w-full h-full object-cover" />
+          <img src="WebsiteAssets/Sunderfolk_2025/Sunderfolk_Images/SF_Combat2.png" alt="Sacred Thrown screenshot" class="w-full h-full object-cover" />
         </div>
       </div>
       <div>
         <p class="font-bold underline underline-offset-4">Rubble Maze (Puzzle &amp; Battle)</p>
         <p class="text-cream/80 mt-1 text-[14.5px] leading-7">Face the toughest Wurm in a dynamic maze that forces new tactics every moment!</p>
         <div class="frame mt-3 aspect-[16/9] img-treat">
-          <img src="WixWebsitePhotos/Sunderfolk_RubbleMaze_Screenshot.jpg" alt="Rubble Maze screenshot" class="w-full h-full object-cover" />
+          <img src="WebsiteAssets/Sunderfolk_2025/Sunderfolk_Images/Sunderfolk_RubbleMaze_Screenshot.jpg" alt="Rubble Maze screenshot" class="w-full h-full object-cover" />
         </div>
       </div>
       <div>
         <p class="font-bold underline underline-offset-4">Brightstone Cleanup (Exploration)</p>
         <p class="text-cream/80 mt-1 text-[14.5px] leading-7">Take down the Brightstone lamp and fight against the strongest Monsters in the game!</p>
         <div class="frame mt-3 aspect-[16/9] img-treat">
-          <img src="WixWebsitePhotos/Sunderfolk_Screenshot_C_edited.jpg" alt="Brightstone Cleanup screenshot" class="w-full h-full object-cover" />
+          <img src="WebsiteAssets/Sunderfolk_2025/Sunderfolk_Images/Sunderfolk_Screenshot_C_edited.jpg" alt="Brightstone Cleanup screenshot" class="w-full h-full object-cover" />
         </div>
       </div>
     </div>
@@ -963,7 +1247,7 @@
       </p>
 
       <div class="frame mt-8 aspect-[16/9] img-treat max-w-4xl mx-auto">
-        <img src="WixWebsitePhotos/Sunderfolk_Encounter_SacredRescue_Iteration.jpg" alt="Visitor from Afar screenshot" class="w-full h-full object-cover" />
+        <img src="WebsiteAssets/Sunderfolk_2025/Sunderfolk_Images/Sunderfolk_Encounter_SacredRescue_Iteration.jpg" alt="Visitor from Afar screenshot" class="w-full h-full object-cover" />
       </div>
 
       <div class="grid md:grid-cols-2 gap-8 mt-10 text-cream/85 leading-7 text-[14.5px]">
@@ -1054,7 +1338,7 @@
         After identifying the narrative beats to each cinematic cutscenes, I would go into the game space to scout possible locations and draw storyboards with notes and iterations before executing the development of the cinematic.
       </p>
       <div class="frame mt-6 aspect-[5/2] img-treat">
-        <img src="WixWebsitePhotos/Sunderfolk_BugRollOut_Storyboard.jpg" alt="Storyboard sketches" class="w-full h-full object-cover" />
+        <img src="WebsiteAssets/Sunderfolk_2025/Sunderfolk_Images/Sunderfolk_BugRollOut_Storyboard.jpg" alt="Storyboard sketches" class="w-full h-full object-cover" />
       </div>
     </div>
 
@@ -1091,7 +1375,7 @@
         <li>Ensure the storyboard is designed to provide a smooth and natural transition from cutscene to gameplay.</li>
       </ul>
       <div class="frame mt-6 aspect-[5/2] img-treat">
-        <img src="WixWebsitePhotos/Act1_LightstoneMines_BombGoblin_Storyboard.jpg" alt="Lightstone Mines storyboard" class="w-full h-full object-cover" />
+        <img src="WebsiteAssets/Sunderfolk_2025/Sunderfolk_Images/Act1_LightstoneMines_BombGoblin_Storyboard.jpg" alt="Lightstone Mines storyboard" class="w-full h-full object-cover" />
       </div>
     </div>
 
@@ -1176,6 +1460,145 @@
     panel.querySelectorAll('a').forEach(a => a.addEventListener('click', close));
     document.addEventListener('click', e => {
       if (!panel.contains(e.target) && e.target !== btn) close();
+    });
+  })();
+
+  // Image lightbox: click .expandable-image to view full-screen with dark backdrop.
+  // Scroll-wheel zooms (cursor-anchored), drag pans, hint tracks the image's bottom edge.
+  (() => {
+    const lightbox = document.getElementById('image-lightbox');
+    if (!lightbox) return;
+    const lightboxImg = lightbox.querySelector('img');
+    const hint = lightbox.querySelector('.image-lightbox__hint');
+    const ZOOM_MIN = 0.5, ZOOM_MAX = 8, ZOOM_STEP = 1.1, DRAG_THRESHOLD = 5;
+    let scale = 1, tx = 0, ty = 0;
+    let activePointerId = null, didDrag = false;
+    let dragStartX = 0, dragStartY = 0, dragStartTx = 0, dragStartTy = 0;
+
+    function updateHintPosition() {
+      if (!lightbox.classList.contains('is-open')) return;
+      const r = lightboxImg.getBoundingClientRect();
+      hint.style.top = `${r.bottom + 5}px`;
+    }
+    function applyTransform() {
+      lightboxImg.style.transform = `translate(${tx}px, ${ty}px) scale(${scale})`;
+      updateHintPosition();
+    }
+    function reset() { scale = 1; tx = 0; ty = 0; }
+    function open(src, alt) {
+      lightboxImg.src = src;
+      lightboxImg.alt = alt || '';
+      reset();
+      applyTransform();
+      lightbox.classList.add('is-open');
+      lightbox.setAttribute('aria-hidden', 'false');
+      document.body.style.overflow = 'hidden';
+    }
+    function close() {
+      lightbox.classList.remove('is-open');
+      lightbox.setAttribute('aria-hidden', 'true');
+      document.body.style.overflow = '';
+      lightboxImg.src = '';
+      reset();
+      lightboxImg.style.transform = '';
+    }
+
+    // Public API: window.ImageViewNav(target?) — bind lightbox feature to one
+    // or more images. target can be an HTMLImageElement, NodeList, array,
+    // selector string, or omitted (rebinds all .expandable-image). Idempotent;
+    // adds .expandable-image class and a click handler that opens the lightbox.
+    function bindImageViewNav(target) {
+      let elements;
+      if (target == null) {
+        elements = document.querySelectorAll('.expandable-image');
+      } else if (typeof target === 'string') {
+        elements = document.querySelectorAll(target);
+      } else if (target instanceof Element) {
+        elements = [target];
+      } else if (target && typeof target.length === 'number') {
+        elements = target;
+      } else {
+        return 0;
+      }
+      let count = 0;
+      Array.from(elements).forEach(el => {
+        if (el.dataset.imageviewnavBound === '1') return;
+        el.dataset.imageviewnavBound = '1';
+        el.classList.add('expandable-image');
+        el.addEventListener('click', () => open(el.currentSrc || el.src, el.alt));
+        count++;
+      });
+      return count;
+    }
+    window.ImageViewNav = bindImageViewNav;
+    bindImageViewNav();   // auto-bind any .expandable-image in the initial DOM
+
+    // Click closes — unless the user just finished dragging.
+    lightbox.addEventListener('click', () => {
+      if (didDrag) { didDrag = false; return; }
+      close();
+    });
+
+    // Wheel: zoom, anchored on cursor when over image.
+    lightbox.addEventListener('wheel', e => {
+      if (!lightbox.classList.contains('is-open')) return;
+      e.preventDefault();
+      const factor = e.deltaY < 0 ? ZOOM_STEP : 1 / ZOOM_STEP;
+      const newScale = Math.max(ZOOM_MIN, Math.min(ZOOM_MAX, scale * factor));
+      if (newScale === scale) return;
+      const actualFactor = newScale / scale;
+      const rect = lightboxImg.getBoundingClientRect();
+      const overImg = e.clientX >= rect.left && e.clientX <= rect.right &&
+                      e.clientY >= rect.top  && e.clientY <= rect.bottom;
+      if (overImg) {
+        const cx = rect.left + rect.width / 2;
+        const cy = rect.top  + rect.height / 2;
+        tx += (actualFactor - 1) * (cx - e.clientX);
+        ty += (actualFactor - 1) * (cy - e.clientY);
+      }
+      scale = newScale;
+      applyTransform();
+    }, { passive: false });
+
+    // Drag to pan (Pointer Events handle mouse/touch/pen uniformly).
+    lightbox.addEventListener('pointerdown', e => {
+      if (!lightbox.classList.contains('is-open')) return;
+      if (e.button !== 0 && e.pointerType === 'mouse') return;  // primary mouse button only
+      activePointerId = e.pointerId;
+      lightbox.setPointerCapture(e.pointerId);
+      didDrag = false;
+      dragStartX = e.clientX;
+      dragStartY = e.clientY;
+      dragStartTx = tx;
+      dragStartTy = ty;
+      lightbox.style.cursor = 'grabbing';
+    });
+    lightbox.addEventListener('pointermove', e => {
+      if (e.pointerId !== activePointerId) return;
+      const dx = e.clientX - dragStartX;
+      const dy = e.clientY - dragStartY;
+      if (!didDrag && Math.hypot(dx, dy) > DRAG_THRESHOLD) didDrag = true;
+      if (didDrag) {
+        tx = dragStartTx + dx;
+        ty = dragStartTy + dy;
+        applyTransform();
+      }
+    });
+    function endDrag(e) {
+      if (e.pointerId !== activePointerId) return;
+      activePointerId = null;
+      try { lightbox.releasePointerCapture(e.pointerId); } catch (_) {}
+      lightbox.style.cursor = '';
+    }
+    lightbox.addEventListener('pointerup', endDrag);
+    lightbox.addEventListener('pointercancel', endDrag);
+
+    // Keep hint pinned 5px below the image's visible bottom across loads & resizes.
+    lightboxImg.addEventListener('load', updateHintPosition);
+    window.addEventListener('resize', updateHintPosition);
+
+    document.addEventListener('keydown', e => {
+      if (e.key === 'Escape' && lightbox.classList.contains('is-open')) close();
     });
   })();
 
@@ -1283,7 +1706,7 @@
   // Below the body's min-width, scale the whole page down (zoom-out)
   // instead of letting the viewport scrollbar cut content off.
   (() => {
-    const DESIGN_WIDTH = 950;
+    const DESIGN_WIDTH = 1000;
     const root = document.documentElement;
     let raf = 0;
     function applyScale() {
