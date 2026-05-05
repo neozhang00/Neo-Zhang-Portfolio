@@ -142,27 +142,8 @@
     padding: 15px 36px 15px 15px;
   }
 
-  /* ============================================================
-     SpellCard_Template_A
-     A reusable layout: spell-card image (left, no border) + video frame
-     (center, image overlaps it) + caption block (right). The whole group
-     is centered horizontally on the page regardless of viewport width.
-     Total group width: 730px. Total height: 271px (image height).
-     Layout: image 168×271 at x=0; video 424×238 at x=152 (overlapped 16px by image);
-     caption 145px wide at x=585 (9px gap from video right edge).
-
-     Usage:
-     <div class="spellcard-a-wrap">
-       <div class="spellcard-a">
-         <img class="spellcard-a__image" src="..." alt="..." />
-         <div class="spellcard-a__video">VIDEO X</div>
-         <div class="spellcard-a__caption">
-           <p class="spellcard-a__caption-title">Title</p>
-           <p class="spellcard-a__caption-body">Body...</p>
-         </div>
-       </div>
-     </div>
-     ============================================================ */
+  /* SpellCard_Template_A — image (left) + video (center, image overlaps it) +
+     caption (right). Group 730×271, centered. See Template/SpellCard_Template_A.md. */
   .spellcard-a-wrap { position: relative; }
   .spellcard-a {
     position: relative;
@@ -243,27 +224,9 @@
   }
   .spellcard-a__caption-list li + li { margin-top: 4px; }
 
-  /* ============================================================
-     Process_Template_Below
-     A reusable vertical two-piece layout: Secondary-color caption tab
-     stacked above a Primary-bordered image. The caption's ::before tab
-     tucks 10px under the image's top edge (image at z-index auto,
-     ::before at z-index -1, wrap creates a stacking context via
-     isolation: isolate). Image scales to match wrap width (= rectangle
-     width).
-
-     Usage:
-     <div class="process-tb">
-       <div class="process-tb__caption">
-         <p class="spellcard-a__caption-title">Title</p>
-         <p class="spellcard-a__caption-body">Body text…</p>
-       </div>
-       <img class="process-tb__image" src="…" alt="…" />
-     </div>
-
-     Add the .expandable-image class (or call ImageViewNav(imgEl)) to
-     enable click-to-fullscreen lightbox on the image.
-     ============================================================ */
+  /* Process_Template_Below — caption tab stacked above a Primary-bordered image.
+     Caption ::before tucks 10px under image top. Wrap 730px.
+     See Template/Process_Template_Below.md. */
   .process-tb {
     display: flex;
     flex-direction: column;
@@ -315,33 +278,9 @@
     z-index: -1;
   }
 
-  /* ============================================================
-     Process_Template_Right
-     Horizontal counterpart of Process_Template_Below: caption tab on
-     the LEFT, image on the RIGHT. The caption's ::before tab tucks
-     10px under the image's left edge. Top-left + bottom-left corners
-     are rounded; the Primary border runs down the LEFT edge.
-
-     Caption : image width = 1 : 3 (via flex: 1 / flex: 3). Wrap 730px,
-     no flex gap → caption 182.5, image 547.5. Caption + image = 730px,
-     matching Process_Template_Below's total width (= Ideation's image width).
-     Text is top-aligned in the caption with 9px symmetric vertical padding;
-     rectangle bottom auto-follows the text (caption is not stretched to
-     image height).
-
-     Usage:
-     <div class="process-tr">
-       <div class="process-tr__caption">
-         <p class="spellcard-a__caption-title">Title</p>
-         <p class="spellcard-a__caption-body">Body text…</p>
-       </div>
-       <img class="process-tr__image" src="…" alt="…" />
-     </div>
-
-     Constraint: image height should be ≥ caption text height so the
-     rectangle's hidden right edge stays covered. With Sunderfolk text
-     and a ~2.5–3:1 aspect image, this is comfortably true.
-     ============================================================ */
+  /* Process_Template_Right — caption (left) + image (right). Default 1:3 via
+     flex: 1 / flex: 3. Wrap 730px, no gap. Caption tab: rounded LEFT corners,
+     Primary border on LEFT edge. See Template/Process_Template_Right.md. */
   .process-tr {
     display: flex;
     gap: 0;                         /* no flex gap — caption text-box abuts image directly */
@@ -384,28 +323,9 @@
     box-sizing: border-box;
   }
 
-  /* ============================================================
-     Process_Template_Left
-     Mirror of Process_Template_Right: image on the LEFT, caption
-     tab on the RIGHT. The caption's right edge has the Primary
-     border; top-right + bottom-right corners are rounded; the
-     caption's left edge sits flush against the image.
-
-     Default ratio image : caption = 2 : 1 (via flex: 2 / flex: 1).
-     Wrap 730px, no flex gap → image ≈ 486.7, caption ≈ 243.3.
-     Text top-aligned with 9px symmetric vertical padding; rectangle
-     bottom auto-follows the text (caption is not stretched to
-     image height).
-
-     Usage:
-     <div class="process-tl">
-       <img class="process-tl__image" src="…" alt="…" />
-       <div class="process-tl__caption">
-         <p class="spellcard-a__caption-title">Title</p>
-         <p class="spellcard-a__caption-body">Body…</p>
-       </div>
-     </div>
-     ============================================================ */
+  /* Process_Template_Left — image (left) + caption (right). Default 2:1 via
+     flex: 2 / flex: 1. Wrap 730px, no gap. Caption tab: rounded RIGHT corners,
+     Primary border on RIGHT edge. See Template/Process_Template_Left.md. */
   .process-tl {
     display: flex;
     gap: 0;
@@ -516,23 +436,6 @@
     font-weight:700; letter-spacing:0.22em; font-size:12px;
   }
 
-  /* Centered pause icon shown only when the video is paused */
-  .video-pause-icon {
-    position: absolute;
-    top: 50%; left: 50%;
-    transform: translate(-50%, -50%) scale(0.85);
-    width: 88px; height: 88px;
-    fill: rgba(255, 255, 255, 0.55);
-    opacity: 0;
-    transition: opacity 180ms ease, transform 180ms cubic-bezier(.2,.8,.2,1);
-    pointer-events: none;
-    filter: drop-shadow(0 2px 8px rgba(0,0,0,0.45));
-  }
-  .video-click-overlay.is-paused .video-pause-icon {
-    opacity: 1;
-    transform: translate(-50%, -50%) scale(1);
-  }
-
   /* COMBAT DESIGN section pills — quick-jump to each character slide */
   .combat-btn {
     display: inline-flex;
@@ -592,9 +495,6 @@
     box-shadow: 0 1px 0 rgba(255,255,255,0.4) inset, 0 1px 0 rgba(0,0,0,0.4);
   }
 
-
-  /* small dark divider in cream */
-  .stitch { height: 1px; width: 56px; background: #0c0c0d; margin: 24px auto; }
 
   /* anchor offset for sticky nav */
   .anchor { scroll-margin-top: 110px; }
@@ -1417,35 +1317,7 @@
 
 </main>
 
-<script src="https://player.vimeo.com/api/player.js"></script>
 <script>
-  // Vimeo videos: click anywhere on the overlay to toggle play/pause.
-  // Defined as a function so it can also run AFTER the carousel clones slides
-  // (otherwise the cloned iframes would never get a Vimeo.Player attached).
-  function initVimeoPlayers(root) {
-    root = root || document;
-    if (typeof Vimeo === 'undefined') return;
-    root.querySelectorAll('.video-click-overlay').forEach(overlay => {
-      if (overlay.dataset.vimeoBound === '1') return;          // already wired
-      const iframe = overlay.parentElement.querySelector('iframe.vimeo-player');
-      if (!iframe) return;
-      overlay.dataset.vimeoBound = '1';
-      const player = new Vimeo.Player(iframe);
-      let playing = true;
-      player.on('play',  () => { playing = true;  overlay.classList.remove('is-paused'); });
-      player.on('pause', () => { playing = false; overlay.classList.add('is-paused');    });
-      overlay.addEventListener('click', async () => {
-        try {
-          if (playing) await player.pause();
-          else         await player.play();
-        } catch (e) {
-          console.error('Vimeo player error', e);
-        }
-      });
-    });
-  }
-  initVimeoPlayers();
-
   // Mobile nav (hamburger) toggle
   (() => {
     const btn = document.getElementById('nav-mobile-trigger');
@@ -1619,9 +1491,6 @@
     lastClone.setAttribute('data-clone', 'last');
     track.insertBefore(lastClone, realSlides[0]);
     track.appendChild(firstClone);
-
-    // Wire Vimeo players for the cloned iframes (originals are already bound).
-    if (typeof initVimeoPlayers === 'function') initVimeoPlayers(track);
 
     const TRANSITION = 'transform 600ms cubic-bezier(.2,.8,.2,1)';
     let real = 0;        // current real character (0..totalReal-1)
