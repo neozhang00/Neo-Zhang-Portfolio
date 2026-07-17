@@ -462,16 +462,42 @@
 
   /* role tag (Hero/Monster pill labels) */
   .role-tag {
-    display:inline-flex; align-items:baseline; gap:8px;
-    padding: 10px 18px;
+    display:inline-flex; align-items:center; gap:14px;
+    width: 352px;                       /* standardized to the Champion button's natural width (22.5px name, 0.04em tracking) */
+    height: 64px;                       /* pinned to the pre-22.5px-name height; the taller text bleeds into the padding, not the box */
+    padding: 13px 14px;                 /* horizontal padding == gap so the arrow sits midway between the outer edge and the words */
     border: 2px solid #0c0c0d; border-radius: 10px;
-    font-weight: 700; letter-spacing: 0.18em; font-size: 12px;
+    font-weight: 700; letter-spacing: 0.12em; font-size: 12px;
     color: #0c0c0d;
+    cursor: pointer;
+    transition: transform 180ms cubic-bezier(.2,.8,.2,1), box-shadow 180ms ease;  /* same pattern as .combat-btn */
   }
-  .role-tag .small { font-size: 10px; font-weight: 600; letter-spacing: 0.16em; opacity: 0.7; font-style: italic; }
+  /* hover: whole button grows 5% and develops the banner cards' hard cream shadow */
+  .role-tag:hover,
+  .role-tag:focus-visible { transform: scale(1.05); box-shadow: 5px 5px 0 0 #EDE9E1; }
+  .role-tag:active { transform: scale(1.02); box-shadow: 2px 2px 0 0 #EDE9E1; }
+  /* pin the avatar to the inner edge (14px padding gap, same as Champion) — slack from the
+     fixed width opens between the words and the image, not at the edges */
+  .role-tag--prev .role-tag__avatar { margin-left:auto; }
+  .role-tag--next .role-tag__avatar { margin-right:auto; }
+  /* title (small) stacked above the name; the block hugs the arrow's inner edge */
+  .role-tag__text { display:inline-flex; flex-direction:column; gap:0.2px; line-height:1.15; }
+  .role-tag--prev .role-tag__text { align-items:flex-start; text-align:left; }  /* text right of the left arrow */
+  .role-tag--next .role-tag__text { align-items:flex-end; text-align:right; }   /* text left of the right arrow */
+  .role-tag__arrow { font-size:12px; line-height:1; }
+  /* name line — Arial Black like the banner titles (22.5px = 15px + 50%; tracking 0.09em = 0.12em − 25%) */
+  .role-tag__name { font-family:'Arial Black','Arial Bold',Arial,sans-serif; font-weight:900; font-size:22.5px; letter-spacing:0.04em; }
+  /* shrunk banner portrait — same top-slice crop as the banner. The in-flow wrapper only
+     reserves horizontal space; the clip window hangs off it, bottom flush with the button's
+     inner bottom edge (bottom:-13px cancels the 13px padding), poking above the button top
+     like the banner portraits. */
+  .role-tag__avatar { position:relative; align-self:stretch; flex:0 0 auto; }
+  .role-tag__avatar-clip { position:absolute; left:0; right:0; bottom:-13px; height:80px; overflow:hidden; }
+  .role-tag__avatar img { display:block; height:136px; width:auto; max-width:none; }  /* Champion's banner-derived size; Wurm/Vanguard override inline with theirs */
+  .role-tag .small { font-size: 12.5px; font-weight: 600; letter-spacing: 0.04em; opacity: 0.7; font-style: italic; }  /* base 10px + 25% */
   .role-tag.yellow  { background: #fff05a; }
-  .role-tag.pink    { background: #f3a3a8; }
-  .role-tag.purple  { background: #cdb6e6; }
+  .role-tag.pink    { background: #FF8888; }  /* Wurm brand color */
+  .role-tag.purple  { background: #B797FF; }  /* Champion brand color */
 
   /* design process boxes */
   .proc-box {
@@ -538,13 +564,19 @@
   }
   .char-slide { flex: 0 0 100%; width: 100%; min-width: 0; }
 
-  /* arrows live in a sticky rail scoped to Section_HeroBossEnemy */
+  /* Arrows live in a sticky rail scoped to Section_HeroBossEnemy.
+     margin-bottom = half the arrow height (39px) so the sticky release clamps the
+     arrow's BOTTOM edge (not its center) to the section's bottom — the arrows scroll
+     away with the carousel content instead of spilling into the next section.
+     margin-top cancels that 39px in normal flow so the carousel doesn't shift down. */
   .arrow-rail {
     position: sticky;
     top: 50vh;
     height: 0;
     z-index: 30;
     pointer-events: none;
+    margin-top: -39px;
+    margin-bottom: 39px;
   }
   .carousel-arrow {
     position: absolute; top: 0;
@@ -566,18 +598,6 @@
      Below the body min-width, this naturally pushes them past the viewport edge. */
   .carousel-arrow.prev { left: calc(50% - 535px); }
   .carousel-arrow.next { left: auto; right: calc(50% - 535px); }
-
-  .carousel-dots {
-    display: flex; justify-content: center; gap: 10px;
-    margin-top: 18px;
-  }
-  .carousel-dot {
-    width: 9px; height: 9px; border-radius: 50%;
-    background: rgba(236,230,223,0.35);
-    border: 0; cursor: pointer; padding: 0;
-    transition: background-color 180ms ease, transform 180ms ease;
-  }
-  .carousel-dot.active { background: #ece6df; transform: scale(1.25); }
 
   /* ===== Section_HeroBossEnemy — fixed/blurred RubbleMaze background ===== */
   .section-rubble-bg { position: relative; background: #15121a; }
@@ -759,7 +779,7 @@
     <div class="char-track" id="char-track">
 
     <!-- ===== VANGUARD (Hero, yellow) ===== -->
-    <div class="char-slide"><div class="container-x py-12 md:py-16" style="zoom: 1.21;">
+    <div class="char-slide"><div class="container-x pt-12 pb-6 md:pt-16 md:pb-6" style="zoom: 1.21;">
     <div id="vanguard">
       <!-- Yellow hero banner -->
       <article class="yellow-card" style="height: 117px; margin-top: -67px; overflow: visible;">
@@ -879,20 +899,51 @@
         </div>
       </div>
 
+      <!-- Implementation, Playtest & Iteration block — uses Process_Template_Below.
+           margin-top: 29px overrides the class default 45px so the visible gap to the
+           preceding "Spell Cards" block matches the 24px gap between the other steps
+           (29 + 5 caption margin - 10 ::before offset = 24 visible). -->
+      <div class="process-tb" style="margin-top: 29px;">
+        <div class="process-tb__caption">
+          <p class="spellcard-a__caption-title">Implementation, Playtest, and Iteration</p>
+          <p class="spellcard-a__caption-body">Kitbash existing assets to implement a playable prototype in-engine. Lead 3+ weekly internal playtests, turning qualitative feedback and edge-case findings into concrete design changes that iterate on the character's ability kit. Resolve design and implementation bugs as they arise, and support animation and VFX hookups.</p>
+        </div>
+        <img class="process-tb__image expandable-image"
+             src="WebsiteAssets/Sunderfolk_2025/Sunderfolk_Images/Sunderfolk_Vanguard_PlaytestFeedback_001.png"
+             alt="Vanguard playtest feedback reference" />
+      </div>
+
+      <!-- Two reference images beneath Implementation — side by side, 10px below the block,
+           10px apart, 730px total (fills the section width). Each flex-grow equals the
+           image's aspect ratio so both render at the same height with no cropping. -->
+      <div style="display: flex; gap: 10px; width: 730px; margin: 10px auto 0; align-items: flex-start;">
+        <img class="expandable-image"
+             src="WebsiteAssets/Sunderfolk_2025/Sunderfolk_Images/Sunderfolk_Vanguard_Iteration_002.jpg"
+             alt="Vanguard iteration reference"
+             style="flex: 1.5119 1 0; min-width: 0; height: auto; display: block; border: 3px solid #EDE9E1; border-radius: 6px; box-sizing: border-box;" />
+        <img class="expandable-image"
+             src="WebsiteAssets/Sunderfolk_2025/Sunderfolk_Images/Sunderfolk_Vanguard_Iteration_001.jpg"
+             alt="Vanguard iteration reference"
+             style="flex: 2.2459 1 0; min-width: 0; height: auto; display: block; border: 3px solid #EDE9E1; border-radius: 6px; box-sizing: border-box;" />
+      </div>
+
       <!-- carousel arrows -->
       <div class="flex items-center justify-between mt-14">
-        <button class="role-tag pink" data-carousel-go="2" aria-label="Previous: Wurm">
-          <span class="small">Monster</span>
-          <span>WURM</span>
-          <span class="ml-1">◀</span>
+        <button class="role-tag pink role-tag--prev" data-carousel-go="2" aria-label="Previous: Wurm">
+          <span class="role-tag__arrow">◀</span>
+          <span class="role-tag__text">
+            <span class="small">Enemy</span>
+            <span class="role-tag__name">WURM</span>
+          </span>
+          <span class="role-tag__avatar" style="width:133px;"><span class="role-tag__avatar-clip"><img src="WebsiteAssets/Sunderfolk_2025/Sunderfolk_Images/Sunderfolk_TunnelWurm_Profile_01.png" alt="" style="height:133px; margin-top:-24.5px;" /></span></span>
         </button>
-        <div class="flex gap-2 text-cream/40">
-          <span>•</span><span>•</span><span>•</span>
-        </div>
-        <button class="role-tag purple" data-carousel-go="1" aria-label="Next: Champion">
-          <span class="small">Boss</span>
-          <span>CHAMPION</span>
-          <span class="ml-1">▶</span>
+        <button class="role-tag purple role-tag--next" data-carousel-go="1" aria-label="Next: Champion">
+          <span class="role-tag__avatar" style="width:136px;"><span class="role-tag__avatar-clip"><img src="WebsiteAssets/Sunderfolk_2025/Sunderfolk_Images/Sunderfolk_Champion_Profile_02.png" alt="" /></span></span>
+          <span class="role-tag__text">
+            <span class="small">Boss</span>
+            <span class="role-tag__name">CHAMPION</span>
+          </span>
+          <span class="role-tag__arrow">▶</span>
         </button>
       </div>
     </div>
@@ -900,7 +951,7 @@
     </div></div><!-- /vanguard slide -->
 
     <!-- ===== CHAMPION (Boss, lavender) ===== -->
-    <div class="char-slide"><div class="container-x py-12 md:py-16" style="zoom: 1.21;">
+    <div class="char-slide"><div class="container-x pt-12 pb-6 md:pt-16 md:pb-6" style="zoom: 1.21;">
     <div id="champion">
       <!-- Purple Champion banner -->
       <article class="lav-card" style="height: 117px; margin-top: -67px; overflow: visible;">
@@ -995,18 +1046,21 @@
       </div>
 
       <div class="flex items-center justify-between mt-14">
-        <button class="role-tag yellow" data-carousel-go="0" aria-label="Previous: Vanguard">
-          <span class="small">Hero</span>
-          <span>VANGUARD</span>
-          <span class="ml-1">◀</span>
+        <button class="role-tag yellow role-tag--prev" data-carousel-go="0" aria-label="Previous: Vanguard">
+          <span class="role-tag__arrow">◀</span>
+          <span class="role-tag__text">
+            <span class="small">Hero</span>
+            <span class="role-tag__name">VANGUARD</span>
+          </span>
+          <span class="role-tag__avatar" style="width:132px;"><span class="role-tag__avatar-clip"><img src="WebsiteAssets/Sunderfolk_2025/Sunderfolk_Images/Sunderfolk_Vanguard_Profile_02.png" alt="" style="height:110px; margin-top:-16.5px;" /></span></span>
         </button>
-        <div class="flex gap-2 text-cream/40">
-          <span>•</span><span>•</span><span>•</span>
-        </div>
-        <button class="role-tag pink" data-carousel-go="2" aria-label="Next: Wurm">
-          <span class="small">Monster</span>
-          <span>WURM</span>
-          <span class="ml-1">▶</span>
+        <button class="role-tag pink role-tag--next" data-carousel-go="2" aria-label="Next: Wurm">
+          <span class="role-tag__avatar" style="width:133px;"><span class="role-tag__avatar-clip"><img src="WebsiteAssets/Sunderfolk_2025/Sunderfolk_Images/Sunderfolk_TunnelWurm_Profile_01.png" alt="" style="height:133px; margin-top:-24.5px;" /></span></span>
+          <span class="role-tag__text">
+            <span class="small">Enemy</span>
+            <span class="role-tag__name">WURM</span>
+          </span>
+          <span class="role-tag__arrow">▶</span>
         </button>
       </div>
     </div>
@@ -1014,7 +1068,7 @@
     </div></div><!-- /champion slide -->
 
     <!-- ===== WURM (Monster, pink) ===== -->
-    <div class="char-slide"><div class="container-x py-12 md:py-16" style="zoom: 1.21;">
+    <div class="char-slide"><div class="container-x pt-12 pb-6 md:pt-16 md:pb-6" style="zoom: 1.21;">
     <div id="wurm">
       <!-- Red Wurm banner -->
       <article class="wurm-card" style="height: 117px; margin-top: -67px; overflow: visible;">
@@ -1052,18 +1106,21 @@
       </div>
 
       <div class="flex items-center justify-between mt-14">
-        <button class="role-tag purple" data-carousel-go="1" aria-label="Previous: Champion">
-          <span class="small">Boss</span>
-          <span>CHAMPION</span>
-          <span class="ml-1">◀</span>
+        <button class="role-tag purple role-tag--prev" data-carousel-go="1" aria-label="Previous: Champion">
+          <span class="role-tag__arrow">◀</span>
+          <span class="role-tag__text">
+            <span class="small">Boss</span>
+            <span class="role-tag__name">CHAMPION</span>
+          </span>
+          <span class="role-tag__avatar" style="width:136px;"><span class="role-tag__avatar-clip"><img src="WebsiteAssets/Sunderfolk_2025/Sunderfolk_Images/Sunderfolk_Champion_Profile_02.png" alt="" /></span></span>
         </button>
-        <div class="flex gap-2 text-cream/40">
-          <span>•</span><span>•</span><span>•</span>
-        </div>
-        <button class="role-tag yellow" data-carousel-go="0" aria-label="Next: Vanguard">
-          <span class="small">Hero</span>
-          <span>VANGUARD</span>
-          <span class="ml-1">▶</span>
+        <button class="role-tag yellow role-tag--next" data-carousel-go="0" aria-label="Next: Vanguard">
+          <span class="role-tag__avatar" style="width:132px;"><span class="role-tag__avatar-clip"><img src="WebsiteAssets/Sunderfolk_2025/Sunderfolk_Images/Sunderfolk_Vanguard_Profile_02.png" alt="" style="height:110px; margin-top:-16.5px;" /></span></span>
+          <span class="role-tag__text">
+            <span class="small">Hero</span>
+            <span class="role-tag__name">VANGUARD</span>
+          </span>
+          <span class="role-tag__arrow">▶</span>
         </button>
       </div>
     </div>
@@ -1072,11 +1129,6 @@
     </div><!-- /char-track -->
     </div><!-- /char-viewport -->
 
-    <div class="carousel-dots" id="char-dots">
-      <button class="carousel-dot active" data-carousel-go="0" aria-label="Go to Vanguard"></button>
-      <button class="carousel-dot" data-carousel-go="1" aria-label="Go to Champion"></button>
-      <button class="carousel-dot" data-carousel-go="2" aria-label="Go to Wurm"></button>
-    </div>
   </div><!-- /char-carousel -->
 </section>
 
@@ -1477,7 +1529,6 @@
   // Character carousel (Vanguard / Champion / Wurm) with directional infinite loop
   (() => {
     const track = document.getElementById('char-track');
-    const dots  = document.querySelectorAll('#char-dots .carousel-dot');
     if (!track) return;
 
     const realSlides = Array.from(track.querySelectorAll('.char-slide'));
@@ -1501,31 +1552,24 @@
       track.style.transform  = `translateX(-${v * 100}%)`;
       virtual = v;
     }
-    function updateDots() {
-      dots.forEach((d, i) => d.classList.toggle('active', i === real));
-    }
-
     let busy = false;
     function next() {
       if (busy) return; busy = true;
       const target = real === totalReal - 1 ? totalReal + 1 : virtual + 1; // last clone, else next real
       setVirtual(target, true);
       real = (real + 1) % totalReal;
-      updateDots();
     }
     function prev() {
       if (busy) return; busy = true;
       const target = real === 0 ? 0 : virtual - 1; // first clone (before start), else prev real
       setVirtual(target, true);
       real = (real - 1 + totalReal) % totalReal;
-      updateDots();
     }
     function jumpTo(targetReal) {
       if (busy || targetReal === real) return;
       busy = true;
       setVirtual(targetReal + 1, true);
       real = targetReal;
-      updateDots();
     }
 
     track.addEventListener('transitionend', () => {
@@ -1537,7 +1581,6 @@
 
     // Initial position (no animation)
     setVirtual(1, false);
-    updateDots();
 
     document.querySelectorAll('[data-carousel-prev]').forEach(b => b.addEventListener('click', prev));
     document.querySelectorAll('[data-carousel-next]').forEach(b => b.addEventListener('click', next));
