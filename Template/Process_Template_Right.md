@@ -56,7 +56,7 @@ The `expandable-image` class (optional) opens the image in the fullscreen lightb
 | Caption tab background | `.process-tr__caption::before` | Secondary `#324158` @ 80% opacity. `top: 0; bottom: 0; left: 0; right: 0;` (matches caption block exactly — ends at image's left edge). `border-radius: 6px 0 0 6px` (both LEFT corners). `border-left: 3px solid #EDE9E1` (Primary). `z-index: -1`. |
 | Image | `.process-tr__image` | `flex: 3 1 0` (3 parts of 4). `min-width: 0`. `height: auto` (preserves aspect). `align-self: flex-start`. 3px `#EDE9E1` border, 6px radius. |
 
-Reuses `.spellcard-a__caption-title` and `.spellcard-a__caption-body` for typography (cream, 14px underlined title; cream/85%, 12.5px line-height 1.625 left-aligned body).
+Reuses `.spellcard-a__caption-title` and `.spellcard-a__caption-body` for typography — quoted at **scale 1**: cream 16px underlined title; cream/85% 14px, weight 400 (not bold), line-height 1.625, left-aligned body. (Inside the `zoom: 1.21` carousel slides the CSS uses the ÷1.21 values, 13.22px / 11.5px.)
 
 ---
 

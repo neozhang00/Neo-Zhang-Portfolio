@@ -58,7 +58,7 @@ The caption tab's `::before` actually extends 10px *beneath* the visible image-t
 | Caption tab background | `.process-tb__caption::before` | Secondary `#324158` @ 80% opacity. `top: -10px` (visible top, 10px above text). `bottom: -20px` (extends through 10px flex gap + 10px under image). `border-radius: 6px 6px 0 0` (both top corners). `border-top: 3px solid #EDE9E1` (Primary). `z-index: -1`. |
 | Image | `.process-tb__image` | `width: 100%; height: auto; display: block;` — scales to wrap width, preserves aspect. 3px `#EDE9E1` border, 6px radius. |
 
-Reuses `.spellcard-a__caption-title` and `.spellcard-a__caption-body` for typography (cream, 14px underlined title; cream/85%, 12.5px, line-height 1.625, left-aligned body) — same Inter sans across both templates.
+Reuses `.spellcard-a__caption-title` and `.spellcard-a__caption-body` for typography — quoted at **scale 1**: cream 16px underlined title; cream/85% 14px, weight 400 (not bold), line-height 1.625, left-aligned body — same Inter sans across both templates. (Inside the `zoom: 1.21` carousel slides the CSS uses the ÷1.21 values, 13.22px / 11.5px, to render at these sizes.)
 
 ---
 

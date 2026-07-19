@@ -56,7 +56,7 @@ The `expandable-image` class (optional) opens the image in the fullscreen lightb
 | Caption block | `.process-tl__caption` | `flex: 1 1 0` (1 part of 3). `min-width: 0`. Padding `9px 10px` (9 top/bottom symmetric, 10 left/right). Flex-column with `justify-content: flex-start` so text anchors to the top. |
 | Caption tab background | `.process-tl__caption::before` | Secondary `#324158` @ 80% opacity. `top: 0; bottom: 0; left: 0; right: 0;` (matches caption block exactly — starts at image's right edge). `border-radius: 0 6px 6px 0` (both RIGHT corners). `border-right: 3px solid #EDE9E1` (Primary). `z-index: -1`. |
 
-Reuses `.spellcard-a__caption-title` and `.spellcard-a__caption-body` for typography.
+Reuses `.spellcard-a__caption-title` and `.spellcard-a__caption-body` for typography (scale 1: 16px underlined title; 14px, not bold, body — see `SpellCard_Template_A.md`).
 
 ---
 

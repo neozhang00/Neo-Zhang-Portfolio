@@ -1,4 +1,4 @@
-Brand and Title Font: Arial Black
+Brand and Title Font: Tungsten Black
 Regular Text Font: Arial
 
 Color Palatte

@@ -51,10 +51,12 @@ x:  0          152              576  585           730
 | Image | `.spellcard-a__image` | (0, 0) | 168 × 271 | `border-radius: 10px;` `z-index: 5` so it overlaps the video on the left by 16px. |
 | Video frame | `.spellcard-a__video` | (152, 17) | 424 × 238 | 3px `#EDE9E1` border, `border-radius: 6px`, black bg. The image overlaps its left edge. |
 | Caption block | `.spellcard-a__caption` | (585, 32) | 136 wide | 9px right of video's right edge. Has a `::before` "tab" background — Secondary `#324158` @ 80% opacity, **height auto-scales with text** (10px symmetric padding above/below, 9px symmetric padding left/right), flat left edge hidden behind the video, top-right + bottom-right corners rounded 6px, and a 3px Primary `#EDE9E1` border on the **right** edge. |
-| Caption title | `.spellcard-a__caption-title` | inside caption | — | `#ece6df`, weight 700, 14px, underlined (offset 4px). |
-| Caption body | `.spellcard-a__caption-body` | inside caption | — | `rgba(236,230,223,0.85)`, weight 600, 12.5px, line-height 1.625, **left-aligned**, 8px above-margin. |
+| Caption title | `.spellcard-a__caption-title` | inside caption | — | `#ece6df`, weight 700, **16px**, underlined (offset 4px). |
+| Caption body | `.spellcard-a__caption-body` | inside caption | — | `rgba(236,230,223,0.85)`, **weight 400 (not bold)**, **14px** (shared with the Process templates), line-height 1.625, **left-aligned**, 8px above-margin. |
 
 All numbers above are exact (defined in the `.spellcard-a*` CSS rules). Don't override them per-instance — extend the template if a new size is needed.
+
+**Type sizes are quoted at scale 1** — title **16px**, body **14px (not bold)**. The live Combat/character carousel slides sit inside a `zoom: 1.21` container, so the CSS there carries the ÷1.21 equivalents (`caption-title` 13.22px, `caption-body`/`caption-list` 11.5px) so they render at these scale-1 sizes. In an un-zoomed context (e.g. the Encounter section's Tavern block) use the literal 16px / 14px.
 
 ---
 

@@ -30,6 +30,14 @@
   };
 </script>
 <style>
+  /* Tungsten (licensed, brand_assets) — used for character-nav button names */
+  @font-face {
+    font-family: 'Tungsten';
+    font-weight: 700;
+    font-display: swap;
+    src: url('brand_assets/Font/Tungsten-Font/WOFF2/Tungsten-Bold.woff2') format('woff2');
+  }
+
   html { scroll-behavior: smooth; }
   body { font-family: 'Inter', system-ui, sans-serif; color: #0c0c0d; background: #ece6df; -webkit-font-smoothing: antialiased; min-width: 1000px; }
 
@@ -62,6 +70,45 @@
   }
   .nav-pill:hover { background: #EDE9E1; border-color: #3a3a3a; color: #000000; transform: translateY(-1px); }
   .nav-pill:active { transform: translateY(0); }
+
+  /* bottom "jump to" menu — a container-style box docked flush to the window's bottom edge.
+     Hidden at the top of the page; emerges upward as the hero banner scrolls away (JS-driven). */
+  .jump-menu {
+    position: fixed; left: 0; right: 0; bottom: 0; z-index: 60;
+    transform: translateY(100%);                        /* hidden below the viewport; JS overrides on scroll */
+    display: flex; align-items: center; justify-content: center; gap: 12px;
+    padding: 13px 24px 16px;
+    background: #EDE9E1;
+    border-top: 2.5px solid #0c0c0d;                    /* full-width bar, edge to edge; top divider line */
+    box-shadow: 0 -8px 26px rgba(12,12,13,0.22);
+    will-change: transform;
+  }
+  .jump-menu__label {
+    font-family: 'Tungsten','Arial Black','Arial Bold',Arial,sans-serif; font-weight: 700;
+    letter-spacing: 0.05em; font-size: 22px; line-height: 1; color: #324158;
+    padding-right: 4px; white-space: nowrap;
+  }
+  .jump-menu a {
+    display: inline-flex; align-items: center; justify-content: center;
+    height: 32px; padding: 0 16px;
+    border: 2px solid #0c0c0d; border-radius: 8px;
+    background: #ffffff; color: #324158;
+    font-family: Arial, 'Helvetica Neue', Helvetica, sans-serif; font-weight: 700;
+    letter-spacing: 0.14em; font-size: 11px; white-space: nowrap;
+    box-shadow: 3px 3px 0 0 #0c0c0d;
+    transition: background-color 180ms ease, color 180ms ease, transform 180ms cubic-bezier(.2,.8,.2,1), box-shadow 180ms ease;
+  }
+  .jump-menu a:hover, .jump-menu a:focus-visible {
+    background: #324158; color: #EDE9E1; transform: translateY(-2px); box-shadow: 4px 5px 0 0 #0c0c0d;
+  }
+  .jump-menu a:active { transform: translateY(0); box-shadow: 2px 2px 0 0 #0c0c0d; }
+  /* the link for the section currently in view — filled in with the secondary color */
+  .jump-menu a.is-current { background: #324158; color: #EDE9E1; }
+  @media (max-width: 640px) {
+    .jump-menu { gap: 8px; padding: 10px 14px 12px; }
+    .jump-menu__label { display: none; }
+    .jump-menu a { padding: 0 10px; letter-spacing: 0.08em; }
+  }
 
   /* Hamburger menu — shown when viewport is at or below the body's min-width */
   .nav-mobile-trigger {
@@ -122,16 +169,16 @@
   .pill {
     display: inline-flex; align-items: center; justify-content: center;
     height: 42px; padding: 0 26px;
-    border: 2px solid #324158;
+    border: 2px solid #0c0c0d;
     border-radius: 8px;
     color: #324158; background: #ffffff;
     font-family: Arial, 'Helvetica Neue', Helvetica, sans-serif; font-weight: 700;
     letter-spacing: 0.18em; font-size: 12px;
-    /* shadow cast at 135° (down-right), same color as border */
-    box-shadow: 5px 5px 0 0 #324158;
+    /* shadow cast at 135° (down-right), black */
+    box-shadow: 5px 5px 0 0 #0c0c0d;
     transition: background-color 180ms ease, color 180ms ease, border-color 180ms ease, transform 180ms cubic-bezier(.2,.8,.2,1);
   }
-  .pill:hover { background: #324158; border-color: #3a3a3a; color: #EDE9E1; transform: translateY(-1px); }
+  .pill:hover { background: #324158; border-color: #0c0c0d; color: #EDE9E1; transform: translateY(-1px); }
   .pill:active { transform: translateY(0); }
 
   /* card framed in Secondary Color, white inner */
@@ -199,15 +246,15 @@
   .spellcard-a__caption-title {
     font-weight: 700;
     color: #ece6df;
-    font-size: 14px;
+    font-size: 13.22px;                 /* 16 ÷ 1.21 zoom → renders at 16px inside the slides */
     text-decoration: underline;
     text-underline-offset: 4px;
   }
   .spellcard-a__caption-body {
     margin-top: 8px;
     color: rgba(236, 230, 223, 0.85);
-    font-size: 12.5px;
-    font-weight: 600;
+    font-size: 11.5px;                  /* 14 ÷ 1.21 zoom → renders at 14px inside the slides */
+    font-weight: 400;                   /* body text is not bold */
     line-height: 1.625;
     text-align: left;
   }
@@ -216,8 +263,8 @@
     margin: 8px 0 0 0;
     padding-left: 16px;
     color: rgba(236, 230, 223, 0.85);
-    font-size: 12.5px;
-    font-weight: 600;
+    font-size: 11.5px;                  /* matches caption-body → renders 14px in the zoomed slides */
+    font-weight: 400;
     line-height: 1.625;
     text-align: left;
     list-style-type: disc;
@@ -259,6 +306,62 @@
     border: 3px solid #EDE9E1;  /* Primary color border, matches video frames */
     border-radius: 6px;
   }
+
+  /* Encounter_Template_A — a Process_Template_Below variant: title tab (top), image, then a
+     caption tab (bottom). The caption box's bottom edge mirrors the title box's top-edge tab
+     treatment (Primary border, rounded corners, Secondary fill tucking under the image).
+     Typography reuses .spellcard-a__caption-title / -body. See Template/Encounter_Template_A.md. */
+  .encounter-a {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    width: 730px;
+    margin: 8px auto 0;
+    isolation: isolate;
+  }
+  .encounter-a__title,
+  .encounter-a__caption { position: relative; padding: 0 9px; }
+  .encounter-a__title { margin-top: 5px; }      /* lowers the title tab 5px (matches template) */
+  .encounter-a__caption { margin-bottom: 5px; } /* mirror: raises the caption tab 5px */
+  .encounter-a__title::before,
+  .encounter-a__caption::before {
+    content: '';
+    position: absolute;
+    left: 0; right: 0;
+    background: rgba(50, 65, 88, 0.8);   /* Secondary #324158 @ 80% */
+    z-index: -1;
+  }
+  /* title tab: visible top edge, tucks 10px under the image top */
+  .encounter-a__title::before {
+    top: -10px; bottom: -20px;
+    border-radius: 6px 6px 0 0;
+    border-top: 3px solid #EDE9E1;
+  }
+  /* caption tab: mirrored — visible bottom edge, tucks 10px under the image bottom */
+  .encounter-a__caption::before {
+    top: -20px; bottom: -10px;
+    border-radius: 0 0 6px 6px;
+    border-bottom: 3px solid #EDE9E1;
+  }
+  .encounter-a__image {
+    width: 100%;
+    aspect-ratio: 3 / 1.9;      /* 3:2 with height trimmed 5%; crops via object-fit to keep card sizes uniform */
+    object-fit: cover;
+    object-position: center;
+    display: block;
+    border: 3px solid #EDE9E1;
+    border-radius: 6px;
+  }
+
+  /* Encounter Design Process is un-zoomed (scale 1); bump the shared caption classes here to their
+     literal 16/14px (the classes carry ÷1.21 values tuned for the zoomed carousel slides). */
+  .enc-process .spellcard-a__caption-title { font-size: 16px; }
+  .enc-process .spellcard-a__caption-body,
+  .enc-process .spellcard-a__caption-list { font-size: 14px; }
+  /* no carousel arrows here, so the divider + process blocks span the full card width
+     (35px insets, matching the four encounter cards) instead of the fixed Combat width */
+  .enc-process .process-tl,
+  .enc-process .process-tb { width: auto; margin-left: 35px; margin-right: 35px; }
 
   /* Fighting Spirit caption "tab" — same inner gaps as spellcard caption
      (9px left, 0 right, 10px top, 10px bottom), mirrored geometry: visible
@@ -382,38 +485,16 @@
   .lav-card    { background: #B797FF; }
   .wurm-card   { background: #FF8888; }
 
-  /* portrait clip — top extends above border (no clip top), bottom touches inside of border */
+  /* portrait clip — top extends above border (no clip top), bottom touches inside of border.
+     z-index sits above the title/name block (z-2) but below the description (z-6). */
   .portrait-clip {
     position: absolute;
     inset: 0;
     overflow: visible;
     clip-path: inset(-9999px 0 0 0);
     pointer-events: none;
+    z-index: 3;
   }
-
-  /* dark stat card (passive abilities) */
-  .stat-card {
-    background: #1a1820;
-    border: 1.5px solid #efe9df;
-    border-radius: 10px;
-    color: #efe9df;
-    padding: 16px 20px;
-    line-height: 1.55;
-    font-size: 14px;
-    box-shadow: 0 0 0 4px rgba(255,255,255,0.03), 0 16px 36px -22px rgba(0,0,0,0.85);
-  }
-  .kw { font-weight: 700; }
-  .kw.attack    { color: #f0985e; }
-  .kw.grit      { color: #e1b045; }
-  .kw.exposed   { color: #f6c563; }
-  .kw.shield    { color: #7ec0f0; }
-  .kw.execute   { color: #e95f5f; }
-  .kw.deal      { color: #f08a5e; }
-  .kw.gain      { color: #d8c45a; }
-  .kw.move      { color: #6ec0e8; }
-  .kw.knockback { color: #8ed688; }
-  .kw.subdivide { color: #efe9df; }
-  .kw.title     { color: #efe9df; }
 
   /* image/video frame: thin light border, rounded — inspiration style */
   .frame {
@@ -451,19 +532,25 @@
     font-size: 12px;
     color: #0c0c0d;
     cursor: pointer;
-    transition: transform 180ms cubic-bezier(.2,.8,.2,1), box-shadow 180ms ease;
+    transition: transform 180ms cubic-bezier(.2,.8,.2,1), box-shadow 180ms ease, background-color 300ms ease, color 300ms ease;
     box-shadow: 3px 3px 0 0 #0c0c0d;
+    background: #5c5c5c;                /* medium-dark grey while the slide is inactive */
+    color: #EDE9E1;                     /* Main color text while inactive */
   }
-  .combat-btn:hover { transform: translateY(-1px); box-shadow: 4px 4px 0 0 #0c0c0d; }
-  .combat-btn:active { transform: translateY(0); box-shadow: 2px 2px 0 0 #0c0c0d; }
-  .combat-btn-hero  { background: #FFEF90; }
-  .combat-btn-boss  { background: #B797FF; }
-  .combat-btn-enemy { background: #FF8888; }
+  /* same hover treatment as the bottom character buttons */
+  .combat-btn:hover,
+  .combat-btn:focus-visible { transform: scale(1.05); box-shadow: 5px 5px 0 0 #EDE9E1; }
+  .combat-btn:active { transform: scale(1.02); box-shadow: 2px 2px 0 0 #EDE9E1; }
+  /* the active slide's pill — and any hovered pill — dissolves to its assigned color with ink text */
+  .combat-btn.is-active, .combat-btn:hover, .combat-btn:focus-visible { color: #0c0c0d; }
+  .combat-btn-hero.is-active,  .combat-btn-hero:hover,  .combat-btn-hero:focus-visible  { background: #FFEF90; }
+  .combat-btn-boss.is-active,  .combat-btn-boss:hover,  .combat-btn-boss:focus-visible  { background: #B797FF; }
+  .combat-btn-enemy.is-active, .combat-btn-enemy:hover, .combat-btn-enemy:focus-visible { background: #FF8888; }
 
   /* role tag (Hero/Monster pill labels) */
   .role-tag {
     display:inline-flex; align-items:center; gap:14px;
-    width: 352px;                       /* standardized to the Champion button's natural width (22.5px name, 0.04em tracking) */
+    width: 352px;                       /* standardized button width; fits the widest content (TUNNEL WURM at 322px natural) */
     height: 64px;                       /* pinned to the pre-22.5px-name height; the taller text bleeds into the padding, not the box */
     padding: 13px 14px;                 /* horizontal padding == gap so the arrow sits midway between the outer edge and the words */
     border: 2px solid #0c0c0d; border-radius: 10px;
@@ -481,12 +568,13 @@
   .role-tag--prev .role-tag__avatar { margin-left:auto; }
   .role-tag--next .role-tag__avatar { margin-right:auto; }
   /* title (small) stacked above the name; the block hugs the arrow's inner edge */
-  .role-tag__text { display:inline-flex; flex-direction:column; gap:0.2px; line-height:1.15; }
+  .role-tag__text { display:inline-flex; flex-direction:column; gap:0; line-height:1.15; }
   .role-tag--prev .role-tag__text { align-items:flex-start; text-align:left; }  /* text right of the left arrow */
   .role-tag--next .role-tag__text { align-items:flex-end; text-align:right; }   /* text left of the right arrow */
-  .role-tag__arrow { font-size:12px; line-height:1; }
-  /* name line — Arial Black like the banner titles (22.5px = 15px + 50%; tracking 0.09em = 0.12em − 25%) */
-  .role-tag__name { font-family:'Arial Black','Arial Bold',Arial,sans-serif; font-weight:900; font-size:22.5px; letter-spacing:0.04em; }
+  .role-tag__arrow { font-size:12px; line-height:1; transform:scaleY(2.5); }  /* stretch the triangle vertically */
+  /* name line — Tungsten Bold. line-height:1 + negative top margin swallow the font's
+     built-in leading so the caps sit 2px below the title line. */
+  .role-tag__name { font-family:'Tungsten','Arial Black','Arial Bold',Arial,sans-serif; font-weight:700; font-size:32.5px; letter-spacing:0.04em; white-space:nowrap; line-height:1; margin-top:-4px; }
   /* shrunk banner portrait — same top-slice crop as the banner. The in-flow wrapper only
      reserves horizontal space; the clip window hangs off it, bottom flush with the button's
      inner bottom edge (bottom:-13px cancels the 13px padding), poking above the button top
@@ -495,7 +583,7 @@
   .role-tag__avatar-clip { position:absolute; left:0; right:0; bottom:-13px; height:80px; overflow:hidden; }
   .role-tag__avatar img { display:block; height:136px; width:auto; max-width:none; }  /* Champion's banner-derived size; Wurm/Vanguard override inline with theirs */
   .role-tag .small { font-size: 12.5px; font-weight: 600; letter-spacing: 0.04em; opacity: 0.7; font-style: italic; }  /* base 10px + 25% */
-  .role-tag.yellow  { background: #fff05a; }
+  .role-tag.yellow  { background: #FFEF90; }  /* Vanguard brand color */
   .role-tag.pink    { background: #FF8888; }  /* Wurm brand color */
   .role-tag.purple  { background: #B797FF; }  /* Champion brand color */
 
@@ -523,7 +611,7 @@
 
 
   /* anchor offset for sticky nav */
-  .anchor { scroll-margin-top: 110px; }
+  .anchor { scroll-margin-top: 90.5px; }  /* land section top at the header's bottom-LEFT corner (clip-path 0 90.5px) */
 
   /* utility */
   .container-x { max-width: 1180px; margin-inline: auto; padding-inline: 24px; }
@@ -531,12 +619,39 @@
   /* responsibilities list */
   .resp-list li { margin-bottom: 10px; line-height: 1.3; }
 
-  /* spell card image styles */
-  .spellcard-img {
-    border: 2px solid #0c0c0d; border-radius: 10px;
-    box-shadow: 0 12px 28px -16px rgba(0,0,0,0.7);
-    overflow: hidden;
+  /* press-kit slideshow (What Is Sunderfolk block) */
+  .slideshow { min-width: 0; }
+  .slideshow__stage {
+    border: 3px solid #324158; border-radius: 8px; overflow: hidden;
+    background: #0c0c0d; aspect-ratio: 16 / 9;
   }
+  .slideshow__main { display: block; width: 100%; height: 100%; object-fit: contain; }
+  .slideshow__thumbs { display: flex; gap: 10px; margin-top: 12px; }
+  .slideshow__thumb {
+    position: relative; flex: 1 1 0; min-width: 0; padding: 0; background: none;
+    cursor: pointer; border: 0; border-radius: 6px;
+    opacity: 0.6;
+    transition: opacity 250ms ease, transform 250ms cubic-bezier(.2,.8,.2,1);
+  }
+  .slideshow__thumb img { display: block; width: 100%; height: 100%; object-fit: cover; aspect-ratio: 16 / 9; border-radius: 6px; }
+  .slideshow__thumb.is-active { opacity: 1; }
+  /* selected marker: 2px secondary lines above AND below the thumbnail (replaces the border) */
+  .slideshow__thumb.is-active::before,
+  .slideshow__thumb.is-active::after {
+    content: ''; position: absolute; left: 0; right: 0; height: 2px; background: #324158;
+    transition: transform 250ms cubic-bezier(.2,.8,.2,1);
+  }
+  .slideshow__thumb.is-active::before { top: -5px; }
+  .slideshow__thumb.is-active::after  { bottom: -5px; }
+  /* on hover the thumb scales 1.1; counter the vertical scale so the lines stay 2px thick
+     (width/position still follow the thumb, only thickness is pinned) */
+  .slideshow__thumb.is-active:hover::before,
+  .slideshow__thumb.is-active:hover::after,
+  .slideshow__thumb.is-active:focus-visible::before,
+  .slideshow__thumb.is-active:focus-visible::after { transform: scaleY(0.909); }
+  /* hover: pop to full opacity and enlarge 10% (active thumb is already at 100%) */
+  .slideshow__thumb:hover,
+  .slideshow__thumb:focus-visible { opacity: 1; transform: scale(1.1); z-index: 2; }
 
   /* focus ring */
   a:focus-visible, button:focus-visible { outline: 3px solid #b97a3a; outline-offset: 3px; border-radius: 4px; }
@@ -556,27 +671,40 @@
     /* arrows live outside the widest content (anchored to page center via calc), so no gutter needed */
     padding: 0;
   }
-  .char-viewport { position: relative; width: 100%; overflow-x: clip; clip-path: inset(-9999px 0 0 0); }
+  /* JS sets an explicit height = the active slide's height (dynamic per character);
+     the height animates alongside the slide transition. */
+  .char-viewport {
+    position: relative; width: 100%; overflow-x: clip; clip-path: inset(-9999px 0 0 0);
+    transition: height 600ms cubic-bezier(.2,.8,.2,1);
+  }
   .char-track {
     display: flex;
+    align-items: flex-start;    /* each slide keeps its natural height (no stretch to tallest) */
     transition: transform 600ms cubic-bezier(.2,.8,.2,1);
     will-change: transform;
   }
   .char-slide { flex: 0 0 100%; width: 100%; min-width: 0; }
 
-  /* Arrows live in a sticky rail scoped to Section_HeroBossEnemy.
-     margin-bottom = half the arrow height (39px) so the sticky release clamps the
-     arrow's BOTTOM edge (not its center) to the section's bottom — the arrows scroll
-     away with the carousel content instead of spilling into the next section.
-     margin-top cancels that 39px in normal flow so the carousel doesn't shift down. */
+  /* Arrows live in a sticky rail scoped to Section_HeroBossEnemy. The rail is confined
+     to an absolutely-positioned span (out of flow, so layout is untouched):
+     - top: 225px  = the rail's natural flow spot (arrow top sits 186px below the
+       section top — the reference gap).
+     - bottom: 331px = clamps the release so the arrow's bottom edge stops 186px above
+       the WURM/CHAMPION button row (3514px) — same gap as at the top.
+     Re-measure both if content above/below the carousel changes height. */
+  .arrow-rail-span {
+    position: absolute;
+    left: 0; right: 0;
+    top: 225px;
+    bottom: 331px;
+    z-index: 30;
+    pointer-events: none;
+  }
   .arrow-rail {
     position: sticky;
     top: 50vh;
     height: 0;
-    z-index: 30;
     pointer-events: none;
-    margin-top: -39px;
-    margin-bottom: 39px;
   }
   .carousel-arrow {
     position: absolute; top: 0;
@@ -607,7 +735,7 @@
     /* extend well past section bounds so blur halo lands outside the visible area */
     inset: -40px;
     background-color: #0c0c0d; /* dark backstop in case blur fades to transparent */
-    background-image: url('WebsiteAssets/Sunderfolk_2025/Sunderfolk_Images/Sunderfolk_RubbleMaze_Screenshot.jpg');
+    background-image: var(--rubble-img, url('WebsiteAssets/Sunderfolk_2025/Sunderfolk_Images/Sunderfolk_RubbleMaze_Screenshot.jpg'));
     background-size: cover;
     background-position: center;
     background-attachment: fixed;
@@ -615,7 +743,7 @@
     z-index: 0;
     pointer-events: none;
   }
-  .section-rubble-bg > *:not(.carousel-arrow):not(.arrow-rail) { position: relative; z-index: 1; }
+  .section-rubble-bg > *:not(.carousel-arrow):not(.arrow-rail):not(.arrow-rail-span) { position: relative; z-index: 1; }
 
   /* ===== Expandable image + lightbox ===== */
   .expandable-image { cursor: zoom-in; }
@@ -724,7 +852,7 @@
 <section id="feature" class="hero-cine">
   <div class="hero-cine-bg" aria-hidden="true"></div>
   <div class="relative h-full w-full flex flex-col items-center justify-center text-cream text-center px-6">
-    <h1 class="h-display text-cream leading-none drop-shadow-[0_4px_20px_rgba(0,0,0,0.6)]" style="font-size: clamp(48px, 6.1vw, 88px);">Sunderfolk</h1>
+    <h1 class="h-display text-cream leading-none drop-shadow-[0_4px_20px_rgba(0,0,0,0.6)]" style="font-size: clamp(70px, 8.75vw, 130px); font-family:'Tungsten','Arial Black','Arial Bold',Arial,sans-serif; font-weight:700; letter-spacing:0.02em; text-transform:uppercase;">Sunderfolk</h1>
     <div class="mt-3 flex justify-center items-center" style="gap: clamp(28px, 3.2vw, 48px);">
       <img src="WebsiteAssets/Sunderfolk_2025/Sunderfolk_Images/Sunderfolk_NYXAward_PCGameFamily.png" alt="NYX Award — PC Game Family" class="object-contain drop-shadow-[0_4px_16px_rgba(0,0,0,0.5)]" style="height: clamp(72px, 7.6vw, 110px);" />
       <img src="WebsiteAssets/Sunderfolk_2025/Sunderfolk_Images/Sunderfolk_NYXAward_BestInnovation.png" alt="NYX Award — Best Innovation" class="object-contain drop-shadow-[0_4px_16px_rgba(0,0,0,0.5)]" style="height: clamp(72px, 7.6vw, 110px);" />
@@ -733,23 +861,72 @@
 </section>
 
 <!-- ============================ Section_Summary ============================ -->
-<section class="bg-paper border-y-[5px] border-[#324158]">
-  <div class="container-x pt-[20px] pb-16 md:pb-20" style="zoom: 1.1;">
-    <div class="flex flex-wrap items-center justify-center gap-5 md:gap-7">
-      <a href="#" class="pill">OFFICIAL SITE</a>
-      <a href="#" class="pill">STEAM PAGE</a>
-      <a href="#" class="pill">FEATURED ARTICLE</a>
-    </div>
+<section id="summary" class="anchor bg-paper border-y-[5px] border-[#324158]">
+  <div class="container-x pt-[46px] pb-16 md:pb-20" style="zoom: 1.1;">
+    <!-- What Is Sunderfolk: blurb (top) + press-kit slideshow (below) -->
+    <div class="relative flex flex-col gap-6">
 
-    <article class="bordercard mt-10">
-      <h2 class="text-[29px] md:text-[34px] leading-none" style="font-family:'Arial Black','Arial Bold',Arial,sans-serif; font-weight:900;">Sunderfolk + DLC (2023 - 2025)</h2>
+      <!-- external links: float over the top-right corner of the What-Is card -->
+      <div class="flex flex-wrap gap-3 md:gap-4" style="position: absolute; top: -21px; right: 20px; z-index: 5;">
+        <a href="#" class="pill">OFFICIAL SITE</a>
+        <a href="#" class="pill">STEAM PAGE</a>
+        <a href="#" class="pill">FEATURED ARTICLE</a>
+      </div>
+
+      <!-- press-kit slideshow -->
+      <div class="slideshow" id="sunder-slideshow" style="order: 2; width: 85%; align-self: center;">
+        <div class="slideshow__stage">
+          <img class="slideshow__main" id="sunder-slideshow-main"
+               src="WebsiteAssets/Sunderfolk_2025/Sunderfolk_Images/What_Is_Sunderfolk/Sunderfolk_PressKit_001.png"
+               alt="Sunderfolk press kit preview" />
+        </div>
+        <div class="slideshow__thumbs">
+          <button type="button" class="slideshow__thumb is-active" data-src="WebsiteAssets/Sunderfolk_2025/Sunderfolk_Images/What_Is_Sunderfolk/Sunderfolk_PressKit_001.png" aria-label="Show press kit image 1"><img src="WebsiteAssets/Sunderfolk_2025/Sunderfolk_Images/What_Is_Sunderfolk/Sunderfolk_PressKit_001.png" alt="" /></button>
+          <button type="button" class="slideshow__thumb" data-src="WebsiteAssets/Sunderfolk_2025/Sunderfolk_Images/What_Is_Sunderfolk/Sunderfolk_PressKit_003.jpg" aria-label="Show press kit image 3"><img src="WebsiteAssets/Sunderfolk_2025/Sunderfolk_Images/What_Is_Sunderfolk/Sunderfolk_PressKit_003.jpg" alt="" /></button>
+          <button type="button" class="slideshow__thumb" data-src="WebsiteAssets/Sunderfolk_2025/Sunderfolk_Images/What_Is_Sunderfolk/Sunderfolk_PressKit_002.png" aria-label="Show press kit image 2"><img src="WebsiteAssets/Sunderfolk_2025/Sunderfolk_Images/What_Is_Sunderfolk/Sunderfolk_PressKit_002.png" alt="" /></button>
+          <button type="button" class="slideshow__thumb" data-src="WebsiteAssets/Sunderfolk_2025/Sunderfolk_Images/What_Is_Sunderfolk/Sunderfolk_PressKit_004.png" aria-label="Show press kit image 4"><img src="WebsiteAssets/Sunderfolk_2025/Sunderfolk_Images/What_Is_Sunderfolk/Sunderfolk_PressKit_004.png" alt="" /></button>
+          <button type="button" class="slideshow__thumb" data-src="WebsiteAssets/Sunderfolk_2025/Sunderfolk_Images/What_Is_Sunderfolk/Sunderfolk_PressKit_005.png" aria-label="Show press kit image 5"><img src="WebsiteAssets/Sunderfolk_2025/Sunderfolk_Images/What_Is_Sunderfolk/Sunderfolk_PressKit_005.png" alt="" /></button>
+          <button type="button" class="slideshow__thumb" data-src="WebsiteAssets/Sunderfolk_2025/Sunderfolk_Images/What_Is_Sunderfolk/Sunderfolk_PressKit_006.jpg" aria-label="Show press kit image 6"><img src="WebsiteAssets/Sunderfolk_2025/Sunderfolk_Images/What_Is_Sunderfolk/Sunderfolk_PressKit_006.jpg" alt="" /></button>
+          <button type="button" class="slideshow__thumb" data-src="WebsiteAssets/Sunderfolk_2025/Sunderfolk_Images/What_Is_Sunderfolk/Sunderfolk_PressKit_007.png" aria-label="Show press kit image 7"><img src="WebsiteAssets/Sunderfolk_2025/Sunderfolk_Images/What_Is_Sunderfolk/Sunderfolk_PressKit_007.png" alt="" /></button>
+          <button type="button" class="slideshow__thumb" data-src="WebsiteAssets/Sunderfolk_2025/Sunderfolk_Images/What_Is_Sunderfolk/Sunderfolk_PressKit_008.png" aria-label="Show press kit image 8"><img src="WebsiteAssets/Sunderfolk_2025/Sunderfolk_Images/What_Is_Sunderfolk/Sunderfolk_PressKit_008.png" alt="" /></button>
+        </div>
+      </div>
+
+      <!-- What is Sunderfolk blurb -->
+      <div class="bordercard" style="order: 1; padding: 24px 30px; background: #324158; color: #EDE9E1; border-color: #0c0c0d;">
+        <h2 class="text-[29px] md:text-[34px] leading-none" style="font-family:'Tungsten','Arial Black','Arial Bold',Arial,sans-serif; font-weight:700; letter-spacing:0.04em;">What is Sunderfolk</h2>
+        <p class="mt-4 text-[16px] md:text-[17px] leading-[1.7]" style="font-family:Arial,'Helvetica Neue',Helvetica,sans-serif; color:#EDE9E1;">
+          Rediscover Game Night with the magic of Sunderfolk, a <strong style="color:#EDE9E1; font-weight:700;">shared turn-based tactical RPG adventure</strong> where your <strong style="color:#EDE9E1; font-weight:700;">mobile device becomes the controller</strong>. Built with a couch co-op experience in mind, up to four players adventure through the magical and dangerous Sunderlands.
+        </p>
+      </div>
+
+    </div>
+    <script>
+    (function () {
+      var root = document.getElementById('sunder-slideshow');
+      if (!root) return;
+      var main = document.getElementById('sunder-slideshow-main');
+      var thumbs = root.querySelectorAll('.slideshow__thumb');
+      thumbs.forEach(function (btn) {
+        btn.addEventListener('click', function () {
+          var src = btn.getAttribute('data-src');
+          if (src) main.src = src;
+          thumbs.forEach(function (b) { b.classList.remove('is-active'); });
+          btn.classList.add('is-active');
+        });
+      });
+    })();
+    </script>
+
+    <article class="bordercard mt-8">
+      <h2 class="text-[29px] md:text-[34px] leading-none" style="font-family:'Tungsten','Arial Black','Arial Bold',Arial,sans-serif; font-weight:700; letter-spacing:0.04em;">Sunderfolk + DLC (2023 - 2025)</h2>
       <p class="mt-[5px] underline underline-offset-4 decoration-2 text-[16px]" style="font-family:Arial,'Helvetica Neue',Helvetica,sans-serif; font-weight:600;">Summarized Responsibilities:</p>
       <ul class="resp-list list-disc pl-6 mt-3 text-[16px]" style="font-family:Arial,'Helvetica Neue',Helvetica,sans-serif;">
-        <li>Owned the full design of a playable Hero, defining their archetype and ability kit from early concept through implementation and iteration, ensuring they aligned with Sunderfolk's core gameplay pillars.</li>
-        <li>Designed 4 bosses and 3 enemies, implementing unique skills and abilities to drive dynamic gameplay.</li>
-        <li>Owned 10+ end-to-end encounters, each with distinct narratives, gameplay mechanics, and enemy compositions to drive team coordination and cooperative play.</li>
-        <li>Wrote, tracked, and implemented 75% of narrative content, including NPC conversation, tutorials, and ad-libs.</li>
-        <li>Partnered in the creative direction of 30 cinematics, working with Animation, Writing, and 3D/VFX teams to deliver cutscenes within strict budget and schedule constraints.</li>
+        <li>Owned end-to-end design of 10 characters (1 playable hero, 4 bosses, 5 enemies), translating each one's fantasy and role into distinct ability kit, passive, and AI behavior, from concept through ship on PC, Xbox, PS5, and Switch.</li>
+        <li>Designed and shipped 10+ levels from paper design and blockout through final polish, anchoring each on a distinct mechanic (puzzle, combat, exploration) that promote players toward cooperative strategy.</li>
+        <li>Wrote and maintained design documentation for every shipped character and level (intended player experience, encounter flow, anchoring mechanic) keeping Engineering, Art, and QA aligned through iteration.</li>
+        <li>Collaborated with the Animation Lead to drive narrative and visual direction for 30+ cinematic cutscenes; translated gameplay moments into story beats, storyboards, and art briefs that delivered cohesive storytelling on tight release schedules.</li>
+        <li>Led 3+ internal playtests weekly, turning qualitative feedback and edge-case findings into concrete design changes.</li>
       </ul>
     </article>
   </div>
@@ -760,7 +937,11 @@
   <!-- title strip -->
   <div class="text-cream py-12 md:py-14">
     <div class="container-x text-center">
-      <h2 class="text-[31px] md:text-[43px] tracking-wide uppercase -mt-[20px]" style="font-family:'Arial Black','Arial Bold',Arial,sans-serif; font-weight:900; zoom: 1.21;">&ndash; COMBAT DESIGN &ndash;</h2>
+      <h2 class="flex items-center gap-[18px] text-[45px] md:text-[63px] tracking-wide uppercase -mt-[20px]" style="font-family:'Tungsten','Arial Black','Arial Bold',Arial,sans-serif; font-weight:700;">
+        <span class="flex-1 h-[5px]" style="background:#EDE9E1;"></span>
+        <span>COMBAT DESIGN</span>
+        <span class="flex-1 h-[5px]" style="background:#EDE9E1;"></span>
+      </h2>
       <div class="mt-6 flex justify-center" style="gap: 10px;">
         <button class="combat-btn combat-btn-hero" data-carousel-go="0">HERO CLASS</button>
         <button class="combat-btn combat-btn-boss" data-carousel-go="1">BOSS</button>
@@ -769,9 +950,11 @@
     </div>
   </div>
 
-  <div class="arrow-rail">
-    <button class="carousel-arrow prev" data-carousel-prev aria-label="Previous character">◀</button>
-    <button class="carousel-arrow next" data-carousel-next aria-label="Next character">▶</button>
+  <div class="arrow-rail-span">
+    <div class="arrow-rail">
+      <button class="carousel-arrow prev" data-carousel-prev aria-label="Previous character">◀</button>
+      <button class="carousel-arrow next" data-carousel-next aria-label="Next character">▶</button>
+    </div>
   </div>
 
   <div class="char-carousel" id="char-carousel">
@@ -791,14 +974,14 @@
         </div>
 
         <!-- Title: 8px from bottom-left of container -->
-        <div class="absolute leading-none" style="left: 8px; bottom: 8px; z-index: 6;">
-          <div class="text-ink text-[12px] italic" style="font-family:Arial,'Helvetica Neue',Helvetica,sans-serif;">Hero</div>
-          <div class="text-ink text-[22px] md:text-[25px] mt-1" style="font-family:'Arial Black','Arial Bold',Arial,sans-serif; font-weight:900; letter-spacing:0.02em;">VANGUARD</div>
+        <div class="absolute leading-none" style="left: 8px; bottom: 8px; z-index: 2;">
+          <div class="text-ink italic" style="font-family:Arial,'Helvetica Neue',Helvetica,sans-serif; font-size:19px; font-weight:600; letter-spacing:0.04em; opacity:0.7;">Hero</div>
+          <div class="text-ink" style="font-family:'Tungsten','Arial Black','Arial Bold',Arial,sans-serif; font-weight:700; font-size:48.5px; letter-spacing:0.04em; line-height:1; margin-top:-6px; white-space:nowrap;">VANGUARD</div>
         </div>
 
         <!-- Description: 8px from top-right, justified, 12px, +25% width -->
         <p class="absolute text-ink italic leading-tight"
-           style="top: 8px; right: 8px; z-index: 6; font-family:Arial,'Helvetica Neue',Helvetica,sans-serif; font-size: 12px; max-width: 327px; text-align: justify;">
+           style="top: 8px; right: 8px; z-index: 6; font-family:Arial,'Helvetica Neue',Helvetica,sans-serif; font-size: 11.5px; max-width: 327px; text-align: justify;">
           Born for battle, the Vanguard pushes deep into enemy lines where their abilities burn brightest. Small yet mighty, they stand as a fierce contender to the Berserker.
         </p>
       </article>
@@ -816,7 +999,7 @@
                class="absolute" style="left: 0; top: 19px; width: 307px; height: auto; max-width: none; z-index: 6; border: 3px solid #EDE9E1; border-radius: 6px; box-shadow: none;" />
 
           <!-- Caption: text positioned with 9px left + 0 right + 10px top + 10px bottom inner gaps to match SpellCard_Template_A. -->
-          <p class="fs-caption absolute text-cream/85 leading-relaxed" style="top: 115px; left: 12px; width: 220px; font-size: 12.5px; font-weight: 600; text-align: left;">
+          <p class="fs-caption absolute text-cream/85 leading-relaxed" style="top: 115px; left: 12px; width: 220px; font-size: 11.5px; font-weight: 400; text-align: left;">
             For each Grit, the Vanguard takes 1 less damage when attacked and deals 2 damage to the attacker, reinforcing their role as both a frontliner and a DPS.
           </p>
         </div>
@@ -854,10 +1037,10 @@
         </div>
       </div>
 
-      <!-- Divider beneath the second spell card, with [DESIGN PROCESS] label breaking the line -->
+      <!-- Divider beneath the second spell card, with DESIGN PROCESS label breaking the line -->
       <div style="display: flex; align-items: center; gap: 5px; width: 730px; margin: 35px auto 0;">
         <div style="flex: 1; height: 5px; background: #EDE9E1;"></div>
-        <span style="font-family: 'Arial Black','Arial Bold',Arial,sans-serif; font-weight: 900; font-size: 18px; color: #EDE9E1; white-space: nowrap;">[DESIGN PROCESS]</span>
+        <span style="font-family: 'Tungsten','Arial Black','Arial Bold',Arial,sans-serif; font-weight: 700; font-size: 34.71px; color: #EDE9E1; white-space: nowrap;">DESIGN PROCESS</span>
         <div style="flex: 1; height: 5px; background: #EDE9E1;"></div>
       </div>
 
@@ -929,11 +1112,11 @@
 
       <!-- carousel arrows -->
       <div class="flex items-center justify-between mt-14">
-        <button class="role-tag pink role-tag--prev" data-carousel-go="2" aria-label="Previous: Wurm">
+        <button class="role-tag pink role-tag--prev" data-carousel-go="2" aria-label="Previous: Tunnel Wurm">
           <span class="role-tag__arrow">◀</span>
           <span class="role-tag__text">
             <span class="small">Enemy</span>
-            <span class="role-tag__name">WURM</span>
+            <span class="role-tag__name">TUNNEL WURM</span>
           </span>
           <span class="role-tag__avatar" style="width:133px;"><span class="role-tag__avatar-clip"><img src="WebsiteAssets/Sunderfolk_2025/Sunderfolk_Images/Sunderfolk_TunnelWurm_Profile_01.png" alt="" style="height:133px; margin-top:-24.5px;" /></span></span>
         </button>
@@ -962,85 +1145,176 @@
         </div>
 
         <!-- Title: 8px from bottom-left of container -->
-        <div class="absolute leading-none" style="left: 8px; bottom: 8px; z-index: 6;">
-          <div class="text-ink text-[12px] italic" style="font-family:Arial,'Helvetica Neue',Helvetica,sans-serif;">Boss Monster</div>
-          <div class="text-ink text-[22px] md:text-[25px] mt-1" style="font-family:'Arial Black','Arial Bold',Arial,sans-serif; font-weight:900; letter-spacing:0.02em;">CHAMPION</div>
+        <div class="absolute leading-none" style="left: 8px; bottom: 8px; z-index: 2;">
+          <div class="text-ink italic" style="font-family:Arial,'Helvetica Neue',Helvetica,sans-serif; font-size:19px; font-weight:600; letter-spacing:0.04em; opacity:0.7;">Boss Monster</div>
+          <div class="text-ink" style="font-family:'Tungsten','Arial Black','Arial Bold',Arial,sans-serif; font-weight:700; font-size:48.5px; letter-spacing:0.04em; line-height:1; margin-top:-6px; white-space:nowrap;">CHAMPION</div>
         </div>
 
         <!-- Description: 8px from top-right, justified, 12px -->
         <p class="absolute text-ink italic leading-tight"
-           style="top: 8px; right: 8px; z-index: 6; font-family:Arial,'Helvetica Neue',Helvetica,sans-serif; font-size: 12px; max-width: 327px; text-align: justify;">
+           style="top: 8px; right: 8px; z-index: 6; font-family:Arial,'Helvetica Neue',Helvetica,sans-serif; font-size: 11.5px; max-width: 327px; text-align: justify;">
           This charismatic muscle-bound Champion has big plans for the Hero. Trained in the art of the Muscle, they present a unique challenge that forces players to approach the fight differently from their usual high-damage strategies.
         </p>
       </article>
 
-      <div class="grid md:grid-cols-12 gap-8 mt-10">
-        <div class="md:col-span-5">
-          <div class="stat-card">
-            <p class="font-bold text-cream mb-2">Absolute Muscle:</p>
-            <p>When taking damage, reduce it to <span class="kw">1</span>, regardless of the original amount. Unaffected by <span class="kw exposed">Exposed</span>, <span class="kw shield">Shield</span>, and <span class="kw execute">Execute</span>.</p>
+      <!-- Passive Ability (Absolute Muscle) — same treatment as Vanguard's Fighting Spirit -->
+      <div class="mt-10 relative" style="padding-bottom: 0;">
+        <div class="relative" style="width: 732px; height: 281px; left: 50%; transform: translateX(-50%);">
+          <!-- Video frame at the right of the group -->
+          <div class="frame absolute" style="left: 232px; top: 0; width: 500px; height: 281px; border: 3px solid #EDE9E1; border-radius: 6px; box-shadow: none;">
+            <video src="WebsiteAssets/Sunderfolk_2025/Sundefolk_Videos/Champion_Passive_DmgReduct_001.mp4" autoplay loop muted playsinline style="width: 100%; height: 100%; object-fit: cover; display: block;"></video>
           </div>
-          <p class="mt-5 text-cream/85 text-[14.5px] leading-7">Instead of relying on high damage output to defeat the boss, the player must use the boss's abilities and environment to overcome the Champion.</p>
-        </div>
-        <div class="md:col-span-7">
-          <div class="frame aspect-video video-slot">VIDEO 3</div>
+
+          <!-- Absolute Muscle image at the left of the group -->
+          <img src="WebsiteAssets/Sunderfolk_2025/Sunderfolk_Images/Screenshot 2025-11-26 225607.png" alt="Absolute Muscle — passive ability description"
+               class="absolute" style="left: 0; top: 19px; width: 307px; height: auto; max-width: none; z-index: 6; border: 3px solid #EDE9E1; border-radius: 6px; box-shadow: none;" />
+
+          <!-- Caption: same tucked-tab treatment as Fighting Spirit -->
+          <p class="fs-caption absolute text-cream/85 leading-relaxed" style="top: 90px; left: 12px; width: 220px; font-size: 11.5px; font-weight: 400; text-align: left;">
+            With damage capped at 1, raw output won't win this fight — players must turn the Champion's own abilities and the environment against them.
+          </p>
         </div>
       </div>
 
-      <h3 class="h-display text-[22px] md:text-[26px] mt-14 underline underline-offset-4">Spell Cards</h3>
-      <div class="grid md:grid-cols-3 gap-6 mt-6">
-        <div class="spellcard-img">
-          <img src="WebsiteAssets/Sunderfolk_2025/Sunderfolk_Images/Sunderfolk_Champion_SpellCard_BombsAway.png" alt="Bombs Away spell card" class="w-full h-auto block" />
-        </div>
-        <div class="spellcard-img">
-          <img src="WebsiteAssets/Sunderfolk_2025/Sunderfolk_Images/Sunderfolk_Champion_SpellCard_Galvanize.png" alt="Galvanize spell card" class="w-full h-auto block" />
-        </div>
-        <div class="spellcard-img">
-          <img src="WebsiteAssets/Sunderfolk_2025/Sunderfolk_Images/Sunderfolk_Champion_SpellCard_RallyUp.png" alt="Rally Up spell card" class="w-full h-auto block" />
+      <!-- SpellCard_Template_A: Bombs Away -->
+      <div class="spellcard-a-wrap" style="margin-top: 15px;">
+        <div class="spellcard-a">
+          <img class="spellcard-a__image" src="WebsiteAssets/Sunderfolk_2025/Sunderfolk_Images/Sunderfolk_Champion_SpellCard_BombsAway.png" alt="Bombs Away spell card" />
+          <div class="spellcard-a__video" style="padding: 0;">
+            <video src="WebsiteAssets/Sunderfolk_2025/Sundefolk_Videos/Champion_SpellCard_BombsAway_001.mp4" autoplay loop muted playsinline style="width: 100%; height: 100%; object-fit: cover; display: block;"></video>
+          </div>
+          <div class="spellcard-a__caption">
+            <p class="spellcard-a__caption-title">Bombs Away</p>
+            <p class="spellcard-a__caption-body">A ranged AoE whose damage scales with each minion, keeping crowd control crucial.</p>
+            <p class="spellcard-a__caption-body">Spread out to minimize damage. The blast also leaves objects players can use against the Champion.</p>
+          </div>
         </div>
       </div>
-      <ul class="mt-6 list-disc pl-5 text-cream/85 space-y-1.5 text-[14.5px] leading-7">
-        <li>A ranged AoE ability that grows stronger for each minion on the board.</li>
-        <li>Players should avoid grouping up when it's cast.</li>
-        <li>It also creates hazardous objects that players can use against the Champion.</li>
-      </ul>
 
-      <!-- More Bosses -->
-      <h3 class="h-display text-[24px] md:text-[28px] mt-16 text-center underline underline-offset-8 decoration-2">More Bosses</h3>
-      <div class="grid md:grid-cols-3 gap-6 mt-8">
-        <div>
-          <div class="flex items-start gap-3">
-            <div class="frame w-[88px] h-[88px] flex-none">
-              <img src="WebsiteAssets/Sunderfolk_2025/Sunderfolk_Images/Sunderfolk_Boss_UnstableRedcap.png" alt="Unstable Redcap" class="w-full h-full object-cover" />
-            </div>
-            <div class="flex-1">
-              <p class="font-bold underline underline-offset-4">Unstable Redcap</p>
-              <div class="stat-card mt-2 text-[12.5px]">
-                <span class="kw subdivide">Subdivide:</span> When <span class="kw exposed">Pushed</span>, takes 2 damage. When defeated, <span class="kw execute">Explode 3</span> and <span class="kw shield">Create 3</span> lesser Unstable Redcaps with <span class="kw exposed">Slow 1</span>.
-              </div>
-            </div>
+      <!-- SpellCard_Template_A: Galvanize -->
+      <div class="spellcard-a-wrap" style="margin-top: 15px;">
+        <div class="spellcard-a">
+          <img class="spellcard-a__image" src="WebsiteAssets/Sunderfolk_2025/Sunderfolk_Images/Sunderfolk_Champion_SpellCard_Galvanize.png" alt="Galvanize spell card" />
+          <div class="spellcard-a__video" style="padding: 0;">
+            <video src="WebsiteAssets/Sunderfolk_2025/Sundefolk_Videos/Champion_SpellCard_Galvanize_001.mp4" autoplay loop muted playsinline style="width: 100%; height: 100%; object-fit: cover; display: block;"></video>
+          </div>
+          <div class="spellcard-a__caption">
+            <p class="spellcard-a__caption-title">Galvanize</p>
+            <p class="spellcard-a__caption-body">
+              Past a certain threshold, the Champion summons additional minions. The result is a fun interplay between the boss's abilities, the crowd, and the narrative.
+            </p>
           </div>
         </div>
-        <div>
-          <div class="flex items-start gap-3">
-            <div class="frame w-[88px] h-[88px] flex-none">
-              <img src="WebsiteAssets/Sunderfolk_2025/Sunderfolk_Images/Sunderfolk_Boss_ArcherWarrior.png" alt="Archer Warrior" class="w-full h-full object-cover" />
-            </div>
-            <div class="flex-1">
-              <p class="font-bold underline underline-offset-4">Archer Warrior</p>
-              <div class="stat-card mt-2 h-[78px]"></div>
-            </div>
+      </div>
+
+      <!-- Divider beneath Galvanize, with DESIGN PROCESS label breaking the line (same as Vanguard) -->
+      <div style="display: flex; align-items: center; gap: 5px; width: 730px; margin: 35px auto 0;">
+        <div style="flex: 1; height: 5px; background: #EDE9E1;"></div>
+        <span style="font-family: 'Tungsten','Arial Black','Arial Bold',Arial,sans-serif; font-weight: 700; font-size: 34.71px; color: #EDE9E1; white-space: nowrap;">DESIGN PROCESS</span>
+        <div style="flex: 1; height: 5px; background: #EDE9E1;"></div>
+      </div>
+
+      <!-- Research block — uses Process_Template_Right. margin-top: 40px matches the divider gap
+           of the Vanguard's first process block. -->
+      <div class="process-tr" style="margin-top: 40px;">
+        <div class="process-tr__caption">
+          <p class="spellcard-a__caption-title">Research</p>
+          <p class="spellcard-a__caption-body">Define the product goals for the boss and its encounter.</p>
+          <p class="spellcard-a__caption-body">Evaluate existing boss fights to find opportunities that make this one compelling for players.</p>
+        </div>
+        <img class="process-tr__image expandable-image"
+             src="WebsiteAssets/Sunderfolk_2025/Sunderfolk_Images/Sunderfolk_Champion_Ideation_001.jpg"
+             alt="Champion research reference" />
+      </div>
+
+      <!-- Ideation & Goal block — uses Process_Template_Left (custom 50:50 image:text ratio for the longer caption). -->
+      <div class="process-tl">
+        <img class="process-tl__image expandable-image" style="flex: 1 1 0;"
+             src="WebsiteAssets/Sunderfolk_2025/Sunderfolk_Images/Sunderfolk_Champion_Inspiration_001.jpg"
+             alt="Champion inspiration reference" />
+        <div class="process-tl__caption" style="flex: 1 1 0;">
+          <p class="spellcard-a__caption-title">Ideation</p>
+          <p class="spellcard-a__caption-body">Find inspiration that aligns with the goals of designing this boss. Draw references from other media and games as a starting point for its mechanics, personality, and presentation.</p>
+          <p class="spellcard-a__caption-title" style="margin-top: 10px;">Goal</p>
+          <p class="spellcard-a__caption-body">Create a character that is memorable through both its storytelling and its gameplay. Design experiences that challenge players in ways that feel fresh while remaining fair and rewarding.</p>
+        </div>
+      </div>
+
+      <!-- Design & Implementation block — uses Process_Template_Below.
+           margin-top: 29px nets a 24px visible gap when stacked mid-flow (see Vanguard's Implementation block). -->
+      <div class="process-tb" style="margin-top: 29px;">
+        <div class="process-tb__caption">
+          <p class="spellcard-a__caption-title">Design and Implementation</p>
+          <p class="spellcard-a__caption-body">Building on the inspiration, design the boss's passive ability and core kit, then implement them alongside the mission, enemy composition, game direction, and narrative as a playable prototype for playtesting.</p>
+        </div>
+        <img class="process-tb__image expandable-image"
+             src="WebsiteAssets/Sunderfolk_2025/Sunderfolk_Images/Sunderfolk_Champion_FirstPass_001.jpg"
+             alt="Champion first pass design reference" />
+      </div>
+
+      <!-- Playtest & Iteration + Narrative — two Process_Template_Below blocks side by side
+           (each block's 730px/45px defaults overridden; row splits 40:60). -->
+      <div style="display: flex; gap: 10px; width: 730px; margin: 29px auto 0; align-items: flex-start;">
+        <div class="process-tb" style="width: auto; flex: 2 1 0; min-width: 0; margin: 0;">
+          <div class="process-tb__caption">
+            <p class="spellcard-a__caption-title">Playtest and Iteration</p>
+            <p class="spellcard-a__caption-body">Conduct multiple rapid internal playtests every week. Collect playtest feedback and edge-case findings, turning them into actionable design changes with every iteration.</p>
+          </div>
+          <img class="process-tb__image expandable-image"
+               src="WebsiteAssets/Sunderfolk_2025/Sunderfolk_Images/Sunderfolk_Champion_Iteration_001.jpg"
+               alt="Champion playtest iteration reference" />
+        </div>
+        <div class="process-tb" style="width: auto; flex: 3 1 0; min-width: 0; margin: 0;">
+          <div class="process-tb__caption">
+            <p class="spellcard-a__caption-title">Narrative</p>
+            <p class="spellcard-a__caption-body">Write and implement all narrative elements (tutorials, dialogue, and information) in the engine. Maintain a source of truth the team can reliably reference.</p>
+          </div>
+          <img class="process-tb__image expandable-image"
+               src="WebsiteAssets/Sunderfolk_2025/Sunderfolk_Images/Sunderfolk_Champion_Narrative_001.png"
+               alt="Champion narrative reference" />
+        </div>
+      </div>
+
+      <!-- Divider with MORE BOSSES label breaking the line (same treatment as DESIGN PROCESS) -->
+      <div style="display: flex; align-items: center; gap: 5px; width: 730px; margin: 35px auto 0;">
+        <div style="flex: 1; height: 5px; background: #EDE9E1;"></div>
+        <span style="font-family: 'Tungsten','Arial Black','Arial Bold',Arial,sans-serif; font-weight: 700; font-size: 34.71px; color: #EDE9E1; white-space: nowrap;">MORE BOSSES</span>
+        <div style="flex: 1; height: 5px; background: #EDE9E1;"></div>
+      </div>
+
+      <!-- Boss components in a triangle: Redcap centered on top, the two Warriors side by side below.
+           Each component: headshot left; title with passive card below on the right. -->
+      <div style="width: 730px; margin: 24px auto 0; display: flex; justify-content: center;">
+        <div style="width: 360px; display: flex; gap: 10px; align-items: flex-start;">
+          <div class="w-[88px] h-[88px] flex-none">
+            <img src="WebsiteAssets/Sunderfolk_2025/Sunderfolk_Images/Sunderfolk_Boss_UnstableRedcap.png" alt="Unstable Redcap" class="w-full h-full object-cover" />
+          </div>
+          <div class="flex-1 min-w-0">
+            <p class="font-bold underline underline-offset-4" style="font-size:13.22px;">Unstable Redcap</p>
+            <img class="expandable-image" src="WebsiteAssets/Sunderfolk_2025/Sunderfolk_Images/Screenshot 2025-11-26 233526.png" alt="Unstable Redcap passive ability"
+                 style="width: 100%; height: auto; display: block; margin-top: 8px; border: 2px solid #EDE9E1; border-radius: 6px;" />
           </div>
         </div>
-        <div>
-          <div class="flex items-start gap-3">
-            <div class="frame w-[88px] h-[88px] flex-none">
-              <img src="WebsiteAssets/Sunderfolk_2025/Sunderfolk_Images/Sunderfolk_Boss_SpearWarrior.png" alt="Spear Warrior" class="w-full h-full object-cover" />
-            </div>
-            <div class="flex-1">
-              <p class="font-bold underline underline-offset-4">Spear Warrior</p>
-              <div class="stat-card mt-2 h-[78px]"></div>
-            </div>
+      </div>
+      <div style="display: flex; gap: 10px; width: 730px; margin: 16px auto 0; align-items: flex-start;">
+        <div style="flex: 1 1 0; min-width: 0; display: flex; gap: 10px; align-items: flex-start;">
+          <div class="w-[88px] h-[88px] flex-none">
+            <img src="WebsiteAssets/Sunderfolk_2025/Sunderfolk_Images/Sunderfolk_Boss_ArcherWarrior.png" alt="Archer Warrior" class="w-full h-full object-cover" />
+          </div>
+          <div class="flex-1 min-w-0">
+            <p class="font-bold underline underline-offset-4" style="font-size:13.22px;">Archer Warrior</p>
+            <img class="expandable-image" src="WebsiteAssets/Sunderfolk_2025/Sunderfolk_Images/Screenshot 2025-11-26 233654.png" alt="Archer Warrior passive ability"
+                 style="width: 100%; height: auto; display: block; margin-top: 8px; border: 2px solid #EDE9E1; border-radius: 6px;" />
+          </div>
+        </div>
+        <div style="flex: 1 1 0; min-width: 0; display: flex; gap: 10px; align-items: flex-start;">
+          <div class="w-[88px] h-[88px] flex-none">
+            <img src="WebsiteAssets/Sunderfolk_2025/Sunderfolk_Images/Sunderfolk_Boss_SpearWarrior.png" alt="Spear Warrior" class="w-full h-full object-cover" />
+          </div>
+          <div class="flex-1 min-w-0">
+            <p class="font-bold underline underline-offset-4" style="font-size:13.22px;">Spear Warrior</p>
+            <img class="expandable-image" src="WebsiteAssets/Sunderfolk_2025/Sunderfolk_Images/Screenshot 2025-11-26 233718.png" alt="Spear Warrior passive ability"
+                 style="width: 100%; height: auto; display: block; margin-top: 8px; border: 2px solid #EDE9E1; border-radius: 6px;" />
           </div>
         </div>
       </div>
@@ -1054,11 +1328,11 @@
           </span>
           <span class="role-tag__avatar" style="width:132px;"><span class="role-tag__avatar-clip"><img src="WebsiteAssets/Sunderfolk_2025/Sunderfolk_Images/Sunderfolk_Vanguard_Profile_02.png" alt="" style="height:110px; margin-top:-16.5px;" /></span></span>
         </button>
-        <button class="role-tag pink role-tag--next" data-carousel-go="2" aria-label="Next: Wurm">
+        <button class="role-tag pink role-tag--next" data-carousel-go="2" aria-label="Next: Tunnel Wurm">
           <span class="role-tag__avatar" style="width:133px;"><span class="role-tag__avatar-clip"><img src="WebsiteAssets/Sunderfolk_2025/Sunderfolk_Images/Sunderfolk_TunnelWurm_Profile_01.png" alt="" style="height:133px; margin-top:-24.5px;" /></span></span>
           <span class="role-tag__text">
             <span class="small">Enemy</span>
-            <span class="role-tag__name">WURM</span>
+            <span class="role-tag__name">TUNNEL WURM</span>
           </span>
           <span class="role-tag__arrow">▶</span>
         </button>
@@ -1079,31 +1353,96 @@
         </div>
 
         <!-- Title: 8px from bottom-left of container -->
-        <div class="absolute leading-none" style="left: 8px; bottom: 8px; z-index: 6;">
-          <div class="text-ink text-[12px] italic" style="font-family:Arial,'Helvetica Neue',Helvetica,sans-serif;">Monster</div>
-          <div class="text-ink text-[22px] md:text-[25px] mt-1" style="font-family:'Arial Black','Arial Bold',Arial,sans-serif; font-weight:900; letter-spacing:0.02em;">WURM</div>
+        <div class="absolute leading-none" style="left: 8px; bottom: 8px; z-index: 2;">
+          <div class="text-ink italic" style="font-family:Arial,'Helvetica Neue',Helvetica,sans-serif; font-size:19px; font-weight:600; letter-spacing:0.04em; opacity:0.7;">Monster</div>
+          <div class="text-ink" style="font-family:'Tungsten','Arial Black','Arial Bold',Arial,sans-serif; font-weight:700; font-size:48.5px; letter-spacing:0.04em; line-height:1; margin-top:-6px; white-space:nowrap;">WURM</div>
         </div>
 
         <!-- Description: 8px from top-right, justified, 12px -->
         <p class="absolute text-ink italic leading-tight"
-           style="top: 8px; right: 8px; z-index: 6; font-family:Arial,'Helvetica Neue',Helvetica,sans-serif; font-size: 12px; max-width: 327px; text-align: justify;">
+           style="top: 8px; right: 8px; z-index: 6; font-family:Arial,'Helvetica Neue',Helvetica,sans-serif; font-size: 11.5px; max-width: 327px; text-align: justify;">
           A subterranean ambusher, the Tunnel Wurm strikes from beneath the hex grid with a crushing double-bite. Reposition or pay the price.
         </p>
       </article>
 
-      <div class="grid md:grid-cols-12 gap-8 mt-10">
-        <div class="md:col-span-5">
-          <div class="stat-card">
-            <p class="font-bold text-cream mb-2">Burrow:</p>
-            <p>The Wurm submerges underground and reappears anywhere on the board, ignoring obstacles and disrupting your formation.</p>
+      <!-- SpellCard_Template_A: Swallow the World -->
+      <div class="spellcard-a-wrap" style="margin-top: 40px;">
+        <div class="spellcard-a">
+          <img class="spellcard-a__image" src="WebsiteAssets/Sunderfolk_2025/Sunderfolk_Images/Sunderfolk_TunnelWurm_DoubleBite_Card.PNG" alt="Swallow the World spell card" />
+          <div class="spellcard-a__video" style="padding: 0;">
+            <video src="WebsiteAssets/Sunderfolk_2025/Sundefolk_Videos/Sunderfolk_TunnelWurm_Frenzy_Clip_A.mp4" autoplay loop muted playsinline style="width: 100%; height: 100%; object-fit: cover; display: block;"></video>
           </div>
-        </div>
-        <div class="md:col-span-7">
-          <div class="frame aspect-video">
-            <img src="WebsiteAssets/Sunderfolk_2025/Sunderfolk_Images/Sunderfolk_TunnelWurm_InGame.png" alt="Wurm in-game" class="w-full h-full object-cover" />
+          <div class="spellcard-a__caption">
+            <p class="spellcard-a__caption-title">Swallow the World</p>
+            <p class="spellcard-a__caption-body">Unique to the Wurm, this ability forcefully repositions every character in range, dragging them through hazardous terrain and objects such as pits and boomshrooms before unleashing a powerful attack.</p>
           </div>
         </div>
       </div>
+
+      <!-- SpellCard_Template_A: Devour -->
+      <div class="spellcard-a-wrap" style="margin-top: 15px;">
+        <div class="spellcard-a">
+          <img class="spellcard-a__image" src="WebsiteAssets/Sunderfolk_2025/Sunderfolk_Images/Sunderfolk_TunnelWurm_Frenzy_Card.PNG" alt="Devour spell card" />
+          <div class="spellcard-a__video" style="padding: 0;">
+            <video src="WebsiteAssets/Sunderfolk_2025/Sundefolk_Videos/Sunderfolk_TunnelWurm_DoubleBite_Clip_A.mp4" autoplay loop muted playsinline style="width: 100%; height: 100%; object-fit: cover; display: block;"></video>
+          </div>
+          <div class="spellcard-a__caption">
+            <p class="spellcard-a__caption-title">Devour</p>
+            <p class="spellcard-a__caption-body">Powerful and dangerous, this spell makes the Wurm a significant threat while also serving as a useful tool against other monsters.</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Divider with DESIGN PROCESS label breaking the line (same treatment as the other slides) -->
+      <div style="display: flex; align-items: center; gap: 5px; width: 730px; margin: 40px auto 0;">
+        <div style="flex: 1; height: 5px; background: #EDE9E1;"></div>
+        <span style="font-family: 'Tungsten','Arial Black','Arial Bold',Arial,sans-serif; font-weight: 700; font-size: 34.71px; color: #EDE9E1; white-space: nowrap;">DESIGN PROCESS</span>
+        <div style="flex: 1; height: 5px; background: #EDE9E1;"></div>
+      </div>
+
+      <!-- Concept block — uses Process_Template_Below. -->
+      <div class="process-tb">
+        <div class="process-tb__caption">
+          <p class="spellcard-a__caption-title">Concept</p>
+          <p class="spellcard-a__caption-body">Collaborate with artists to establish the monster's look and fantasy. Ideate on its core abilities and combat strategy, drawing inspiration from other media and real-life references.</p>
+        </div>
+        <img class="process-tb__image expandable-image"
+             src="WebsiteAssets/Sunderfolk_2025/Sunderfolk_Images/Sunderfolk_Wurm_Concept.jpg"
+             alt="Wurm concept reference" />
+      </div>
+
+      <!-- Ideation row — passive brainstorm image (left) + Ideation Below block (right), split 40:60. -->
+      <div style="display: flex; gap: 10px; width: 730px; margin: 29px auto 0; align-items: flex-start;">
+        <img class="expandable-image" style="flex: 2 1 0; min-width: 0; height: auto; display: block; margin-top: -5px; border: 3px solid #EDE9E1; border-radius: 6px;"
+             src="WebsiteAssets/Sunderfolk_2025/Sunderfolk_Images/Sunderfolk_Wurm_PassiveBrainstorm.jpg"
+             alt="Wurm passive brainstorm reference" />
+        <div class="process-tb" style="width: auto; flex: 3 1 0; min-width: 0; margin: 0;">
+          <div class="process-tb__caption">
+            <p class="spellcard-a__caption-title">Ideation</p>
+            <p class="spellcard-a__caption-body">Select the strongest concept and develop the monster's passive, core mechanics, and ability kit. Draft multiple design options, review them with the Encounter Design Lead, and refine down to a final design.</p>
+          </div>
+          <img class="process-tb__image expandable-image"
+               src="WebsiteAssets/Sunderfolk_2025/Sunderfolk_Images/Sunderfolk_TunnelWurm_Spell_001.jpg"
+               alt="Wurm spell design reference" />
+        </div>
+      </div>
+
+      <!-- Prototype & Iteration block — uses Process_Template_Right (caption:image overridden to 35:75). -->
+      <div class="process-tr" style="margin-top: 29px;">
+        <div class="process-tr__caption" style="flex: 35 1 0;">
+          <p class="spellcard-a__caption-title">Prototype and Iteration</p>
+          <p class="spellcard-a__caption-body">Run several paper playtests to validate the design's integrity, then implement a playable prototype in-engine for team-wide playtests.</p>
+          <p class="spellcard-a__caption-body">Gather feedback and observations to iterate on the monster's balance, mechanical clarity, and overall gameplay.</p>
+        </div>
+        <img class="process-tr__image expandable-image" style="flex: 75 1 0;"
+             src="WebsiteAssets/Sunderfolk_2025/Sunderfolk_Images/Sunderfolk_Wurm_Playtest.jpg"
+             alt="Wurm playtest reference" />
+      </div>
+
+      <!-- Iteration notes image beneath the Prototype block. -->
+      <img class="expandable-image" style="display: block; width: 730px; height: auto; margin: 10px auto 0; border: 3px solid #EDE9E1; border-radius: 6px;"
+           src="WebsiteAssets/Sunderfolk_2025/Sunderfolk_Images/Sunderfolk_Wurm_IterationNotes-60c446bfa459493f81792fcbe4f624ed.jpg"
+           alt="Wurm iteration notes reference" />
 
       <div class="flex items-center justify-between mt-14">
         <button class="role-tag purple role-tag--prev" data-carousel-go="1" aria-label="Previous: Champion">
@@ -1139,101 +1478,160 @@
 </div>
 
 <!-- ============================ MISSION & ENCOUNTER ============================ -->
-<section id="mission-design" class="anchor relative overflow-hidden bg-ink text-cream">
-  <div class="bg-ink py-12 md:py-14">
+<section id="mission-design" class="anchor relative text-cream section-rubble-bg" style="clip-path: inset(0); --rubble-img: url('WebsiteAssets/Sunderfolk_2025/Sunderfolk_Images/SF_Combat2.png');">
+  <!-- Main-color divider line at the top edge (mirrors the dark line above Combat) -->
+  <div style="height: 5px; background: #EDE9E1;"></div>
+  <!-- title strip (same treatment as Combat Design) -->
+  <div class="text-cream pt-12 pb-[30px] md:pt-14 md:pb-[35px]">
     <div class="container-x text-center">
-      <h2 class="h-display text-[40px] md:text-[56px] tracking-wide">MISSION &amp; ENCOUNTER DESIGN</h2>
+      <h2 class="flex items-center gap-[18px] text-[45px] md:text-[63px] tracking-wide uppercase -mt-[20px]" style="font-family:'Tungsten','Arial Black','Arial Bold',Arial,sans-serif; font-weight:700;">
+        <span class="flex-1 h-[5px]" style="background:#EDE9E1;"></span>
+        <span>ENCOUNTER &amp; QUEST DESIGN</span>
+        <span class="flex-1 h-[5px]" style="background:#EDE9E1;"></span>
+      </h2>
     </div>
   </div>
 
-  <div class="absolute top-28 left-0 right-0 bottom-0 grain"></div>
-  <div class="absolute top-28 left-0 right-0 bottom-0" style="background:
-    radial-gradient(60% 50% at 80% 20%, rgba(180,75,90,0.18), transparent 60%),
-    radial-gradient(60% 60% at 20% 80%, rgba(102,55,160,0.18), transparent 60%),
-    #0c0c0d;"></div>
-
-  <div class="relative container-x py-12 md:py-16">
-    <p class="max-w-3xl mx-auto text-center text-cream/85 leading-7">
-      <span class="font-bold underline underline-offset-4">Initial Research:</span>
-      Align on level requirements and conduct research to gather reference materials.
-    </p>
-
-    <div class="grid md:grid-cols-2 gap-x-10 gap-y-12 mt-12">
-      <div>
-        <p class="font-bold underline underline-offset-4">Tavern Trouble (Tutorial)</p>
-        <p class="text-cream/80 mt-1 text-[14.5px] leading-7">Learn about the game's basic controls, lovely characters, and your role in the Sunderland.</p>
-        <div class="frame mt-3 aspect-[16/9] img-treat">
-          <img src="WebsiteAssets/Sunderfolk_2025/Sunderfolk_Images/SF_TownWideshot.png" alt="Tavern Trouble screenshot" class="w-full h-full object-cover" />
+  <div class="container-x pb-16 md:pb-20">
+    <!-- Tavern Trouble — modified Process_Template_Below (title, image, caption). Two side by side. -->
+    <div class="flex flex-col md:flex-row justify-center items-start gap-6 md:gap-7 mt-2" style="margin-left:35px; margin-right:35px;">
+      <div class="encounter-a" style="width: auto; flex: 1 1 0; min-width: 0; margin: 0;">
+        <div class="encounter-a__title">
+          <p class="spellcard-a__caption-title" style="font-family:'Tungsten','Arial Black','Arial Bold',Arial,sans-serif; font-size:35px; text-decoration:none; text-transform:uppercase;">Tavern Trouble</p>
+        </div>
+        <img class="encounter-a__image expandable-image"
+             src="WebsiteAssets/Sunderfolk_2025/Sunderfolk_Images/Sunderfolk_Screenshot_A_edited.jpg"
+             alt="Tavern Trouble screenshot" />
+        <div class="encounter-a__caption">
+          <p class="spellcard-a__caption-body" style="font-size:14px; margin-top:0;"><strong style="font-weight:700;">Type:</strong> Tutorial</p>
+          <p class="spellcard-a__caption-body" style="font-size:14px; margin-top:4px;">This tutorial teaches the game's basic controls, how your phone becomes your controller, and your role in the Sunderlands.</p>
         </div>
       </div>
-      <div>
-        <p class="font-bold underline underline-offset-4">Sacred Thrown (Boss Battle)</p>
-        <p class="text-cream/80 mt-1 text-[14.5px] leading-7">Reclaim the Sacred Bug's throne from the first multi-hex Boss in the game!</p>
-        <div class="frame mt-3 aspect-[16/9] img-treat">
-          <img src="WebsiteAssets/Sunderfolk_2025/Sunderfolk_Images/SF_Combat2.png" alt="Sacred Thrown screenshot" class="w-full h-full object-cover" />
+      <div class="encounter-a" style="width: auto; flex: 1 1 0; min-width: 0; margin: 0;">
+        <div class="encounter-a__title">
+          <p class="spellcard-a__caption-title" style="font-family:'Tungsten','Arial Black','Arial Bold',Arial,sans-serif; font-size:35px; text-decoration:none; text-transform:uppercase;">Sacred Throne</p>
         </div>
-      </div>
-      <div>
-        <p class="font-bold underline underline-offset-4">Rubble Maze (Puzzle &amp; Battle)</p>
-        <p class="text-cream/80 mt-1 text-[14.5px] leading-7">Face the toughest Wurm in a dynamic maze that forces new tactics every moment!</p>
-        <div class="frame mt-3 aspect-[16/9] img-treat">
-          <img src="WebsiteAssets/Sunderfolk_2025/Sunderfolk_Images/Sunderfolk_RubbleMaze_Screenshot.jpg" alt="Rubble Maze screenshot" class="w-full h-full object-cover" />
-        </div>
-      </div>
-      <div>
-        <p class="font-bold underline underline-offset-4">Brightstone Cleanup (Exploration)</p>
-        <p class="text-cream/80 mt-1 text-[14.5px] leading-7">Take down the Brightstone lamp and fight against the strongest Monsters in the game!</p>
-        <div class="frame mt-3 aspect-[16/9] img-treat">
-          <img src="WebsiteAssets/Sunderfolk_2025/Sunderfolk_Images/Sunderfolk_Screenshot_C_edited.jpg" alt="Brightstone Cleanup screenshot" class="w-full h-full object-cover" />
+        <img class="encounter-a__image expandable-image"
+             src="WebsiteAssets/Sunderfolk_2025/Sunderfolk_Images/Screenshot 2025-12-04 174947.png"
+             alt="Sacred Throne screenshot" />
+        <div class="encounter-a__caption">
+          <p class="spellcard-a__caption-body" style="font-size:14px; margin-top:0;"><strong style="font-weight:700;">Type:</strong> Boss Battle</p>
+          <p class="spellcard-a__caption-body" style="font-size:14px; margin-top:4px;">Help the Sacred Bug reclaim their throne from the game's first multi-hex Boss!</p>
         </div>
       </div>
     </div>
 
-    <p class="text-center font-bold mt-12 text-[22px] underline underline-offset-8 decoration-2">AND MORE!</p>
+    <!-- Row 2: Rubble Maze + Brightstone Cleanup -->
+    <div class="flex flex-col md:flex-row justify-center items-start gap-6 md:gap-7 mt-6 md:mt-7" style="margin-left:35px; margin-right:35px;">
+      <div class="encounter-a" style="width: auto; flex: 1 1 0; min-width: 0; margin: 0;">
+        <div class="encounter-a__title">
+          <p class="spellcard-a__caption-title" style="font-family:'Tungsten','Arial Black','Arial Bold',Arial,sans-serif; font-size:35px; text-decoration:none; text-transform:uppercase;">Rubble Maze</p>
+        </div>
+        <img class="encounter-a__image expandable-image"
+             src="WebsiteAssets/Sunderfolk_2025/Sunderfolk_Images/Sunderfolk_Screenshot_C_edited.jpg"
+             alt="Rubble Maze screenshot" />
+        <div class="encounter-a__caption">
+          <p class="spellcard-a__caption-body" style="font-size:14px; margin-top:0;"><strong style="font-weight:700;">Type:</strong> Puzzle and Battle</p>
+          <p class="spellcard-a__caption-body" style="font-size:14px; margin-top:4px;">Face the Wurm, Sunderfolk's toughest enemy, in a maze where falling rocks reshape the board — forcing new tactics at every turn.</p>
+        </div>
+      </div>
+      <div class="encounter-a" style="width: auto; flex: 1 1 0; min-width: 0; margin: 0;">
+        <div class="encounter-a__title">
+          <p class="spellcard-a__caption-title" style="font-family:'Tungsten','Arial Black','Arial Bold',Arial,sans-serif; font-size:35px; text-decoration:none; text-transform:uppercase;">Brightstone Cleanup</p>
+        </div>
+        <img class="encounter-a__image expandable-image"
+             src="WebsiteAssets/Sunderfolk_2025/Sunderfolk_Images/Sunderfolk_Screenshot_B_edited.jpg"
+             alt="Brightstone Cleanup screenshot" />
+        <div class="encounter-a__caption">
+          <p class="spellcard-a__caption-body" style="font-size:14px; margin-top:0;"><strong style="font-weight:700;">Type:</strong> Exploration</p>
+          <p class="spellcard-a__caption-body" style="font-size:14px; margin-top:4px;">Take down the Brightstone lamp in the game's most dangerous encounter, facing some of its strongest enemies.</p>
+        </div>
+      </div>
+    </div>
 
-    <div class="mt-16">
-      <h3 class="h-display text-[24px] md:text-[28px] underline underline-offset-4">Example: Visitor from Afar (Defense &amp; Extraction)</h3>
-      <p class="text-cream/85 mt-3 leading-7 max-w-4xl">
-        Kick off the new DLC mini-campaign with its first mission, featuring the debut of a new Ally and a fearsome new Monster!
-        Defend against the horde of incoming monster, and extract the injured ally.
-      </p>
-
-      <div class="frame mt-8 aspect-[16/9] img-treat max-w-4xl mx-auto">
-        <img src="WebsiteAssets/Sunderfolk_2025/Sunderfolk_Images/Sunderfolk_Encounter_SacredRescue_Iteration.jpg" alt="Visitor from Afar screenshot" class="w-full h-full object-cover" />
+    <!-- Design Process (mirrors Combat's) — un-zoomed, so scoped by .enc-process for scale-1 type -->
+    <div class="enc-process">
+      <!-- DESIGN PROCESS divider -->
+      <div style="display: flex; align-items: center; gap: 5px; margin: 44px 35px 0;">
+        <div style="flex: 1; height: 5px; background: #EDE9E1;"></div>
+        <span style="font-family: 'Tungsten','Arial Black','Arial Bold',Arial,sans-serif; font-weight: 700; font-size: 42px; color: #EDE9E1; white-space: nowrap;">DESIGN PROCESS</span>
+        <div style="flex: 1; height: 5px; background: #EDE9E1;"></div>
       </div>
 
-      <div class="grid md:grid-cols-2 gap-8 mt-10 text-cream/85 leading-7 text-[14.5px]">
-        <p>With the Sandstone wall in place, Monsters are forced to travel around it, exhausting their movement.</p>
-        <p>Leverage the Mummy's ability to turn into a Sandstone obstacle, forming a wall that protects your team from the advancing horde.</p>
+      <!-- Ideation — Process_Template_Left -->
+      <div class="process-tl">
+        <img class="process-tl__image expandable-image"
+             src="WebsiteAssets/Sunderfolk_2025/Sunderfolk_Images/Sunderfolk_Encounter_SacredRescue_Ideation.jpg"
+             alt="Ideation reference" />
+        <div class="process-tl__caption">
+          <p class="spellcard-a__caption-title">Ideation</p>
+          <p class="spellcard-a__caption-body">Design goals:</p>
+          <ul class="spellcard-a__caption-list">
+            <li>Set up the narrative premise for the DLC campaign.</li>
+            <li>Introduce the new Ally and Monster.</li>
+            <li>Offer a fresh experience or strategy uncommon to the main game.</li>
+          </ul>
+          <p class="spellcard-a__caption-body">From there, define the encounter's map shape, quest, and objectives; build the enemy lineup and their starting positions; and craft a narrative that supports and enriches it.</p>
+        </div>
       </div>
 
-      <div class="grid md:grid-cols-3 gap-5 mt-12">
-        <div class="proc-box bg-beat2 text-ink">
-          <h5>Ideation</h5>
-          <ul class="list-disc pl-5 space-y-1.5">
-            <li>Set up the premise of the narrative to the DLC campaign.</li>
-            <li>Introduce the design of the new Ally and Monster.</li>
-            <li>Offer a new experience or gameplay strategy uncommon to the main game.</li>
-            <li>Define the map shape of the encounter.</li>
-            <li>Interesting quest and objective.</li>
-            <li>Create the enemy line up and each starting position.</li>
-            <li>Craft the narrative that support and enrich the encounter.</li>
-          </ul>
+      <!-- Paper Prototype and Implementation — Process_Template_Below -->
+      <div class="process-tb">
+        <div class="process-tb__caption">
+          <p class="spellcard-a__caption-title">Paper Prototype and Implementation</p>
+          <p class="spellcard-a__caption-body">Run paper playtests virtually in Miro, then gather feedback to refine every element — from the Ally and Monster to objectives and starting positions.</p>
+          <p class="spellcard-a__caption-body">Build the first in-engine version and produce a playable prototype for full-team playtests.</p>
         </div>
-        <div class="proc-box bg-beat3 text-ink">
-          <h5>Paper Playtest and Implementation</h5>
-          <ul class="list-disc pl-5 space-y-1.5">
-            <li>Conduct two small playtests using paper prototypes on Miro to assess how the encounter functions.</li>
-            <li>Gather feedback and refine all elements, from the Ally and Monster to objectives and starting positions.</li>
-            <li>Build the first in-engine version of the design and produce a playable prototype for full team playtests.</li>
-          </ul>
+        <img class="process-tb__image expandable-image"
+             src="WebsiteAssets/Sunderfolk_2025/Sunderfolk_Images/Sunderfolk_Encounter_SacredRescue_PaperPlaytest.jpg"
+             alt="Paper playtest reference" />
+      </div>
+
+      <!-- Iteration and Polish — Process_Template_Below -->
+      <div class="process-tb">
+        <div class="process-tb__caption">
+          <p class="spellcard-a__caption-title">Iteration and Polish</p>
+          <p class="spellcard-a__caption-body">Debug code, wire up animation and VFX hookups, and write the encounter's narrative and tutorials. Then keep gathering feedback and iterating as more team-wide playtests are run.</p>
         </div>
-        <div class="proc-box bg-beat4 text-ink">
-          <h5>Iteration and Debugging</h5>
-          <ul class="list-disc pl-5 space-y-1.5">
-            <li>Debug code, support animation/VFX hookups, and write narrative and necessary tutorials.</li>
-            <li>Continue to gather feedback and iterate as more team-wide playtests are conducted.</li>
-          </ul>
+        <img class="process-tb__image expandable-image"
+             src="WebsiteAssets/Sunderfolk_2025/Sunderfolk_Images/Sunderfolk_Encounter_SacredRescue_Iteration.jpg"
+             alt="Iteration reference" />
+      </div>
+
+      <!-- PRODUCT RESULT divider (copy of DESIGN PROCESS) -->
+      <div style="display: flex; align-items: center; gap: 5px; margin: 44px 35px 0;">
+        <div style="flex: 1; height: 5px; background: #EDE9E1;"></div>
+        <span style="font-family: 'Tungsten','Arial Black','Arial Bold',Arial,sans-serif; font-weight: 700; font-size: 42px; color: #EDE9E1; white-space: nowrap;">PRODUCT RESULT</span>
+        <div style="flex: 1; height: 5px; background: #EDE9E1;"></div>
+      </div>
+
+      <!-- Visitor From Afar — Process_Template_Below with a Tungsten title + Type subtitle -->
+      <div class="process-tb">
+        <div class="process-tb__caption">
+          <p class="spellcard-a__caption-title" style="font-family:'Tungsten','Arial Black','Arial Bold',Arial,sans-serif; font-size:30px; text-decoration:none;">Visitor From Afar</p>
+          <p class="spellcard-a__caption-body" style="font-size:16px; margin-top:3px; font-family:Arial,'Helvetica Neue',Helvetica,sans-serif;"><strong style="font-weight:700;">Type:</strong> Defense &amp; Extraction</p>
+          <p class="spellcard-a__caption-body">Kick off the new DLC mini-campaign with its first mission, featuring the debut of a new Ally and a fearsome new Monster! Defend against the horde of incoming monsters, and extract the injured ally.</p>
+        </div>
+        <img class="process-tb__image expandable-image"
+             src="WebsiteAssets/Sunderfolk_2025/Sunderfolk_Images/Screenshot 2025-12-04 174653.png"
+             alt="Visitor From Afar screenshot" />
+      </div>
+
+      <!-- Two video components: Encounter_Template_A without the title tab, video instead of image -->
+      <div class="flex flex-col md:flex-row justify-center items-start gap-6 md:gap-7 mt-6 md:mt-7" style="margin-left:35px; margin-right:35px;">
+        <div class="encounter-a" style="width: auto; flex: 1 1 0; min-width: 0; margin: 0;">
+          <video class="encounter-a__image" autoplay loop muted playsinline
+                 src="WebsiteAssets/Sunderfolk_2025/Sundefolk_Videos/Sunderfolk_SacredRescue_Design_002.mp4"></video>
+          <div class="encounter-a__caption">
+            <p class="spellcard-a__caption-body" style="font-size:14px; margin-top:0;">With the Sandstone wall in place, Monsters are forced to travel around it, exhausting their movement.</p>
+          </div>
+        </div>
+        <div class="encounter-a" style="width: auto; flex: 1 1 0; min-width: 0; margin: 0;">
+          <video class="encounter-a__image" autoplay loop muted playsinline
+                 src="WebsiteAssets/Sunderfolk_2025/Sundefolk_Videos/Sunderfolk_SacredRescue_Design_001.mp4"></video>
+          <div class="encounter-a__caption">
+            <p class="spellcard-a__caption-body" style="font-size:14px; margin-top:0;">Leverage the Mummy's ability to turn into a Sandstone obstacle, forming a wall that protects your team from the advancing horde.</p>
+          </div>
         </div>
       </div>
     </div>
@@ -1366,6 +1764,46 @@
     </div>
   </div>
 </footer>
+
+<!-- bottom "jump to" menu — emerges once the hero banner scrolls out of view -->
+<nav class="jump-menu" id="jump-menu" aria-hidden="true" aria-label="Jump to section">
+  <span class="jump-menu__label">JUMP&nbsp;TO</span>
+  <a href="#summary">SUMMARY</a>
+  <a href="#character-design">COMBAT &amp; CHARACTER</a>
+  <a href="#mission-design">ENCOUNTER &amp; QUEST</a>
+  <a href="#cinematics">CINEMATIC &amp; CUTSCENE</a>
+</nav>
+<script>
+  // Bottom jump menu: hidden while the hero is in view; emerges upward, tied to scroll,
+  // over ~220px once the hero's bottom edge passes the top of the viewport.
+  (() => {
+    const menu = document.getElementById('jump-menu');
+    const hero = document.getElementById('feature');
+    if (!menu || !hero) return;
+    const spy = Array.from(menu.querySelectorAll('a[href^="#"]'))
+      .map(a => ({ a, el: document.getElementById(a.getAttribute('href').slice(1)) }))
+      .filter(x => x.el);
+    let ticking = false;
+    function update() {
+      ticking = false;
+      const bottom = hero.getBoundingClientRect().bottom;   // hero bottom (= Summary top) relative to viewport
+      // Fully emerged by the time the Summary section reaches the top (bottom ≈ 90.5px — the jump-landing
+      // point), emerging over the preceding 176px. Below Summary it stays out; it only retracts when you
+      // scroll back UP into the hero (bottom climbs past ~110 → 286).
+      const t = Math.min(Math.max((286 - bottom) / 176, 0), 1);
+      menu.style.transform = `translateY(${(1 - t) * 100}%)`;
+      menu.setAttribute('aria-hidden', t <= 0.001 ? 'true' : 'false');
+      // scroll-spy: fill in the link for the section currently sitting under the header
+      let current = null;
+      spy.forEach(({ a, el }) => { if (el.getBoundingClientRect().top <= 140) current = a; });
+      spy.forEach(({ a }) => a.classList.toggle('is-current', a === current));
+    }
+    function onScroll() { if (!ticking) { ticking = true; requestAnimationFrame(update); } }
+    window.addEventListener('scroll', onScroll, { passive: true });
+    window.addEventListener('resize', onScroll);
+    update();
+  })();
+</script>
 
 </main>
 
@@ -1544,6 +1982,8 @@
     track.appendChild(firstClone);
 
     const TRANSITION = 'transform 600ms cubic-bezier(.2,.8,.2,1)';
+    const viewport = document.querySelector('.char-viewport');
+    const section  = document.getElementById('character-design');
     let real = 0;        // current real character (0..totalReal-1)
     let virtual = 1;     // current track index (0..totalReal+1) — start at first real slide
 
@@ -1552,24 +1992,54 @@
       track.style.transform  = `translateX(-${v * 100}%)`;
       virtual = v;
     }
+    // Dynamic section height: the viewport tracks the ACTIVE slide's natural height
+    // (slides no longer stretch to the tallest), animating alongside the slide move.
+    function syncHeight() {
+      const s = realSlides[real];
+      if (viewport && s) viewport.style.height = s.offsetHeight + 'px';
+    }
+    // On character navigation, return to the top of the section — but only when the
+    // section top has scrolled past the top of the window. Lands the section top at
+    // the header's bottom-LEFT corner (the slanted header bottom runs 90.5px → 114px).
+    function scrollToSection() {
+      if (!section) return;
+      const top = section.getBoundingClientRect().top;
+      if (top < 0) {
+        window.scrollTo({ top: window.scrollY + top - 90.5, behavior: 'smooth' });
+      }
+    }
+    // Combat Design pills: the active slide's pill shows its assigned color, the rest grey.
+    const pills = document.querySelectorAll('.combat-btn[data-carousel-go]');
+    function updatePills() {
+      pills.forEach(p => p.classList.toggle('is-active', parseInt(p.getAttribute('data-carousel-go'), 10) === real));
+    }
     let busy = false;
     function next() {
       if (busy) return; busy = true;
       const target = real === totalReal - 1 ? totalReal + 1 : virtual + 1; // last clone, else next real
       setVirtual(target, true);
       real = (real + 1) % totalReal;
+      syncHeight();
+      updatePills();
+      scrollToSection();
     }
     function prev() {
       if (busy) return; busy = true;
       const target = real === 0 ? 0 : virtual - 1; // first clone (before start), else prev real
       setVirtual(target, true);
       real = (real - 1 + totalReal) % totalReal;
+      syncHeight();
+      updatePills();
+      scrollToSection();
     }
     function jumpTo(targetReal) {
       if (busy || targetReal === real) return;
       busy = true;
       setVirtual(targetReal + 1, true);
       real = targetReal;
+      syncHeight();
+      updatePills();
+      scrollToSection();
     }
 
     track.addEventListener('transitionend', () => {
@@ -1581,6 +2051,15 @@
 
     // Initial position (no animation)
     setVirtual(1, false);
+    syncHeight();
+    updatePills();
+    // Re-sync when the active slide's content changes size (images/fonts loading, resize).
+    window.addEventListener('load', syncHeight);
+    window.addEventListener('resize', syncHeight);
+    if (typeof ResizeObserver !== 'undefined') {
+      const ro = new ResizeObserver(() => syncHeight());
+      realSlides.forEach(s => ro.observe(s));
+    }
 
     document.querySelectorAll('[data-carousel-prev]').forEach(b => b.addEventListener('click', prev));
     document.querySelectorAll('[data-carousel-next]').forEach(b => b.addEventListener('click', next));
