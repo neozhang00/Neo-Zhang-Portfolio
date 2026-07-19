@@ -76,8 +76,8 @@
   .jump-menu {
     position: fixed; left: 0; right: 0; bottom: 0; z-index: 60;
     transform: translateY(100%);                        /* hidden below the viewport; JS overrides on scroll */
-    display: flex; align-items: center; justify-content: center; gap: 12px;
-    padding: 13px 24px 16px;
+    display: flex; align-items: center; justify-content: center; gap: 13px;   /* +10% (was 12) */
+    padding: 14.5px 26.5px 17.5px;                      /* +10% (was 13 24 16) */
     background: #EDE9E1;
     border-top: 2.5px solid #0c0c0d;                    /* full-width bar, edge to edge; top divider line */
     box-shadow: 0 -8px 26px rgba(12,12,13,0.22);
@@ -85,16 +85,16 @@
   }
   .jump-menu__label {
     font-family: 'Tungsten','Arial Black','Arial Bold',Arial,sans-serif; font-weight: 700;
-    letter-spacing: 0.05em; font-size: 22px; line-height: 1; color: #324158;
+    letter-spacing: 0.05em; font-size: 24px; line-height: 1; color: #324158;   /* +10% (was 22) */
     padding-right: 4px; white-space: nowrap;
   }
   .jump-menu a {
     display: inline-flex; align-items: center; justify-content: center;
-    height: 32px; padding: 0 16px;
-    border: 2px solid #0c0c0d; border-radius: 8px;
+    height: 35px; padding: 0 17.5px;                    /* +10% (was 32 / 0 16) */
+    border: 2px solid #0c0c0d; border-radius: 9px;      /* +10% radius (was 8) */
     background: #ffffff; color: #324158;
     font-family: Arial, 'Helvetica Neue', Helvetica, sans-serif; font-weight: 700;
-    letter-spacing: 0.14em; font-size: 11px; white-space: nowrap;
+    letter-spacing: 0.14em; font-size: 12px; white-space: nowrap;   /* +10% (was 11) */
     box-shadow: 3px 3px 0 0 #0c0c0d;
     transition: background-color 180ms ease, color 180ms ease, transform 180ms cubic-bezier(.2,.8,.2,1), box-shadow 180ms ease;
   }
@@ -105,9 +105,9 @@
   /* the link for the section currently in view — filled in with the secondary color */
   .jump-menu a.is-current { background: #324158; color: #EDE9E1; }
   @media (max-width: 640px) {
-    .jump-menu { gap: 8px; padding: 10px 14px 12px; }
+    .jump-menu { gap: 9px; padding: 11px 15.5px 13px; }   /* +10% (was 8 / 10 14 12) */
     .jump-menu__label { display: none; }
-    .jump-menu a { padding: 0 10px; letter-spacing: 0.08em; }
+    .jump-menu a { padding: 0 11px; letter-spacing: 0.08em; }   /* +10% (was 0 10) */
   }
 
   /* Hamburger menu — shown when viewport is at or below the body's min-width */
@@ -361,7 +361,16 @@
   /* no carousel arrows here, so the divider + process blocks span the full card width
      (35px insets, matching the four encounter cards) instead of the fixed Combat width */
   .enc-process .process-tl,
+  .enc-process .process-tr,
   .enc-process .process-tb { width: auto; margin-left: 35px; margin-right: 35px; }
+  /* boxed variant: no image below — the caption's bottom edge mirrors its top edge
+     (symmetric 3px Primary border top & bottom, all four corners rounded) */
+  .enc-process .process-tb--boxed .process-tb__caption::before {
+    bottom: -10px;                        /* symmetric with the -10px top (was -20px to tuck under an image) */
+    border-radius: 6px;                   /* round all four corners */
+    border-bottom: 3px solid #EDE9E1;     /* mirror the top edge's Primary border */
+  }
+  .enc-process .process-tb--boxed { margin-bottom: 10px; }  /* clear the tab's 10px bottom overflow */
 
   /* Fighting Spirit caption "tab" — same inner gaps as spellcard caption
      (9px left, 0 right, 10px top, 10px bottom), mirrored geometry: visible
@@ -653,6 +662,41 @@
   .slideshow__thumb:hover,
   .slideshow__thumb:focus-visible { opacity: 1; transform: scale(1.1); z-index: 2; }
 
+  /* ---- Cinematic storyboard variant: Main-color frame, thumbs centered on the display, title+caption on the display ---- */
+  /* Flex row: the display column stacks title → stage → caption so the caption stays glued to the stage's
+     bottom edge at any width; the thumbnail column is vertically centered on the display's center. */
+  .slideshow--cinematic .slideshow__row {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+  }
+  .slideshow--cinematic .slideshow__display {
+    flex: 1 1 0; min-width: 0;
+    display: flex; flex-direction: column; gap: 10px;
+    position: relative; isolation: isolate;
+  }
+  .slideshow--cinematic .slideshow__stage {
+    border-color: #EDE9E1;            /* Main-color frame (was Secondary) */
+    aspect-ratio: 3880 / 2558;        /* dimensions of the first storyboard image */
+  }
+  /* thumbnails: vertical filmstrip on the right, centered on the display's vertical center */
+  .slideshow--cinematic .slideshow__thumbs {
+    flex: 0 0 120px;
+    flex-direction: column; margin-top: 0; gap: 10px;
+    align-self: center;
+  }
+  .slideshow--cinematic .slideshow__thumb { flex: 0 0 auto; }   /* each thumb sizes to its 16/9 image */
+  /* selected marker: a Main-color border box with a 5px gap around the thumbnail (replaces the two lines) */
+  .slideshow--cinematic .slideshow__thumb.is-active::before {
+    top: -5px; bottom: -5px; left: -5px; right: -5px;
+    height: auto; background: none;
+    border: 2px solid #EDE9E1; border-radius: 10px;
+  }
+  .slideshow--cinematic .slideshow__thumb.is-active::after { display: none; }
+  /* keep the border box uniform on hover (don't apply the line-thickness scaleY counter) */
+  .slideshow--cinematic .slideshow__thumb.is-active:hover::before,
+  .slideshow--cinematic .slideshow__thumb.is-active:focus-visible::before { transform: none; }
+
   /* focus ring */
   a:focus-visible, button:focus-visible { outline: 3px solid #b97a3a; outline-offset: 3px; border-radius: 4px; }
 
@@ -865,13 +909,6 @@
   <div class="container-x pt-[46px] pb-16 md:pb-20" style="zoom: 1.1;">
     <!-- What Is Sunderfolk: blurb (top) + press-kit slideshow (below) -->
     <div class="relative flex flex-col gap-6">
-
-      <!-- external links: float over the top-right corner of the What-Is card -->
-      <div class="flex flex-wrap gap-3 md:gap-4" style="position: absolute; top: -21px; right: 20px; z-index: 5;">
-        <a href="#" class="pill">OFFICIAL SITE</a>
-        <a href="#" class="pill">STEAM PAGE</a>
-        <a href="#" class="pill">FEATURED ARTICLE</a>
-      </div>
 
       <!-- press-kit slideshow -->
       <div class="slideshow" id="sunder-slideshow" style="order: 2; width: 85%; align-self: center;">
@@ -1639,133 +1676,193 @@
 </section>
 
 <!-- ============================ CINEMATICS ============================ -->
-<section id="cinematics" class="anchor relative overflow-hidden bg-ink text-cream">
-  <div class="bg-ink py-12 md:py-14">
+<section id="cinematics" class="anchor relative text-cream section-rubble-bg" style="clip-path: inset(0); overflow: hidden; --rubble-img: url('WebsiteAssets/Sunderfolk_2025/Sunderfolk_Images/What_Is_Sunderfolk/Sunderfolk_PressKit_006.jpg');">
+  <!-- Main-color divider line at the top edge (mirrors the Encounter section) -->
+  <div style="height: 5px; background: #EDE9E1;"></div>
+  <!-- title strip (same treatment as Encounter & Quest Design) -->
+  <div class="text-cream pt-12 pb-[30px] md:pt-14 md:pb-[35px]">
     <div class="container-x text-center">
-      <h2 class="h-display text-[40px] md:text-[56px] tracking-wide">CINEMATICS AND CUTSCENE</h2>
+      <h2 class="flex items-center gap-[18px] text-[45px] md:text-[63px] tracking-wide uppercase -mt-[20px]" style="font-family:'Tungsten','Arial Black','Arial Bold',Arial,sans-serif; font-weight:700;">
+        <span class="flex-1 h-[5px]" style="background:#EDE9E1;"></span>
+        <span>CINEMATIC &amp; CUTSCENE DESIGN</span>
+        <span class="flex-1 h-[5px]" style="background:#EDE9E1;"></span>
+      </h2>
     </div>
   </div>
 
-  <div class="absolute top-28 left-0 right-0 bottom-0 grain"></div>
-  <div class="absolute top-28 left-0 right-0 bottom-0" style="background:
-    radial-gradient(50% 60% at 20% 0%, rgba(160,90,40,0.18), transparent 60%),
-    radial-gradient(60% 60% at 80% 100%, rgba(140,40,90,0.18), transparent 60%),
-    #0c0c0d;"></div>
+  <div class="relative container-x pt-2 pb-[99px]">
+    <!-- Cinematic Production — Encounter_Template_A (title, image, caption); full section width, full image shown -->
+    <div class="encounter-a" style="width:auto; margin:8px 35px 0;">
+      <div class="encounter-a__title">
+        <p class="spellcard-a__caption-title" style="font-family:'Tungsten','Arial Black','Arial Bold',Arial,sans-serif; font-size:35px; text-decoration:none; text-transform:uppercase;">Cinematic Production</p>
+      </div>
+      <img class="encounter-a__image expandable-image"
+           style="aspect-ratio:auto; height:auto; object-fit:fill;"
+           src="WebsiteAssets/Sunderfolk_2025/Sunderfolk_Images/Sunderfolk_Cinematic_Production.jpg"
+           alt="Cinematic Production screenshot" />
+      <div class="encounter-a__caption">
+        <p class="spellcard-a__caption-body" style="font-size:14px; margin-top:0;">In Sunderfolk, tight budgets and a demanding schedule shaped how every cinematic was produced. The majority are built by repurposing existing gameplay animation and finding creative ways to tell a compelling story — reserving costly, custom one-off animation only for the key narrative moments.</p>
+      </div>
+    </div>
 
-  <div class="relative container-x py-12 md:py-16">
-
-    <!-- color tier strip -->
-    <div class="max-w-5xl mx-auto">
-      <div class="frame">
-        <div class="bg-[#1c1a18] p-4">
-          <div class="tier-strip"></div>
+    <!-- Three cinematic sample videos — Encounter_Template_A (centered title + centered caption), video instead of image -->
+    <div class="flex flex-col md:flex-row justify-center items-start gap-6 md:gap-7 mt-6 md:mt-7" style="margin-left:35px; margin-right:35px;">
+      <div class="encounter-a" style="width: auto; flex: 1 1 0; min-width: 0; margin: 0;">
+        <div class="encounter-a__title">
+          <p class="spellcard-a__caption-title" style="font-family:'Tungsten','Arial Black','Arial Bold',Arial,sans-serif; font-size:35px; text-decoration:none; text-transform:uppercase; text-align:center;">Low Budget</p>
+        </div>
+        <video class="encounter-a__image" autoplay loop muted playsinline
+               src="WebsiteAssets/Sunderfolk_2025/Sundefolk_Videos/Sunderfolk_Cinematic_Sample_A.mp4"></video>
+        <div class="encounter-a__caption" style="display:flex; flex-direction:column; justify-content:center; min-height:45.5px;">
+          <p class="spellcard-a__caption-body" style="font-size:14px; margin-top:0; text-align:center;">100% Gameplay Assets</p>
+        </div>
+      </div>
+      <div class="encounter-a" style="width: auto; flex: 1 1 0; min-width: 0; margin: 0;">
+        <div class="encounter-a__title">
+          <p class="spellcard-a__caption-title" style="font-family:'Tungsten','Arial Black','Arial Bold',Arial,sans-serif; font-size:35px; text-decoration:none; text-transform:uppercase; text-align:center;">Medium Budget</p>
+        </div>
+        <video class="encounter-a__image" autoplay loop muted playsinline
+               src="WebsiteAssets/Sunderfolk_2025/Sundefolk_Videos/Sunderfolk_Cinematic_Sample_B.mp4"></video>
+        <div class="encounter-a__caption" style="display:flex; flex-direction:column; justify-content:center; min-height:45.5px;">
+          <p class="spellcard-a__caption-body" style="font-size:14px; margin-top:0; text-align:center;">75% Gameplay Assets and 25% Custom Animation</p>
+        </div>
+      </div>
+      <div class="encounter-a" style="width: auto; flex: 1 1 0; min-width: 0; margin: 0;">
+        <div class="encounter-a__title">
+          <p class="spellcard-a__caption-title" style="font-family:'Tungsten','Arial Black','Arial Bold',Arial,sans-serif; font-size:35px; text-decoration:none; text-transform:uppercase; text-align:center;">High Budget</p>
+        </div>
+        <video class="encounter-a__image" autoplay loop muted playsinline
+               src="WebsiteAssets/Sunderfolk_2025/Sundefolk_Videos/Sunderfolk_Cinematic_Sample_C.mp4"></video>
+        <div class="encounter-a__caption" style="display:flex; flex-direction:column; justify-content:center; min-height:45.5px;">
+          <p class="spellcard-a__caption-body" style="font-size:14px; margin-top:0; text-align:center;">100% Custom Animation</p>
         </div>
       </div>
     </div>
 
-    <div class="grid md:grid-cols-3 gap-6 mt-10">
-      <div>
-        <div class="frame aspect-video video-slot">VIDEO 4</div>
-        <p class="mt-4 h-display text-[22px] underline underline-offset-4">Low Budget</p>
-        <p class="mt-2 text-cream/80 text-[14px]">100% gameplay assets</p>
-      </div>
-      <div>
-        <div class="frame aspect-video video-slot">VIDEO 5</div>
-        <p class="mt-4 h-display text-[22px] underline underline-offset-4">Medium Budget</p>
-        <p class="mt-2 text-cream/80 text-[14px]">50% gameplay assets<br/>50% custom animation</p>
-      </div>
-      <div>
-        <div class="frame aspect-video video-slot">VIDEO 6</div>
-        <p class="mt-4 h-display text-[22px] underline underline-offset-4">High Budget</p>
-        <p class="mt-2 text-cream/80 text-[14px]">100% custom animation</p>
-      </div>
-    </div>
-
-    <!-- Storyboard Samples -->
-    <div class="mt-20">
-      <h3 class="h-display text-[22px] underline underline-offset-4">Storyboard Samples</h3>
-      <p class="mt-3 text-cream/85 leading-7 max-w-4xl text-[14.5px]">
-        After identifying the narrative beats to each cinematic cutscenes, I would go into the game space to scout possible locations and draw storyboards with notes and iterations before executing the development of the cinematic.
-      </p>
-      <div class="frame mt-6 aspect-[5/2] img-treat">
-        <img src="WebsiteAssets/Sunderfolk_2025/Sunderfolk_Images/Sunderfolk_BugRollOut_Storyboard.jpg" alt="Storyboard sketches" class="w-full h-full object-cover" />
-      </div>
-    </div>
-
-    <!-- Ideation -->
-    <div class="grid md:grid-cols-12 gap-8 mt-16">
-      <div class="md:col-span-5">
-        <h4 class="h-display text-[20px] underline underline-offset-4">Ideation</h4>
-        <ul class="mt-3 list-disc pl-5 text-cream/85 space-y-2 text-[14.5px] leading-7">
-          <li>Analyze the narrative and gameplay elements of the encounter to identify key story beats.</li>
-          <li>Emphasize the stakes and give players a glimpse of the challenges ahead.</li>
-        </ul>
-      </div>
-      <div class="md:col-span-7">
-        <p class="text-cream/70 text-[12px] tracking-[0.16em] mb-3">Encounter — Tower Defense</p>
-        <p class="text-cream/70 text-[12px] tracking-[0.16em] mb-3 ml-auto text-right">Identify Key Story Beats</p>
-        <div class="grid grid-cols-4 gap-3">
-          <div class="frame aspect-video bg-zinc-800"><div class="absolute inset-0 video-slot text-[11px]">SHOT</div></div>
-          <div class="proc-box bg-beat1 text-ink text-[12.5px] leading-snug">Monsters Attacking the Gate</div>
-          <div class="proc-box bg-beat2 text-ink text-[12.5px] leading-snug">Guard Bugs stepping up to protect Arden</div>
-          <div class="proc-box bg-beat3 text-ink text-[12.5px] leading-snug">First Defense-type mission in the campaign</div>
-          <div></div>
-          <div class="proc-box bg-beat1 text-ink text-[12px] leading-snug">A great chance to showcase the enemy lineup the player will play against in this encounter</div>
-          <div class="proc-box bg-beat2 text-ink text-[12px] leading-snug">Sets the tone for the type of mission this encounter is introducing (Defense Type) and the Allies you will fight alongside with</div>
-          <div class="proc-box bg-beat3 text-ink text-[12px] leading-snug">This marks the introduction of a new encounter mission, so make this exciting!</div>
+    <!-- Storyboard slideshow — cinematic variant: Main-color frame, thumbs down the right, title+caption on the display -->
+    <div class="slideshow slideshow--cinematic" id="cinematic-slideshow" style="width: 85%; margin: 40px auto 0;">
+      <div class="slideshow__row">
+        <!-- display column: title tab → stage → caption tab (caption stays glued to the stage's bottom) -->
+        <div class="slideshow__display">
+          <div class="encounter-a__title">
+            <p class="spellcard-a__caption-title" style="font-family:'Tungsten','Arial Black','Arial Bold',Arial,sans-serif; font-size:35px; text-decoration:none; text-transform:uppercase;">Storyboard</p>
+          </div>
+          <div class="slideshow__stage">
+            <img class="slideshow__main" id="cinematic-slideshow-main"
+                 src="WebsiteAssets/Sunderfolk_2025/Sunderfolk_Images/Cinematic_Storyboard/Sunderfolk_Cinematic_Storyboard_001.jpg"
+                 alt="Cinematic storyboard preview" />
+          </div>
+          <div class="encounter-a__caption">
+            <p class="spellcard-a__caption-body" style="font-size:14px; margin-top:0;">After identifying the key narrative beats of each cinematic cutscene, I head into the game space to scout potential locations, then draw storyboards — complete with notes and iterations — before executing the full development of the cinematic.</p>
+          </div>
+        </div>
+        <!-- thumbnails: vertical filmstrip on the right, centered on the display -->
+        <div class="slideshow__thumbs">
+          <button type="button" class="slideshow__thumb is-active" data-src="WebsiteAssets/Sunderfolk_2025/Sunderfolk_Images/Cinematic_Storyboard/Sunderfolk_Cinematic_Storyboard_001.jpg" aria-label="Show storyboard image 1"><img src="WebsiteAssets/Sunderfolk_2025/Sunderfolk_Images/Cinematic_Storyboard/Sunderfolk_Cinematic_Storyboard_001.jpg" alt="" /></button>
+          <button type="button" class="slideshow__thumb" data-src="WebsiteAssets/Sunderfolk_2025/Sunderfolk_Images/Cinematic_Storyboard/Sunderfolk_Cinematic_Storyboard_002.jpg" aria-label="Show storyboard image 2"><img src="WebsiteAssets/Sunderfolk_2025/Sunderfolk_Images/Cinematic_Storyboard/Sunderfolk_Cinematic_Storyboard_002.jpg" alt="" /></button>
+          <button type="button" class="slideshow__thumb" data-src="WebsiteAssets/Sunderfolk_2025/Sunderfolk_Images/Cinematic_Storyboard/Sunderfolk_Cinematic_Storyboard_004.jpg" aria-label="Show storyboard image 4"><img src="WebsiteAssets/Sunderfolk_2025/Sunderfolk_Images/Cinematic_Storyboard/Sunderfolk_Cinematic_Storyboard_004.jpg" alt="" /></button>
+          <button type="button" class="slideshow__thumb" data-src="WebsiteAssets/Sunderfolk_2025/Sunderfolk_Images/Cinematic_Storyboard/Sunderfolk_Cinematic_Storyboard_005.jpg" aria-label="Show storyboard image 5"><img src="WebsiteAssets/Sunderfolk_2025/Sunderfolk_Images/Cinematic_Storyboard/Sunderfolk_Cinematic_Storyboard_005.jpg" alt="" /></button>
+          <button type="button" class="slideshow__thumb" data-src="WebsiteAssets/Sunderfolk_2025/Sunderfolk_Images/Cinematic_Storyboard/Sunderfolk_Cinematic_Storyboard_006.jpg" aria-label="Show storyboard image 6"><img src="WebsiteAssets/Sunderfolk_2025/Sunderfolk_Images/Cinematic_Storyboard/Sunderfolk_Cinematic_Storyboard_006.jpg" alt="" /></button>
+          <button type="button" class="slideshow__thumb" data-src="WebsiteAssets/Sunderfolk_2025/Sunderfolk_Images/Cinematic_Storyboard/Sunderfolk_Cinematic_Storyboard_007.jpg" aria-label="Show storyboard image 7"><img src="WebsiteAssets/Sunderfolk_2025/Sunderfolk_Images/Cinematic_Storyboard/Sunderfolk_Cinematic_Storyboard_007.jpg" alt="" /></button>
         </div>
       </div>
     </div>
+    <script>
+    (function () {
+      var root = document.getElementById('cinematic-slideshow');
+      if (!root) return;
+      var main = document.getElementById('cinematic-slideshow-main');
+      var thumbs = root.querySelectorAll('.slideshow__thumb');
+      thumbs.forEach(function (btn) {
+        btn.addEventListener('click', function () {
+          var src = btn.getAttribute('data-src');
+          if (src) main.src = src;
+          thumbs.forEach(function (b) { b.classList.remove('is-active'); });
+          btn.classList.add('is-active');
+        });
+      });
+    })();
+    </script>
 
-    <!-- Research and Storyboard -->
-    <div class="mt-16">
-      <h4 class="h-display text-[20px] underline underline-offset-4">Research and Storyboard</h4>
-      <ul class="mt-3 list-disc pl-5 text-cream/85 space-y-2 text-[14.5px] leading-7 max-w-4xl">
-        <li>Identify the available assets and develop a narrative pitch that covers all key story beats.</li>
-        <li>Ensure the storyboard is designed to provide a smooth and natural transition from cutscene to gameplay.</li>
-      </ul>
-      <div class="frame mt-6 aspect-[5/2] img-treat">
-        <img src="WebsiteAssets/Sunderfolk_2025/Sunderfolk_Images/Act1_LightstoneMines_BombGoblin_Storyboard.jpg" alt="Lightstone Mines storyboard" class="w-full h-full object-cover" />
+    <!-- Design Process (mirrors the Encounter section) — un-zoomed, scoped by .enc-process for scale-1 type -->
+    <div class="enc-process">
+      <!-- DESIGN PROCESS divider -->
+      <div style="display: flex; align-items: center; gap: 5px; margin: 44px 35px 0;">
+        <div style="flex: 1; height: 5px; background: #EDE9E1;"></div>
+        <span style="font-family: 'Tungsten','Arial Black','Arial Bold',Arial,sans-serif; font-weight: 700; font-size: 42px; color: #EDE9E1; white-space: nowrap;">DESIGN PROCESS</span>
+        <div style="flex: 1; height: 5px; background: #EDE9E1;"></div>
       </div>
-    </div>
 
-    <!-- Prototype + Result -->
-    <div class="grid md:grid-cols-2 gap-10 mt-16">
-      <div>
-        <div class="frame aspect-video video-slot">VIDEO 7</div>
-        <h4 class="h-display text-[20px] underline underline-offset-4 mt-5">Prototype</h4>
-        <ul class="mt-3 list-disc pl-5 text-cream/85 space-y-2 text-[14.5px] leading-7">
-          <li>Develop an initial draft or prototype from the storyboard.</li>
-          <li>Work hand-in-hand with animation, 3D, VFX, and writing teams to continuously refine and iterate during production.</li>
-        </ul>
+      <!-- Pre-Production & Planning — Process_Template_Below -->
+      <div class="process-tb">
+        <div class="process-tb__caption">
+          <p class="spellcard-a__caption-title">Pre-Production &amp; Planning</p>
+          <p class="spellcard-a__caption-body">Analyze the encounter's narrative and gameplay elements to pinpoint the key story beats, then develop concepts that raise the stakes and give players a glimpse of the challenges ahead.</p>
+        </div>
+        <img class="process-tb__image expandable-image"
+             src="WebsiteAssets/Sunderfolk_2025/Sunderfolk_Images/Sunderfolk_Cinematic_Story.jpg"
+             alt="Pre-production and planning reference" />
       </div>
-      <div>
-        <div class="frame aspect-video video-slot">VIDEO 8</div>
-        <h4 class="h-display text-[20px] underline underline-offset-4 mt-5">Result</h4>
-        <ul class="mt-3 list-disc pl-5 text-cream/85 space-y-2 text-[14.5px] leading-7">
-          <li>A low budget cinematic using 100% gameplay assets.</li>
-          <li>Low-cost implementation.</li>
-          <li>Effectively communicate the narrative.</li>
-        </ul>
+
+      <!-- Research & Storyboarding — Process_Template_Below without image (bottom edge mirrors the top) -->
+      <div class="process-tb process-tb--boxed">
+        <div class="process-tb__caption">
+          <p class="spellcard-a__caption-title">Research &amp; Storyboarding</p>
+          <p class="spellcard-a__caption-body">Survey the assets already available — gameplay animation, environment set dressing, and VFX — and shape them into a narrative pitch that supports the established key story beats. Design the storyboard to carry players through a smooth, natural transition from gameplay into the cutscene and back to gameplay.</p>
+        </div>
+      </div>
+
+      <!-- Three cinematic animation videos side by side — Encounter_Template_A image slot, video only -->
+      <div class="flex flex-col md:flex-row justify-center items-start gap-6 md:gap-7 mt-6 md:mt-7" style="margin-left:35px; margin-right:35px;">
+        <div class="encounter-a" style="width: auto; flex: 1 1 0; min-width: 0; margin: 0;">
+          <video class="encounter-a__image" autoplay loop muted playsinline
+                 src="WebsiteAssets/Sunderfolk_2025/Sundefolk_Videos/Cinematic/Sunderfolk_Cinematic_Animation_A.mp4"></video>
+        </div>
+        <div class="encounter-a" style="width: auto; flex: 1 1 0; min-width: 0; margin: 0;">
+          <video class="encounter-a__image" autoplay loop muted playsinline
+                 src="WebsiteAssets/Sunderfolk_2025/Sundefolk_Videos/Cinematic/Sunderfolk_Cinematic_Animation_B.mp4"></video>
+        </div>
+        <div class="encounter-a" style="width: auto; flex: 1 1 0; min-width: 0; margin: 0;">
+          <video class="encounter-a__image" autoplay loop muted playsinline
+                 src="WebsiteAssets/Sunderfolk_2025/Sundefolk_Videos/Cinematic/Sunderfolk_Cinematic_Animation_C.mp4"></video>
+        </div>
+      </div>
+
+      <!-- Storyboard image below the video row (shrunk 15% → 85% width, centered) -->
+      <div style="margin: 24px 35px 0;">
+        <img class="expandable-image"
+             src="WebsiteAssets/Sunderfolk_2025/Sunderfolk_Images/Cinematic_Storyboard/Sunderfolk_BugRollOut_Storyboard.jpg"
+             alt="Bug Roll Out storyboard"
+             style="display:block; width:85%; height:auto; margin-left:auto; margin-right:auto; border:3px solid #EDE9E1; border-radius:6px;" />
+      </div>
+
+      <!-- Kitbashing & First Draft — Process_Template_Left with a video instead of the image (video enlarged 10%: flex 2→2.75) -->
+      <div class="process-tl">
+        <video class="process-tl__image" autoplay loop muted playsinline style="flex: 2.75 1 0;"
+               src="WebsiteAssets/Sunderfolk_2025/Sundefolk_Videos/Cinematic/Sunderfolk_Cinematic_Prototype.mp4"></video>
+        <div class="process-tl__caption">
+          <p class="spellcard-a__caption-title">Kitbashing &amp; First Draft</p>
+          <p class="spellcard-a__caption-body">Working from the storyboard, build a first draft — or prototype — directly in the engine using only existing gameplay animation, and lock in a shot list that keeps the camera clear of any unpolished areas of the environment.</p>
+          <p class="spellcard-a__caption-body">Author in-engine animation to move characters naturally through the game space, then collaborate closely with the Animation, 3D, and VFX teams to continuously refine and polish the cinematic.</p>
+        </div>
+      </div>
+
+      <!-- Final Polish — Process_Template_Right with a video instead of the image -->
+      <div class="process-tr">
+        <div class="process-tr__caption">
+          <p class="spellcard-a__caption-title">Final Polish</p>
+          <p class="spellcard-a__caption-body">Through iteration and polish alongside the Animation, 3D, and VFX teams, the result is a low-budget cinematic built entirely from in-game assets — the same animation, VFX, and models players already see in the game.</p>
+          <p class="spellcard-a__caption-body">Clever camera angles, deliberate character blocking, and careful pre-planning let the team deliver a low-cost cinematic that still lands its narrative beat — freeing up hours for the higher-priority polish elsewhere in the game.</p>
+        </div>
+        <video class="process-tr__image" autoplay loop muted playsinline
+               src="WebsiteAssets/Sunderfolk_2025/Sundefolk_Videos/Cinematic/Sunderfolk_Cinematic_FinalPolish.mp4"></video>
       </div>
     </div>
   </div>
 </section>
 
-<!-- ============================ FOOTER ============================ -->
-<footer class="bg-ink text-cream/70 border-t border-cream/10">
-  <div class="container-x py-10 flex flex-wrap items-center justify-between gap-4">
-    <p class="text-[12px] tracking-[0.22em]">© NEO ZHANG — GAME DESIGNER</p>
-    <div class="flex gap-6 text-[12px] tracking-[0.18em]">
-      <a href="#" class="hover:text-cream">FEATURE</a>
-      <a href="#" class="hover:text-cream">PROTOTYPES</a>
-      <a href="#" class="hover:text-cream">BLOGS</a>
-      <a href="#" class="hover:text-cream">ABOUT + BONUS</a>
-    </div>
-  </div>
-</footer>
-
-<!-- bottom "jump to" menu — emerges once the hero banner scrolls out of view -->
+<!-- bottom "jump to" menu — emerges once the hero banner scrolls out of view;
+     at the very bottom it sits flush against the Cinematic section's bottom edge -->
 <nav class="jump-menu" id="jump-menu" aria-hidden="true" aria-label="Jump to section">
   <span class="jump-menu__label">JUMP&nbsp;TO</span>
   <a href="#summary">SUMMARY</a>
