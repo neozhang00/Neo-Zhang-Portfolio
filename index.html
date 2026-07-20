@@ -3,6 +3,21 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
+<script>
+  /* Mobile browsers scale a fixed-width viewport down to the screen natively and reliably.
+     CSS `zoom` + `min-width:1000px` is flaky on them (window.innerWidth is mis-reported, so
+     the whole 1000px design renders unscaled/overlapping). So on touch devices we hand the
+     1000px design to the browser's own viewport scaling instead. Runs before layout to avoid
+     a flash. Desktop keeps device-width (+ CSS zoom for narrow windows) and, in any case,
+     desktop browsers ignore the viewport tag — so the windowed site is unaffected. */
+  (function () {
+    try {
+      if (window.matchMedia && window.matchMedia('(pointer: coarse)').matches) {
+        document.querySelector('meta[name="viewport"]').setAttribute('content', 'width=1000');
+      }
+    } catch (e) {}
+  })();
+</script>
 <title>Neo Zhang — Game Designer</title>
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -860,10 +875,11 @@
     transform: translate3d(0, 0, 0);
   }
 
-  /* When the page is scaled down (<1000px, body zoomed), a couple of elements that are
-     anchored just outside the 1000px design width would add a sliver of horizontal scroll.
-     Pull them back inside — no layout change, and full-size desktop is untouched. */
-  @media (max-width: 999px) {
+  /* When the page is at or below the 1000px design width (desktop scaled down, or the mobile
+     fixed 1000px viewport), a couple of elements anchored just outside 1000px would add a
+     sliver of horizontal scroll. Pull them back inside — no layout change, desktop >1000 is
+     untouched. */
+  @media (max-width: 1000px) {
     /* blurred section background halo: drop its 40px sideways overhang */
     .section-rubble-bg::before { left: 0; right: 0; }
     /* carousel arrows are anchored at calc(50% - 535px), i.e. ~35px outside a 1000px
