@@ -1,0 +1,231 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<script>
+  /* Mobile browsers scale a fixed-width viewport down to the screen natively and reliably.
+     CSS `zoom` + `min-width:1000px` is flaky on them (window.innerWidth is mis-reported, so
+     the whole 1000px design renders unscaled/overlapping). So on touch devices we hand the
+     1000px design to the browser's own viewport scaling instead. Runs before layout to avoid
+     a flash. Desktop keeps device-width (+ CSS zoom for narrow windows) and, in any case,
+     desktop browsers ignore the viewport tag — so the windowed site is unaffected. */
+  (function () {
+    try {
+      if (window.matchMedia && window.matchMedia('(pointer: coarse)').matches) {
+        document.querySelector('meta[name="viewport"]').setAttribute('content', 'width=1000');
+      }
+    } catch (e) {}
+  })();
+</script>
+<title>Prototypes — Neo Zhang</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+<script src="https://cdn.tailwindcss.com"></script>
+<script>
+  tailwind.config = {
+    theme: {
+      extend: {
+        /* Force the md: breakpoint always-on so the desktop layout never reflows to its
+           mobile fallback — below 1000px the whole page just scales down uniformly (zoom)
+           instead of re-stacking, so nothing jumps. */
+        screens: { md: '1px' },
+        colors: {
+          ink:    '#0c0c0d',
+          cream:  '#ece6df',
+          paper:  '#f4efe8',
+          beat1:  '#fbc8c2',
+          beat2:  '#f7d599',
+          beat3:  '#f5c0db',
+          beat4:  '#bfd9ec',
+        },
+        fontFamily: {
+          display: ['Inter', 'system-ui', 'sans-serif'],
+          body:    ['Inter', 'system-ui', 'sans-serif'],
+        },
+      },
+    },
+  };
+</script>
+<style>
+  /* Tungsten (licensed, brand_assets) — display font */
+  @font-face {
+    font-family: 'Tungsten';
+    font-weight: 700;
+    font-display: swap;
+    src: url('brand_assets/Font/Tungsten-Font/WOFF2/Tungsten-Bold.woff2') format('woff2');
+  }
+
+  html { scroll-behavior: smooth; }
+  body { font-family: 'Inter', system-ui, sans-serif; color: #0c0c0d; background: #ece6df; -webkit-font-smoothing: antialiased; min-width: 1000px; }
+
+  /* Below the design width (1000), JS sets --page-scale and adds .page-scaled.
+     We use CSS zoom which scales both layout and visuals (so scrollbars/heights
+     reflow to the scaled size, no horizontal scrollbar). */
+  body.page-scaled { zoom: var(--page-scale, 1); }
+
+  /* ButtonFormat_Header — nav buttons in the page header (#324158 bg) */
+  .nav-pill {
+    display:inline-flex; align-items:center; justify-content:center;
+    height: 32px; padding: 0 22px;
+    border: 1.5px solid #ffffff;
+    border-radius: 8px;
+    color: #ffffff; background: transparent;
+    font-family: Arial, 'Helvetica Neue', Helvetica, sans-serif; font-weight: 700;
+    letter-spacing: 0.16em; font-size: 11px;
+    /* shadow cast at 135° (down-right), same color as border */
+    box-shadow: 4px 4px 0 0 #ffffff;
+    transition: background-color 180ms ease, color 180ms ease, border-color 180ms ease, box-shadow 180ms ease, transform 180ms cubic-bezier(.2,.8,.2,1);
+  }
+  .nav-pill:hover { background: #EDE9E1; border-color: #3a3a3a; color: #000000; transform: translateY(-1px); }
+  .nav-pill:active { transform: translateY(0); }
+  /* current page — filled pill (inverse of the outlined default) */
+  .nav-pill.is-current { background: #ffffff; border-color: #324158; color: #324158; }
+
+  /* Hamburger menu — shown when viewport is at or below the body's min-width */
+  .nav-mobile-trigger {
+    display: none;
+    width: 38px; height: 38px;
+    align-items: center; justify-content: center;
+    border: 1.5px solid #ffffff;
+    border-radius: 8px;
+    background: transparent; color: #ffffff;
+    cursor: pointer;
+    box-shadow: 4px 4px 0 0 #ffffff;
+    transition: background-color 180ms ease, border-color 180ms ease, color 180ms ease, transform 180ms cubic-bezier(.2,.8,.2,1);
+  }
+  .nav-mobile-trigger:hover { background: #EDE9E1; border-color: #3a3a3a; color: #000; transform: translateY(-1px); }
+  .nav-mobile-trigger svg { display:block; }
+
+  .nav-mobile-panel {
+    display: none;
+    position: fixed;
+    top: 75px;
+    right: 18px;
+    background: #324158;
+    border: 1.5px solid #ffffff;
+    border-radius: 8px;
+    padding: 8px;
+    min-width: 220px;
+    max-height: calc(100vh - 100px);
+    overflow-y: auto;
+    z-index: 60;
+    box-shadow: 4px 4px 0 0 #ffffff;
+  }
+  .nav-mobile-panel.is-open { display: flex; flex-direction: column; gap: 6px; }
+  .nav-mobile-panel a {
+    display: block;
+    padding: 10px 14px;
+    font-family: Arial, 'Helvetica Neue', Helvetica, sans-serif;
+    font-weight: 700; letter-spacing: 0.16em; font-size: 11px;
+    color: #ffffff;
+    border-radius: 6px;
+    border: 1.5px solid transparent;
+    text-decoration: none;
+    transition: background-color 180ms ease, border-color 180ms ease, color 180ms ease;
+  }
+  .nav-mobile-panel a:hover { background: #EDE9E1; border-color: #3a3a3a; color: #000; }
+  .nav-mobile-panel a.is-current { background: #ffffff; border-color: #324158; color: #324158; }
+
+  @media (max-width: 1000px) {
+    .nav-desktop { display: none !important; }
+    .nav-mobile-trigger {
+      display: inline-flex;
+      position: fixed;
+      top: 22px;
+      right: 18px;
+      z-index: 60;
+    }
+  }
+
+  .container-x { max-width: 1180px; margin-inline: auto; padding-inline: 24px; }
+  .anchor { scroll-margin-top: 90.5px; }  /* land section top at the header's bottom-LEFT corner (clip-path 0 90.5px) */
+  body { scroll-padding-top: 110px; }
+</style>
+</head>
+<body class="bg-paper text-ink">
+
+<!-- ============================ TOP NAV ============================ -->
+<header class="sticky top-0 z-50 bg-white pb-[24px]" style="clip-path: polygon(0 0, 100% 0, 100% 114px, 0 90.5px);">
+  <div class="absolute inset-0 bg-[#324158]" style="clip-path: polygon(0 0, 100% 0, 100% 109px, 0 85.5px);"></div>
+  <div class="container-x flex items-center justify-between h-[90px] relative">
+    <a href="index.html" class="flex flex-col items-center leading-none text-white text-center ml-[35px]">
+      <span class="text-[34px] tracking-tight" style="font-family:'Arial Black','Arial Bold',Arial,sans-serif; font-weight:900;">NEO ZHANG</span>
+      <span class="text-[16px] tracking-[0.12em] mt-1 text-white/85" style="font-family:'Helvetica Neue',Helvetica,Arial,sans-serif; font-weight:400;">— GAME DESIGNER —</span>
+    </a>
+    <nav class="nav-desktop hidden md:flex items-center gap-3 mr-[35px]">
+      <a href="index.html" class="nav-pill">FEATURE</a>
+      <a href="prototypes.html" class="nav-pill is-current">PROTOTYPES</a>
+      <a href="index.html#blogs" class="nav-pill">BLOGS</a>
+      <a href="index.html#about" class="nav-pill">ABOUT + BONUS</a>
+    </nav>
+
+  </div>
+</header>
+
+<!-- Mobile nav: outside the header so the slanted clip-path can't crop it -->
+<button class="nav-mobile-trigger" id="nav-mobile-trigger" aria-label="Open menu" aria-expanded="false" aria-controls="nav-mobile-panel">
+  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round">
+    <path d="M3 6h18M3 12h18M3 18h18"/>
+  </svg>
+</button>
+<div class="nav-mobile-panel" id="nav-mobile-panel">
+  <a href="index.html">FEATURE</a>
+  <a href="prototypes.html" class="is-current">PROTOTYPES</a>
+  <a href="index.html#blogs">BLOGS</a>
+  <a href="index.html#about">ABOUT + BONUS</a>
+</div>
+
+<main id="top">
+
+  <!-- Prototype project pages will live here -->
+
+</main>
+
+<script>
+  // Mobile nav (hamburger) toggle
+  (() => {
+    const btn = document.getElementById('nav-mobile-trigger');
+    const panel = document.getElementById('nav-mobile-panel');
+    if (!btn || !panel) return;
+    function close(){ panel.classList.remove('is-open'); btn.setAttribute('aria-expanded','false'); }
+    function open(){ panel.classList.add('is-open'); btn.setAttribute('aria-expanded','true'); }
+    btn.addEventListener('click', e => {
+      e.stopPropagation();
+      panel.classList.contains('is-open') ? close() : open();
+    });
+    panel.querySelectorAll('a').forEach(a => a.addEventListener('click', close));
+    document.addEventListener('click', e => {
+      if (!panel.contains(e.target) && e.target !== btn) close();
+    });
+  })();
+
+  // Below the design width (1000) the whole page scales down uniformly (CSS zoom):
+  // everything shrinks together with the window, smoothly, with no reflow jumps.
+  // (The md: breakpoint is forced always-on so the desktop layout never re-flows.)
+  (() => {
+    const DESIGN_WIDTH = 1000;
+    const root = document.documentElement;
+    let raf = 0;
+    function applyScale() {
+      const vw = window.innerWidth;
+      if (vw < DESIGN_WIDTH) {
+        root.style.setProperty('--page-scale', (vw / DESIGN_WIDTH).toString());
+        document.body.classList.add('page-scaled');
+      } else {
+        root.style.removeProperty('--page-scale');
+        document.body.classList.remove('page-scaled');
+      }
+    }
+    function schedule() {
+      cancelAnimationFrame(raf);
+      raf = requestAnimationFrame(applyScale);
+    }
+    window.addEventListener('resize', schedule);
+    applyScale();
+  })();
+</script>
+
+</body>
+</html>

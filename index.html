@@ -89,6 +89,8 @@
   }
   .nav-pill:hover { background: #EDE9E1; border-color: #3a3a3a; color: #000000; transform: translateY(-1px); }
   .nav-pill:active { transform: translateY(0); }
+  /* current page — filled pill (inverse of the outlined default) */
+  .nav-pill.is-current { background: #ffffff; border-color: #324158; color: #324158; }
 
   /* bottom "jump to" menu — a container-style box docked flush to the window's bottom edge.
      Hidden at the top of the page; emerges upward as the hero banner scrolls away (JS-driven). */
@@ -172,6 +174,7 @@
     transition: background-color 180ms ease, border-color 180ms ease, color 180ms ease;
   }
   .nav-mobile-panel a:hover { background: #EDE9E1; border-color: #3a3a3a; color: #000; }
+  .nav-mobile-panel a.is-current { background: #ffffff; border-color: #324158; color: #324158; }
 
   @media (max-width: 1000px) {
     .nav-desktop { display: none !important; }
@@ -895,13 +898,13 @@
 <header class="sticky top-0 z-50 bg-white pb-[24px]" style="clip-path: polygon(0 0, 100% 0, 100% 114px, 0 90.5px);">
   <div class="absolute inset-0 bg-[#324158]" style="clip-path: polygon(0 0, 100% 0, 100% 109px, 0 85.5px);"></div>
   <div class="container-x flex items-center justify-between h-[90px] relative">
-    <a href="#top" class="flex flex-col items-center leading-none text-white text-center ml-[35px]">
+    <a href="#top" onclick="event.preventDefault(); window.scrollTo({ top: 0, behavior: 'smooth' });" class="flex flex-col items-center leading-none text-white text-center ml-[35px]">
       <span class="text-[34px] tracking-tight" style="font-family:'Arial Black','Arial Bold',Arial,sans-serif; font-weight:900;">NEO ZHANG</span>
       <span class="text-[16px] tracking-[0.12em] mt-1 text-white/85" style="font-family:'Helvetica Neue',Helvetica,Arial,sans-serif; font-weight:400;">— GAME DESIGNER —</span>
     </a>
     <nav class="nav-desktop hidden md:flex items-center gap-3 mr-[35px]">
-      <a href="#feature"  class="nav-pill">FEATURE</a>
-      <a href="#prototypes" class="nav-pill">PROTOTYPES</a>
+      <a href="#feature" onclick="event.preventDefault(); window.scrollTo({ top: 0, behavior: 'smooth' });" class="nav-pill is-current">FEATURE</a>
+      <a href="prototypes.html" class="nav-pill">PROTOTYPES</a>
       <a href="#blogs"    class="nav-pill">BLOGS</a>
       <a href="#about"    class="nav-pill">ABOUT + BONUS</a>
     </nav>
@@ -916,8 +919,8 @@
   </svg>
 </button>
 <div class="nav-mobile-panel" id="nav-mobile-panel">
-  <a href="#feature">FEATURE</a>
-  <a href="#prototypes">PROTOTYPES</a>
+  <a href="#feature" onclick="event.preventDefault(); window.scrollTo({ top: 0, behavior: 'smooth' });" class="is-current">FEATURE</a>
+  <a href="prototypes.html">PROTOTYPES</a>
   <a href="#blogs">BLOGS</a>
   <a href="#about">ABOUT + BONUS</a>
 </div>
@@ -991,10 +994,11 @@
       <h2 class="text-[29px] md:text-[34px] leading-none" style="font-family:'Tungsten','Arial Black','Arial Bold',Arial,sans-serif; font-weight:700; letter-spacing:0.04em;">Sunderfolk + DLC (2023 - 2025)</h2>
       <p class="mt-[5px] underline underline-offset-4 decoration-2 text-[16px]" style="font-family:Arial,'Helvetica Neue',Helvetica,sans-serif; font-weight:600;">Summarized Responsibilities:</p>
       <ul class="resp-list list-disc pl-6 mt-3 text-[16px]" style="font-family:Arial,'Helvetica Neue',Helvetica,sans-serif;">
-        <li>Owned end-to-end design of 10 characters (1 playable hero, 4 bosses, 5 enemies), translating each one's fantasy and role into distinct ability kit, passive, and AI behavior, from concept through ship on PC, Xbox, PS5, and Switch.</li>
-        <li>Designed and shipped 10+ levels from paper design and blockout through final polish, anchoring each on a distinct mechanic (puzzle, combat, exploration) that promote players toward cooperative strategy.</li>
-        <li>Wrote and maintained design documentation for every shipped character and level (intended player experience, encounter flow, anchoring mechanic) keeping Engineering, Art, and QA aligned through iteration.</li>
-        <li>Collaborated with the Animation Lead to drive narrative and visual direction for 30+ cinematic cutscenes; translated gameplay moments into story beats, storyboards, and art briefs that delivered cohesive storytelling on tight release schedules.</li>
+        <li>Led the design of 10 levels from paper concept and engine blockout through implementation and ship; each mission anchored on a distinct feature (puzzle, combat, exploration) that incentivizes cooperative strategy.</li>
+        <li>Owned end-to-end design of 10 characters (1 playable hero, 4 bosses, 5 enemies) from concept to ship across PC, Xbox, PS5, and Switch, translating each character's fantasy into a distinct, coherent ability kit and passive effects.</li>
+        <li>Balanced the playable hero's kit against the full enemy roster for co-op play, tuning power level, counterplay, and AI behavior so encounters stayed fair, readable, and engaging.</li>
+        <li>Designed for a broad, non-traditional tabletop RPG audience: designed mission flows, balanced pacing, and wrote narrative for first-time players while preserving depth for repeat play.</li>
+        <li>Wrote and maintained high-quality design documentation for every shipped character and level (intended player experience, encounter flow, anchoring mechanic), keeping Engineering, Art, and QA aligned through iteration.</li>
         <li>Led 3+ internal playtests weekly, turning qualitative feedback and edge-case findings into concrete design changes.</li>
       </ul>
     </article>
