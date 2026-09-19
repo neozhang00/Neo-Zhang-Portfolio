@@ -826,7 +826,8 @@
     touch-action: none;          /* let pointer events drive pan, not browser scroll */
   }
   .image-lightbox.is-open { display: flex; }
-  .image-lightbox img {
+  .image-lightbox img,
+  .image-lightbox video {
     max-width: 100%;
     max-height: 100%;
     width: auto;
@@ -905,7 +906,6 @@
     <nav class="nav-desktop hidden md:flex items-center gap-3 mr-[35px]">
       <a href="#feature" onclick="event.preventDefault(); window.scrollTo({ top: 0, behavior: 'smooth' });" class="nav-pill is-current">FEATURE</a>
       <a href="prototypes.html" class="nav-pill">PROTOTYPES</a>
-      <a href="#blogs"    class="nav-pill">BLOGS</a>
       <a href="#about"    class="nav-pill">ABOUT + BONUS</a>
     </nav>
 
@@ -921,7 +921,6 @@
 <div class="nav-mobile-panel" id="nav-mobile-panel">
   <a href="#feature" onclick="event.preventDefault(); window.scrollTo({ top: 0, behavior: 'smooth' });" class="is-current">FEATURE</a>
   <a href="prototypes.html">PROTOTYPES</a>
-  <a href="#blogs">BLOGS</a>
   <a href="#about">ABOUT + BONUS</a>
 </div>
 
@@ -933,8 +932,8 @@
   <div class="relative h-full w-full flex flex-col items-center justify-center text-cream text-center px-6">
     <h1 class="h-display text-cream leading-none drop-shadow-[0_4px_20px_rgba(0,0,0,0.6)]" style="font-size: clamp(70px, 8.75vw, 130px); font-family:'Tungsten','Arial Black','Arial Bold',Arial,sans-serif; font-weight:700; letter-spacing:0.02em; text-transform:uppercase;">Sunderfolk</h1>
     <div class="mt-3 flex justify-center items-center" style="gap: clamp(28px, 3.2vw, 48px);">
-      <img src="WebsiteAssets/Sunderfolk_2025/Sunderfolk_Images/Sunderfolk_NYXAward_PCGameFamily.png" alt="NYX Award — PC Game Family" class="object-contain drop-shadow-[0_4px_16px_rgba(0,0,0,0.5)]" style="height: clamp(72px, 7.6vw, 110px);" />
-      <img src="WebsiteAssets/Sunderfolk_2025/Sunderfolk_Images/Sunderfolk_NYXAward_BestInnovation.png" alt="NYX Award — Best Innovation" class="object-contain drop-shadow-[0_4px_16px_rgba(0,0,0,0.5)]" style="height: clamp(72px, 7.6vw, 110px);" />
+      <img src="WebsiteAssets/Sunderfolk_2025/Sunderfolk_Images/Sunderfolk_NYXAward_PCGameFamily.png" alt="NYX Award — PC Game Family" class="object-contain drop-shadow-[0_4px_16px_rgba(0,0,0,0.5)]" style="height: clamp(83px, 8.78vw, 127px);" />
+      <img src="WebsiteAssets/Sunderfolk_2025/Sunderfolk_Images/Sunderfolk_NYXAward_BestInnovation.png" alt="NYX Award — Best Innovation" class="object-contain drop-shadow-[0_4px_16px_rgba(0,0,0,0.5)]" style="height: clamp(83px, 8.78vw, 127px);" />
     </div>
   </div>
 </section>
@@ -1555,6 +1554,7 @@
 <!-- Image lightbox (used by .expandable-image elements) -->
 <div class="image-lightbox" id="image-lightbox" aria-hidden="true" role="dialog">
   <img src="" alt="" />
+  <video autoplay loop muted playsinline style="display: none;"></video>
   <p class="image-lightbox__hint">Scroll to zoom in/out. Drag to move the image. Click to exit viewing mode.</p>
 </div>
 
@@ -1775,7 +1775,7 @@
         <div class="encounter-a__title">
           <p class="spellcard-a__caption-title" style="font-family:'Tungsten','Arial Black','Arial Bold',Arial,sans-serif; font-size:35px; text-decoration:none; text-transform:uppercase; text-align:center;">Low Budget</p>
         </div>
-        <video class="encounter-a__image" autoplay loop muted playsinline
+        <video class="encounter-a__image expandable-image" autoplay loop muted playsinline
                src="WebsiteAssets/Sunderfolk_2025/Sundefolk_Videos/Sunderfolk_Cinematic_Sample_A.mp4"></video>
         <div class="encounter-a__caption" style="display:flex; flex-direction:column; justify-content:center; min-height:45.5px;">
           <p class="spellcard-a__caption-body" style="font-size:14px; margin-top:0; text-align:center;">100% Gameplay Assets</p>
@@ -1785,7 +1785,7 @@
         <div class="encounter-a__title">
           <p class="spellcard-a__caption-title" style="font-family:'Tungsten','Arial Black','Arial Bold',Arial,sans-serif; font-size:35px; text-decoration:none; text-transform:uppercase; text-align:center;">Medium Budget</p>
         </div>
-        <video class="encounter-a__image" autoplay loop muted playsinline
+        <video class="encounter-a__image expandable-image" autoplay loop muted playsinline
                src="WebsiteAssets/Sunderfolk_2025/Sundefolk_Videos/Sunderfolk_Cinematic_Sample_B.mp4"></video>
         <div class="encounter-a__caption" style="display:flex; flex-direction:column; justify-content:center; min-height:45.5px;">
           <p class="spellcard-a__caption-body" style="font-size:14px; margin-top:0; text-align:center;">75% Gameplay Assets and 25% Custom Animation</p>
@@ -1795,7 +1795,7 @@
         <div class="encounter-a__title">
           <p class="spellcard-a__caption-title" style="font-family:'Tungsten','Arial Black','Arial Bold',Arial,sans-serif; font-size:35px; text-decoration:none; text-transform:uppercase; text-align:center;">High Budget</p>
         </div>
-        <video class="encounter-a__image" autoplay loop muted playsinline
+        <video class="encounter-a__image expandable-image" autoplay loop muted playsinline
                src="WebsiteAssets/Sunderfolk_2025/Sundefolk_Videos/Sunderfolk_Cinematic_Sample_C.mp4"></video>
         <div class="encounter-a__caption" style="display:flex; flex-direction:column; justify-content:center; min-height:45.5px;">
           <p class="spellcard-a__caption-body" style="font-size:14px; margin-top:0; text-align:center;">100% Custom Animation</p>
@@ -1992,38 +1992,58 @@
     const lightbox = document.getElementById('image-lightbox');
     if (!lightbox) return;
     const lightboxImg = lightbox.querySelector('img');
+    const lightboxVideo = lightbox.querySelector('video');
     const hint = lightbox.querySelector('.image-lightbox__hint');
     const ZOOM_MIN = 0.5, ZOOM_MAX = 8, ZOOM_STEP = 1.1, DRAG_THRESHOLD = 5;
+    let activeEl = lightboxImg;   // the media being viewed: the img or the video
     let scale = 1, tx = 0, ty = 0;
     let activePointerId = null, didDrag = false;
     let dragStartX = 0, dragStartY = 0, dragStartTx = 0, dragStartTy = 0;
 
     function updateHintPosition() {
       if (!lightbox.classList.contains('is-open')) return;
-      const r = lightboxImg.getBoundingClientRect();
+      const r = activeEl.getBoundingClientRect();
       hint.style.top = `${r.bottom + 5}px`;
     }
     function applyTransform() {
-      lightboxImg.style.transform = `translate(${tx}px, ${ty}px) scale(${scale})`;
+      activeEl.style.transform = `translate(${tx}px, ${ty}px) scale(${scale})`;
       updateHintPosition();
     }
     function reset() { scale = 1; tx = 0; ty = 0; }
-    function open(src, alt) {
-      lightboxImg.src = src;
-      lightboxImg.alt = alt || '';
+    function show() {
       reset();
       applyTransform();
       lightbox.classList.add('is-open');
       lightbox.setAttribute('aria-hidden', 'false');
       document.body.style.overflow = 'hidden';
     }
+    function open(src, alt) {
+      activeEl = lightboxImg;
+      lightboxImg.style.display = '';
+      lightboxVideo.style.display = 'none';
+      lightboxImg.src = src;
+      lightboxImg.alt = alt || '';
+      show();
+    }
+    function openVideo(src) {
+      activeEl = lightboxVideo;
+      lightboxImg.style.display = 'none';
+      lightboxVideo.style.display = 'block';
+      lightboxVideo.src = src;
+      lightboxVideo.play().catch(() => {});
+      show();
+    }
     function close() {
       lightbox.classList.remove('is-open');
       lightbox.setAttribute('aria-hidden', 'true');
       document.body.style.overflow = '';
       lightboxImg.src = '';
+      lightboxVideo.pause();
+      lightboxVideo.removeAttribute('src');
+      lightboxVideo.load();
       reset();
       lightboxImg.style.transform = '';
+      lightboxVideo.style.transform = '';
     }
 
     // Public API: window.ImageViewNav(target?) — bind lightbox feature to one
@@ -2048,7 +2068,11 @@
         if (el.dataset.imageviewnavBound === '1') return;
         el.dataset.imageviewnavBound = '1';
         el.classList.add('expandable-image');
-        el.addEventListener('click', () => open(el.currentSrc || el.src, el.alt));
+        if (el.tagName === 'VIDEO') {
+          el.addEventListener('click', () => openVideo(el.currentSrc || el.src));
+        } else {
+          el.addEventListener('click', () => open(el.currentSrc || el.src, el.alt));
+        }
         count++;
       });
       return count;
@@ -2070,7 +2094,7 @@
       const newScale = Math.max(ZOOM_MIN, Math.min(ZOOM_MAX, scale * factor));
       if (newScale === scale) return;
       const actualFactor = newScale / scale;
-      const rect = lightboxImg.getBoundingClientRect();
+      const rect = activeEl.getBoundingClientRect();
       const overImg = e.clientX >= rect.left && e.clientX <= rect.right &&
                       e.clientY >= rect.top  && e.clientY <= rect.bottom;
       if (overImg) {
@@ -2118,6 +2142,7 @@
 
     // Keep hint pinned 5px below the image's visible bottom across loads & resizes.
     lightboxImg.addEventListener('load', updateHintPosition);
+    lightboxVideo.addEventListener('loadedmetadata', updateHintPosition);
     window.addEventListener('resize', updateHintPosition);
 
     document.addEventListener('keydown', e => {
