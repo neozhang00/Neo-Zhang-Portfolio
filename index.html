@@ -287,11 +287,11 @@
     color: rgba(236, 230, 223, 0.85);
     font-size: 11.5px;                  /* matches caption-body → renders 14px in the zoomed slides */
     font-weight: 400;
-    line-height: 1.625;
+    line-height: 1.58;          /* 3% tighter wrap within a bullet */
     text-align: left;
     list-style-type: disc;
   }
-  .spellcard-a__caption-list li + li { margin-top: 4px; }
+  .spellcard-a__caption-list li + li { margin-top: 5.5px; }  /* net bullet-to-bullet gap ~10% larger */
 
   /* Process_Template_Below — caption tab stacked above a Primary-bordered image.
      Caption ::before tucks 10px under image top. Wrap 730px.
@@ -642,7 +642,7 @@
 
 
   /* anchor offset for sticky nav */
-  .anchor { scroll-margin-top: 90.5px; }  /* land section top at the header's bottom-LEFT corner (clip-path 0 90.5px) */
+  .anchor { scroll-margin-top: 95px; }  /* land section top at the header's bottom edge (90px bar + 5px white line) */
 
   /* utility */
   .container-x { max-width: 1180px; margin-inline: auto; padding-inline: 24px; }
@@ -729,7 +729,7 @@
   }
 
   /* scroll-padding on body so anchors land below sticky nav */
-  body { scroll-padding-top: 110px; }
+  body { scroll-padding-top: 95px; }
 
   /* ===== Character carousel (Vanguard / Champion / Wurm) ===== */
   .char-carousel {
@@ -895,8 +895,8 @@
 <body class="bg-paper text-ink">
 
 <!-- ============================ TOP NAV ============================ -->
-<header class="sticky top-0 z-50 bg-white pb-[24px]" style="clip-path: polygon(0 0, 100% 0, 100% 114px, 0 90.5px);">
-  <div class="absolute inset-0 bg-[#324158]" style="clip-path: polygon(0 0, 100% 0, 100% 109px, 0 85.5px);"></div>
+<header class="sticky top-0 z-50 bg-white pb-[5px]">
+  <div class="absolute inset-0 bg-[#324158]" style="bottom: 5px;"></div>
   <div class="container-x flex items-center justify-between h-[90px] relative">
     <a href="#top" onclick="event.preventDefault(); window.scrollTo({ top: 0, behavior: 'smooth' });" class="flex flex-col items-center leading-none text-white text-center ml-[35px]">
       <span class="text-[34px] tracking-tight" style="font-family:'Arial Black','Arial Bold',Arial,sans-serif; font-weight:900;">NEO ZHANG</span>
@@ -1068,7 +1068,7 @@
           </div>
 
           <!-- Fighting Spirit image at the left of the group -->
-          <img src="WebsiteAssets/Sunderfolk_2025/Sunderfolk_Images/Sunderfolk_Vanguard_PassiveAbility_Desc.png" alt="Fighting Spirit — passive ability description"
+          <img src="WebsiteAssets/Sunderfolk_2025/Sunderfolk_Images/Character Design/Sunderfolk_Vanguard_PassiveAbility_Desc.png" alt="Fighting Spirit — passive ability description"
                class="absolute" style="left: 0; top: 19px; width: 307px; height: auto; max-width: none; z-index: 6; border: 3px solid #EDE9E1; border-radius: 6px; box-shadow: none;" />
 
           <!-- Caption: text positioned with 9px left + 0 right + 10px top + 10px bottom inner gaps to match SpellCard_Template_A. -->
@@ -1081,7 +1081,7 @@
       <!-- SpellCard_Template_A: Into the Fray (image top sits 15px below Video 1) -->
       <div class="spellcard-a-wrap" style="margin-top: 15px;">
         <div class="spellcard-a">
-          <img class="spellcard-a__image" src="WebsiteAssets/Sunderfolk_2025/Sunderfolk_Images/Sunderfolk_Vanguard_SpellCard_IntoTheFray.png" alt="Into the Fray spell card" />
+          <img class="spellcard-a__image" src="WebsiteAssets/Sunderfolk_2025/Sunderfolk_Images/Character Design/Sunderfolk_Vanguard_SpellCard_IntoTheFray.png" alt="Into the Fray spell card" />
           <div class="spellcard-a__video" style="padding: 0;">
             <video src="WebsiteAssets/Sunderfolk_2025/Sundefolk_Videos/Vanguard_Spell_IntoTheFray_001.mp4" autoplay loop muted playsinline style="width: 100%; height: 100%; object-fit: cover; display: block;"></video>
           </div>
@@ -1097,7 +1097,7 @@
       <!-- SpellCard_Template_A: Bladefall -->
       <div class="spellcard-a-wrap" style="margin-top: 15px;">
         <div class="spellcard-a">
-          <img class="spellcard-a__image" src="WebsiteAssets/Sunderfolk_2025/Sunderfolk_Images/Sunderfolk_Vanguard_SpellCard_Bladefall.png" alt="Bladefall spell card" />
+          <img class="spellcard-a__image" src="WebsiteAssets/Sunderfolk_2025/Sunderfolk_Images/Character Design/Sunderfolk_Vanguard_SpellCard_Bladefall.png" alt="Bladefall spell card" />
           <div class="spellcard-a__video" style="padding: 0;">
             <video src="WebsiteAssets/Sunderfolk_2025/Sundefolk_Videos/Vanguard_Spell_Bladefall_001.mp4" autoplay loop muted playsinline style="width: 100%; height: 100%; object-fit: cover; display: block;"></video>
           </div>
@@ -1121,10 +1121,10 @@
       <div class="process-tb">
         <div class="process-tb__caption">
           <p class="spellcard-a__caption-title">Ideation</p>
-          <p class="spellcard-a__caption-body">Understand the intended product goal for the new playable hero and brainstorm the hero's class, core mechanics, and deck modifications.</p>
+          <p class="spellcard-a__caption-body">Starting from the product goals for a new playable hero, brainstormed the hero's class fantasy, core mechanics, passive ability, and skill kit.</p>
         </div>
         <img class="process-tb__image expandable-image"
-             src="WebsiteAssets/Sunderfolk_2025/Sunderfolk_Images/Sunderfolk_Vanguard_Ideation_01.jpg"
+             src="WebsiteAssets/Sunderfolk_2025/Sunderfolk_Images/Character Design/Sunderfolk_Vanguard_Ideation_01.jpg"
              alt="Vanguard ideation reference" />
       </div>
 
@@ -1135,22 +1135,22 @@
           <p class="spellcard-a__caption-body">Brainstorm passive ability options based on the core mechanic, then collaborate with the lead designer and game director to finalize the design.</p>
         </div>
         <img class="process-tr__image expandable-image"
-             src="WebsiteAssets/Sunderfolk_2025/Sunderfolk_Images/Sunderfolk_Vanguard_PassiveAbility_01.jpg"
+             src="WebsiteAssets/Sunderfolk_2025/Sunderfolk_Images/Character Design/Sunderfolk_Vanguard_PassiveAbility_01.jpg"
              alt="Passive ability ideation reference" />
       </div>
 
       <!-- Spell Cards block — uses Process_Template_Left. -->
       <div class="process-tl">
         <img class="process-tl__image expandable-image"
-             src="WebsiteAssets/Sunderfolk_2025/Sunderfolk_Images/Sunderfolk_Vanguard_SpellCard_01.jpg"
+             src="WebsiteAssets/Sunderfolk_2025/Sunderfolk_Images/Character Design/Sunderfolk_Vanguard_SpellCard_01.jpg"
              alt="Spell cards reference" />
         <div class="process-tl__caption">
           <p class="spellcard-a__caption-title">Spell Cards</p>
-          <p class="spellcard-a__caption-body">Design 10 unique cards with distinct functions to support flexible deck composition:</p>
+          <p class="spellcard-a__caption-body">Designed 10 distinct ability cards to support flexible deck building:</p>
           <ul class="spellcard-a__caption-list">
-            <li>Starting cards that teach the class's core mechanics and passive ability.</li>
-            <li>Unique abilities for different scenarios and encounters.</li>
-            <li>An Ultimate card that plays into the Vanguard's class identity and team synergy.</li>
+            <li>Starter cards that teach the Vanguard's core mechanics and passive ability.</li>
+            <li>Situational cards that give players unique answers to different scenarios and encounters.</li>
+            <li>An Ultimate card that captures the Vanguard's class identity and drives team synergy.</li>
           </ul>
         </div>
       </div>
@@ -1162,23 +1162,31 @@
       <div class="process-tb" style="margin-top: 29px;">
         <div class="process-tb__caption">
           <p class="spellcard-a__caption-title">Implementation, Playtest, and Iteration</p>
-          <p class="spellcard-a__caption-body">Kitbash existing assets to implement a playable prototype in-engine. Lead 3+ weekly internal playtests, turning qualitative feedback and edge-case findings into concrete design changes that iterate on the character's ability kit. Resolve design and implementation bugs as they arise, and support animation and VFX hookups.</p>
+          <p class="spellcard-a__caption-body">Took the hero from concept to a playable prototype, building it in-engine with existing assets as temporary visuals so the team could play it in the three rapid playtests every week.</p>
+          <p class="spellcard-a__caption-body">Owned iteration end to end: turned feedback from each playtest into design changes, solved technical edge cases, and fixed bugs to keep the hero stable and improving throughout development.</p>
         </div>
         <img class="process-tb__image expandable-image"
-             src="WebsiteAssets/Sunderfolk_2025/Sunderfolk_Images/Sunderfolk_Vanguard_PlaytestFeedback_001.png"
-             alt="Vanguard playtest feedback reference" />
+             src="WebsiteAssets/Sunderfolk_2025/Sunderfolk_Images/Character Design/Sunderfolk_Vanguard_Implementation_001.png"
+             alt="Vanguard implementation reference" />
       </div>
+
+      <!-- Playtest feedback image beneath the Implementation block — full width, 10px below,
+           same border treatment as the reference-image pair that follows. -->
+      <img class="expandable-image"
+           src="WebsiteAssets/Sunderfolk_2025/Sunderfolk_Images/Character Design/Sunderfolk_Vanguard_PlaytestFeedback_001.png"
+           alt="Vanguard playtest feedback reference"
+           style="width: 730px; margin: 10px auto 0; height: auto; display: block; border: 3px solid #EDE9E1; border-radius: 6px; box-sizing: border-box;" />
 
       <!-- Two reference images beneath Implementation — side by side, 10px below the block,
            10px apart, 730px total (fills the section width). Each flex-grow equals the
            image's aspect ratio so both render at the same height with no cropping. -->
       <div style="display: flex; gap: 10px; width: 730px; margin: 10px auto 0; align-items: flex-start;">
         <img class="expandable-image"
-             src="WebsiteAssets/Sunderfolk_2025/Sunderfolk_Images/Sunderfolk_Vanguard_Iteration_002.jpg"
+             src="WebsiteAssets/Sunderfolk_2025/Sunderfolk_Images/Character Design/Sunderfolk_Vanguard_Iteration_002.jpg"
              alt="Vanguard iteration reference"
              style="flex: 1.5119 1 0; min-width: 0; height: auto; display: block; border: 3px solid #EDE9E1; border-radius: 6px; box-sizing: border-box;" />
         <img class="expandable-image"
-             src="WebsiteAssets/Sunderfolk_2025/Sunderfolk_Images/Sunderfolk_Vanguard_Iteration_001.jpg"
+             src="WebsiteAssets/Sunderfolk_2025/Sunderfolk_Images/Character Design/Sunderfolk_Vanguard_Iteration_001.jpg"
              alt="Vanguard iteration reference"
              style="flex: 2.2459 1 0; min-width: 0; height: auto; display: block; border: 3px solid #EDE9E1; border-radius: 6px; box-sizing: border-box;" />
       </div>
@@ -1566,61 +1574,74 @@
   </div>
 
   <div class="container-x pb-16 md:pb-20">
-    <!-- Tavern Trouble — modified Process_Template_Below (title, image, caption). Two side by side. -->
-    <div class="flex flex-col md:flex-row justify-center items-start gap-6 md:gap-7 mt-2" style="margin-left:35px; margin-right:35px;">
-      <div class="encounter-a" style="width: auto; flex: 1 1 0; min-width: 0; margin: 0;">
-        <div class="encounter-a__title">
-          <p class="spellcard-a__caption-title" style="font-family:'Tungsten','Arial Black','Arial Bold',Arial,sans-serif; font-size:35px; text-decoration:none; text-transform:uppercase;">Tavern Trouble</p>
+    <!-- Encounter slideshow — borrowed from the cinematic storyboard variant (Main-color
+         frame, vertical thumbs on the right); the title tab and caption tab swap to the
+         selected encounter's own text. -->
+    <div class="slideshow slideshow--cinematic" id="encounter-slideshow" style="width: 90%; margin: 8px auto 0;">
+      <div class="slideshow__row">
+        <!-- left spacer mirrors the 120px thumb column so the display sits centered -->
+        <div style="flex: 0 0 120px;" aria-hidden="true"></div>
+        <!-- display column: title tab → stage → caption tab -->
+        <div class="slideshow__display">
+          <div class="encounter-a__title">
+            <p class="spellcard-a__caption-title" id="encounter-slideshow-title" style="font-family:'Tungsten','Arial Black','Arial Bold',Arial,sans-serif; font-size:35px; text-decoration:none; text-transform:uppercase;">Tavern Trouble</p>
+          </div>
+          <!-- 3 / 1.9 + cover: same crop-to-fill framing the encounter cards used -->
+          <div class="slideshow__stage" style="aspect-ratio: 3 / 1.9;">
+            <img class="slideshow__main" id="encounter-slideshow-main"
+                 src="WebsiteAssets/Sunderfolk_2025/Sunderfolk_Images/Mission_Design/Sunderfolk_Screenshot_A_edited.jpg"
+                 alt="Tavern Trouble screenshot" style="object-fit: cover; object-position: center;" />
+          </div>
+          <div class="encounter-a__caption" id="encounter-slideshow-captions">
+            <div data-slide="0">
+              <p class="spellcard-a__caption-body" style="font-size:14px; margin-top:0;"><strong style="font-weight:700;">Type:</strong> Tutorial</p>
+              <p class="spellcard-a__caption-body" style="font-size:14px; margin-top:4px;">This tutorial teaches the game's basic controls, how your phone becomes your controller, and your role in the Sunderlands.</p>
+            </div>
+            <div data-slide="1" hidden>
+              <p class="spellcard-a__caption-body" style="font-size:14px; margin-top:0;"><strong style="font-weight:700;">Type:</strong> Boss Battle</p>
+              <p class="spellcard-a__caption-body" style="font-size:14px; margin-top:4px;">Help the Sacred Bug reclaim their throne from the Ancient Wurm, the game's first multi-hex boss, in the new DLC!</p>
+            </div>
+            <div data-slide="2" hidden>
+              <p class="spellcard-a__caption-body" style="font-size:14px; margin-top:0;"><strong style="font-weight:700;">Type:</strong> Puzzle and Battle</p>
+              <p class="spellcard-a__caption-body" style="font-size:14px; margin-top:4px;">Face the Wurm, Sunderfolk's toughest enemy, in a maze where falling rocks reshape the board — forcing new tactics at every turn.</p>
+            </div>
+            <div data-slide="3" hidden>
+              <p class="spellcard-a__caption-body" style="font-size:14px; margin-top:0;"><strong style="font-weight:700;">Type:</strong> Exploration</p>
+              <p class="spellcard-a__caption-body" style="font-size:14px; margin-top:4px;">Take down the Brightstone lamp in the game's most dangerous encounter, facing some of its strongest enemies.</p>
+            </div>
+          </div>
         </div>
-        <img class="encounter-a__image expandable-image"
-             src="WebsiteAssets/Sunderfolk_2025/Sunderfolk_Images/Sunderfolk_Screenshot_A_edited.jpg"
-             alt="Tavern Trouble screenshot" />
-        <div class="encounter-a__caption">
-          <p class="spellcard-a__caption-body" style="font-size:14px; margin-top:0;"><strong style="font-weight:700;">Type:</strong> Tutorial</p>
-          <p class="spellcard-a__caption-body" style="font-size:14px; margin-top:4px;">This tutorial teaches the game's basic controls, how your phone becomes your controller, and your role in the Sunderlands.</p>
-        </div>
-      </div>
-      <div class="encounter-a" style="width: auto; flex: 1 1 0; min-width: 0; margin: 0;">
-        <div class="encounter-a__title">
-          <p class="spellcard-a__caption-title" style="font-family:'Tungsten','Arial Black','Arial Bold',Arial,sans-serif; font-size:35px; text-decoration:none; text-transform:uppercase;">Sacred Throne</p>
-        </div>
-        <img class="encounter-a__image expandable-image"
-             src="WebsiteAssets/Sunderfolk_2025/Sunderfolk_Images/Screenshot 2025-12-04 174947.png"
-             alt="Sacred Throne screenshot" />
-        <div class="encounter-a__caption">
-          <p class="spellcard-a__caption-body" style="font-size:14px; margin-top:0;"><strong style="font-weight:700;">Type:</strong> Boss Battle</p>
-          <p class="spellcard-a__caption-body" style="font-size:14px; margin-top:4px;">Help the Sacred Bug reclaim their throne from the game's first multi-hex Boss!</p>
-        </div>
-      </div>
-    </div>
-
-    <!-- Row 2: Rubble Maze + Brightstone Cleanup -->
-    <div class="flex flex-col md:flex-row justify-center items-start gap-6 md:gap-7 mt-6 md:mt-7" style="margin-left:35px; margin-right:35px;">
-      <div class="encounter-a" style="width: auto; flex: 1 1 0; min-width: 0; margin: 0;">
-        <div class="encounter-a__title">
-          <p class="spellcard-a__caption-title" style="font-family:'Tungsten','Arial Black','Arial Bold',Arial,sans-serif; font-size:35px; text-decoration:none; text-transform:uppercase;">Rubble Maze</p>
-        </div>
-        <img class="encounter-a__image expandable-image"
-             src="WebsiteAssets/Sunderfolk_2025/Sunderfolk_Images/Sunderfolk_Screenshot_C_edited.jpg"
-             alt="Rubble Maze screenshot" />
-        <div class="encounter-a__caption">
-          <p class="spellcard-a__caption-body" style="font-size:14px; margin-top:0;"><strong style="font-weight:700;">Type:</strong> Puzzle and Battle</p>
-          <p class="spellcard-a__caption-body" style="font-size:14px; margin-top:4px;">Face the Wurm, Sunderfolk's toughest enemy, in a maze where falling rocks reshape the board — forcing new tactics at every turn.</p>
-        </div>
-      </div>
-      <div class="encounter-a" style="width: auto; flex: 1 1 0; min-width: 0; margin: 0;">
-        <div class="encounter-a__title">
-          <p class="spellcard-a__caption-title" style="font-family:'Tungsten','Arial Black','Arial Bold',Arial,sans-serif; font-size:35px; text-decoration:none; text-transform:uppercase;">Brightstone Cleanup</p>
-        </div>
-        <img class="encounter-a__image expandable-image"
-             src="WebsiteAssets/Sunderfolk_2025/Sunderfolk_Images/Sunderfolk_Screenshot_B_edited.jpg"
-             alt="Brightstone Cleanup screenshot" />
-        <div class="encounter-a__caption">
-          <p class="spellcard-a__caption-body" style="font-size:14px; margin-top:0;"><strong style="font-weight:700;">Type:</strong> Exploration</p>
-          <p class="spellcard-a__caption-body" style="font-size:14px; margin-top:4px;">Take down the Brightstone lamp in the game's most dangerous encounter, facing some of its strongest enemies.</p>
+        <!-- thumbnails: vertical filmstrip on the right, centered on the display -->
+        <div class="slideshow__thumbs">
+          <button type="button" class="slideshow__thumb is-active" data-src="WebsiteAssets/Sunderfolk_2025/Sunderfolk_Images/Mission_Design/Sunderfolk_Screenshot_A_edited.jpg" aria-label="Show Tavern Trouble"><img src="WebsiteAssets/Sunderfolk_2025/Sunderfolk_Images/Mission_Design/Sunderfolk_Screenshot_A_edited.jpg" alt="" /></button>
+          <button type="button" class="slideshow__thumb" data-src="WebsiteAssets/Sunderfolk_2025/Sunderfolk_Images/Screenshot 2025-12-04 174947.png" aria-label="Show Sacred Throne"><img src="WebsiteAssets/Sunderfolk_2025/Sunderfolk_Images/Screenshot 2025-12-04 174947.png" alt="" /></button>
+          <button type="button" class="slideshow__thumb" data-src="WebsiteAssets/Sunderfolk_2025/Sunderfolk_Images/Mission_Design/Sunderfolk_Screenshot_C_edited.jpg" aria-label="Show Rubble Maze"><img src="WebsiteAssets/Sunderfolk_2025/Sunderfolk_Images/Mission_Design/Sunderfolk_Screenshot_C_edited.jpg" alt="" /></button>
+          <button type="button" class="slideshow__thumb" data-src="WebsiteAssets/Sunderfolk_2025/Sunderfolk_Images/Mission_Design/Sunderfolk_Screenshot_B_edited.jpg" aria-label="Show Brightstone Cleanup"><img src="WebsiteAssets/Sunderfolk_2025/Sunderfolk_Images/Mission_Design/Sunderfolk_Screenshot_B_edited.jpg" alt="" /></button>
         </div>
       </div>
     </div>
+    <script>
+    (function () {
+      var root = document.getElementById('encounter-slideshow');
+      if (!root) return;
+      var main = document.getElementById('encounter-slideshow-main');
+      var title = document.getElementById('encounter-slideshow-title');
+      var captions = root.querySelectorAll('#encounter-slideshow-captions > div');
+      var titles = ['Tavern Trouble', 'Sacred Throne', 'Rubble Maze', 'Brightstone Cleanup'];
+      var thumbs = root.querySelectorAll('.slideshow__thumb');
+      thumbs.forEach(function (btn, i) {
+        btn.addEventListener('click', function () {
+          var src = btn.getAttribute('data-src');
+          if (src) main.src = src;
+          main.alt = titles[i] + ' screenshot';
+          title.textContent = titles[i];
+          captions.forEach(function (c, j) { c.hidden = j !== i; });
+          thumbs.forEach(function (b) { b.classList.remove('is-active'); });
+          btn.classList.add('is-active');
+        });
+      });
+    })();
+    </script>
 
     <!-- Design Process (mirrors Combat's) — un-zoomed, so scoped by .enc-process for scale-1 type -->
     <div class="enc-process">
@@ -1634,7 +1655,7 @@
       <!-- Ideation — Process_Template_Left -->
       <div class="process-tl">
         <img class="process-tl__image expandable-image"
-             src="WebsiteAssets/Sunderfolk_2025/Sunderfolk_Images/Sunderfolk_Encounter_SacredRescue_Ideation.jpg"
+             src="WebsiteAssets/Sunderfolk_2025/Sunderfolk_Images/Mission_Design/Sunderfolk_Encounter_SacredRescue_Ideation.jpg"
              alt="Ideation reference" />
         <div class="process-tl__caption">
           <p class="spellcard-a__caption-title">Ideation</p>
@@ -1642,9 +1663,9 @@
           <ul class="spellcard-a__caption-list">
             <li>Set up the narrative premise for the DLC campaign.</li>
             <li>Introduce the new Ally and Monster.</li>
-            <li>Offer a fresh experience or strategy uncommon to the main game.</li>
+            <li>Offer a fresh strategy uncommon to the main game.</li>
           </ul>
-          <p class="spellcard-a__caption-body">From there, define the encounter's map shape, quest, and objectives; build the enemy lineup and their starting positions; and craft a narrative that supports and enriches it.</p>
+          <p class="spellcard-a__caption-body">Defined the encounter's map shape, quest, and objectives, and built the enemy lineup and starting positions. Wrote the narrative alongside the design so the story drives the encounter, giving players a reason to care about the new Ally and a clear sense of the Monster's threat.</p>
         </div>
       </div>
 
@@ -1652,13 +1673,20 @@
       <div class="process-tb">
         <div class="process-tb__caption">
           <p class="spellcard-a__caption-title">Paper Prototype and Implementation</p>
-          <p class="spellcard-a__caption-body">Run paper playtests virtually in Miro, then gather feedback to refine every element — from the Ally and Monster to objectives and starting positions.</p>
-          <p class="spellcard-a__caption-body">Build the first in-engine version and produce a playable prototype for full-team playtests.</p>
+          <p class="spellcard-a__caption-body">Prototyped the encounter through remote paper playtests on Miro, refining mechanics with each round of feedback.</p>
+          <p class="spellcard-a__caption-body">Then built it in-engine with in-house tools and scripts to create a playable version for team-wide testing.</p>
         </div>
         <img class="process-tb__image expandable-image"
-             src="WebsiteAssets/Sunderfolk_2025/Sunderfolk_Images/Sunderfolk_Encounter_SacredRescue_PaperPlaytest.jpg"
+             src="WebsiteAssets/Sunderfolk_2025/Sunderfolk_Images/Mission_Design/Sunderfolk_Encounter_SacredRescue_PaperPlaytest.jpg"
              alt="Paper playtest reference" />
       </div>
+
+      <!-- Implementation image beneath the Paper Prototype block — same 35px side margins,
+           10px below, same border treatment as the template images. -->
+      <img class="expandable-image"
+           src="WebsiteAssets/Sunderfolk_2025/Sunderfolk_Images/Mission_Design/Sunderfolk_SacredRescue_Implementation_001.png"
+           alt="Sacred Rescue implementation reference"
+           style="display: block; margin: 10px 35px 0; width: calc(100% - 70px); height: auto; border: 3px solid #EDE9E1; border-radius: 6px; box-sizing: border-box;" />
 
       <!-- Iteration and Polish — Process_Template_Below -->
       <div class="process-tb">
@@ -1667,7 +1695,7 @@
           <p class="spellcard-a__caption-body">Debug code, wire up animation and VFX hookups, and write the encounter's narrative and tutorials. Then keep gathering feedback and iterating as more team-wide playtests are run.</p>
         </div>
         <img class="process-tb__image expandable-image"
-             src="WebsiteAssets/Sunderfolk_2025/Sunderfolk_Images/Sunderfolk_Encounter_SacredRescue_Iteration.jpg"
+             src="WebsiteAssets/Sunderfolk_2025/Sunderfolk_Images/Mission_Design/Sunderfolk_Encounter_SacredRescue_Iteration.jpg"
              alt="Iteration reference" />
       </div>
 
@@ -2133,12 +2161,12 @@
     }
     // On character navigation, return to the top of the section — but only when the
     // section top has scrolled past the top of the window. Lands the section top at
-    // the header's bottom-LEFT corner (the slanted header bottom runs 90.5px → 114px).
+    // the header's bottom edge (95px: 90px bar + 5px white line).
     function scrollToSection() {
       if (!section) return;
       const top = section.getBoundingClientRect().top;
       if (top < 0) {
-        window.scrollTo({ top: window.scrollY + top - 90.5, behavior: 'smooth' });
+        window.scrollTo({ top: window.scrollY + top - 95, behavior: 'smooth' });
       }
     }
     // Combat Design pills: the active slide's pill shows its assigned color, the rest grey.
