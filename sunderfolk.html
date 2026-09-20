@@ -1,0 +1,2340 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<script>
+  /* Mobile browsers scale a fixed-width viewport down to the screen natively and reliably.
+     CSS `zoom` + `min-width:1000px` is flaky on them (window.innerWidth is mis-reported, so
+     the whole 1000px design renders unscaled/overlapping). So on touch devices we hand the
+     1000px design to the browser's own viewport scaling instead. Runs before layout to avoid
+     a flash. Desktop keeps device-width (+ CSS zoom for narrow windows) and, in any case,
+     desktop browsers ignore the viewport tag — so the windowed site is unaffected. */
+  (function () {
+    try {
+      if (window.matchMedia && window.matchMedia('(pointer: coarse)').matches) {
+        document.querySelector('meta[name="viewport"]').setAttribute('content', 'width=1000');
+      }
+    } catch (e) {}
+  })();
+</script>
+<title>Neo Zhang — Game Designer</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+<script src="https://cdn.tailwindcss.com"></script>
+<script>
+  tailwind.config = {
+    theme: {
+      extend: {
+        /* Force the md: breakpoint always-on so the desktop layout never reflows to its
+           mobile fallback — below 1000px the whole page just scales down uniformly (zoom)
+           instead of re-stacking, so nothing jumps. */
+        screens: { md: '1px' },
+        colors: {
+          ink:    '#0c0c0d',
+          cream:  '#ece6df',
+          paper:  '#f4efe8',
+          beat1:  '#fbc8c2',
+          beat2:  '#f7d599',
+          beat3:  '#f5c0db',
+          beat4:  '#bfd9ec',
+        },
+        fontFamily: {
+          display: ['Inter', 'system-ui', 'sans-serif'],
+          body:    ['Inter', 'system-ui', 'sans-serif'],
+        },
+      },
+    },
+  };
+</script>
+<style>
+  /* Tungsten (licensed, brand_assets) — used for character-nav button names */
+  @font-face {
+    font-family: 'Tungsten';
+    font-weight: 700;
+    font-display: swap;
+    src: url('brand_assets/Font/Tungsten-Font/WOFF2/Tungsten-Bold.woff2') format('woff2');
+  }
+
+  html { scroll-behavior: smooth; }
+  body { font-family: 'Inter', system-ui, sans-serif; color: #0c0c0d; background: #ece6df; -webkit-font-smoothing: antialiased; min-width: 1000px; }
+
+  /* Below the design width (1000), JS sets --page-scale and adds .page-scaled.
+     We use CSS zoom which scales both layout and visuals (so scrollbars/heights
+     reflow to the scaled size, no horizontal scrollbar). */
+  body.page-scaled { zoom: var(--page-scale, 1); }
+
+  /* SVG noise overlay */
+  .grain::before {
+    content: '';
+    position: absolute; inset: 0;
+    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='220' height='220'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 1  0 0 0 0 1  0 0 0 0 1  0 0 0 0.18 0'/></filter><rect width='100%25' height='100%25' filter='url(%23n)' opacity='0.55'/></svg>");
+    mix-blend-mode: overlay;
+    opacity: 0.32;
+    pointer-events: none;
+  }
+  /* ButtonFormat_Header — nav buttons in the page header (#324158 bg) */
+  .nav-pill {
+    display:inline-flex; align-items:center; justify-content:center;
+    height: 32px; padding: 0 22px;
+    border: 1.5px solid #ffffff;
+    border-radius: 8px;
+    color: #ffffff; background: transparent;
+    font-family: Arial, 'Helvetica Neue', Helvetica, sans-serif; font-weight: 700;
+    letter-spacing: 0.16em; font-size: 11px;
+    /* shadow cast at 135° (down-right), same color as border */
+    box-shadow: 4px 4px 0 0 #ffffff;
+    transition: background-color 180ms ease, color 180ms ease, border-color 180ms ease, box-shadow 180ms ease, transform 180ms cubic-bezier(.2,.8,.2,1);
+  }
+  .nav-pill:hover { background: #EDE9E1; border-color: #3a3a3a; color: #000000; transform: translateY(-1px); }
+  .nav-pill:active { transform: translateY(0); }
+  /* current page — filled pill (inverse of the outlined default) */
+  .nav-pill.is-current { background: #ffffff; border-color: #324158; color: #324158; }
+
+  /* bottom "jump to" menu — a container-style box docked flush to the window's bottom edge.
+     Hidden at the top of the page; emerges upward as the hero banner scrolls away (JS-driven). */
+  .jump-menu {
+    position: fixed; left: 0; right: 0; bottom: 0; z-index: 60;
+    transform: translateY(100%);                        /* hidden below the viewport; JS overrides on scroll */
+    display: flex; align-items: center; justify-content: center; gap: 13px;   /* +10% (was 12) */
+    padding: 14.5px 26.5px 17.5px;                      /* +10% (was 13 24 16) */
+    background: #EDE9E1;
+    border-top: 2.5px solid #0c0c0d;                    /* full-width bar, edge to edge; top divider line */
+    box-shadow: 0 -8px 26px rgba(12,12,13,0.22);
+    will-change: transform;
+  }
+  .jump-menu__label {
+    font-family: 'Tungsten','Arial Black','Arial Bold',Arial,sans-serif; font-weight: 700;
+    letter-spacing: 0.05em; font-size: 24px; line-height: 1; color: #324158;   /* +10% (was 22) */
+    padding-right: 4px; white-space: nowrap;
+  }
+  .jump-menu a {
+    display: inline-flex; align-items: center; justify-content: center;
+    height: 35px; padding: 0 17.5px;                    /* +10% (was 32 / 0 16) */
+    border: 2px solid #0c0c0d; border-radius: 9px;      /* +10% radius (was 8) */
+    background: #ffffff; color: #324158;
+    font-family: Arial, 'Helvetica Neue', Helvetica, sans-serif; font-weight: 700;
+    letter-spacing: 0.14em; font-size: 12px; white-space: nowrap;   /* +10% (was 11) */
+    box-shadow: 3px 3px 0 0 #0c0c0d;
+    transition: background-color 180ms ease, color 180ms ease, transform 180ms cubic-bezier(.2,.8,.2,1), box-shadow 180ms ease;
+  }
+  .jump-menu a:hover, .jump-menu a:focus-visible {
+    background: #324158; color: #EDE9E1; transform: translateY(-2px); box-shadow: 4px 5px 0 0 #0c0c0d;
+  }
+  .jump-menu a:active { transform: translateY(0); box-shadow: 2px 2px 0 0 #0c0c0d; }
+  /* the link for the section currently in view — filled in with the secondary color */
+  .jump-menu a.is-current { background: #324158; color: #EDE9E1; }
+  @media (max-width: 640px) {
+    .jump-menu { gap: 9px; padding: 11px 15.5px 13px; }   /* +10% (was 8 / 10 14 12) */
+    .jump-menu__label { display: none; }
+    .jump-menu a { padding: 0 11px; letter-spacing: 0.08em; }   /* +10% (was 0 10) */
+  }
+
+  /* header nav — text links sectioned off by divider lines (replaces the pills) */
+  .nav-link {
+    display: inline-flex; align-items: center; justify-content: center;
+    height: 32px; padding: 0 26px;
+    color: #ffffff;
+    font-family: Arial, 'Helvetica Neue', Helvetica, sans-serif; font-weight: 700;
+    letter-spacing: 0.16em; font-size: 12px;
+    text-decoration: none;
+    transition: color 180ms ease, transform 180ms cubic-bezier(.2,.8,.2,1);
+  }
+  .nav-link:hover, .nav-link:focus-visible { color: #EDE9E1; transform: translateY(-1px); text-decoration: underline; text-underline-offset: 5px; }
+  .nav-link:active { transform: translateY(0); }
+  .nav-link.is-current { color: #C4693B; text-decoration: underline; text-underline-offset: 5px; text-decoration-thickness: 2.5px; }
+
+  /* ButtonFormat_Default — buttons in cream sections (mirror of ButtonFormat_Header) */
+  .pill {
+    display: inline-flex; align-items: center; justify-content: center;
+    height: 42px; padding: 0 26px;
+    border: 2px solid #0c0c0d;
+    border-radius: 8px;
+    color: #324158; background: #ffffff;
+    font-family: Arial, 'Helvetica Neue', Helvetica, sans-serif; font-weight: 700;
+    letter-spacing: 0.18em; font-size: 12px;
+    /* shadow cast at 135° (down-right), black */
+    box-shadow: 5px 5px 0 0 #0c0c0d;
+    transition: background-color 180ms ease, color 180ms ease, border-color 180ms ease, transform 180ms cubic-bezier(.2,.8,.2,1);
+  }
+  .pill:hover { background: #324158; border-color: #0c0c0d; color: #EDE9E1; transform: translateY(-1px); }
+  .pill:active { transform: translateY(0); }
+
+  /* card framed in Secondary Color, white inner */
+  .bordercard {
+    border: 2.5px solid #324158;
+    border-radius: 8px;
+    background: #ffffff;
+    padding: 15px 36px 15px 15px;
+  }
+
+  /* SpellCard_Template_A — image (left) + video (center, image overlaps it) +
+     caption (right). Group 730×271, centered. See Template/SpellCard_Template_A.md. */
+  .spellcard-a-wrap { position: relative; }
+  .spellcard-a {
+    position: relative;
+    width: 730px;
+    height: 271px;
+    left: 50%;
+    transform: translateX(-50%);
+  }
+  .spellcard-a__image {
+    position: absolute;
+    left: 0; top: 0;
+    width: 168px; height: 271px;
+    z-index: 5;
+    border-radius: 10px;
+  }
+  .spellcard-a__video {
+    position: absolute;
+    left: 152px; top: 17px;
+    width: 424px; height: 238px;
+    border: 3px solid #EDE9E1;
+    border-radius: 6px;
+    background: #000;
+    color: rgba(236, 230, 223, 0.55);
+    font-weight: 700;
+    letter-spacing: 0.22em;
+    font-size: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .spellcard-a__caption {
+    position: absolute;
+    left: 585px; top: 32px;
+    width: 136px;   /* 9px symmetric inner padding (text right at 721, rect right at 730 = 9px gap) */
+  }
+  /* Background "tab" extending out from the video frame's right edge.
+     Sits behind the video (z-index: -1) so the overlap is hidden, and the
+     visible portion appears to emerge seamlessly from the video frame.
+     Height auto-scales with caption content (top/bottom both -10px → 10px
+     symmetric padding around the text). */
+  .spellcard-a__caption::before {
+    content: '';
+    position: absolute;
+    left: -19px;       /* 9px gap-fill + 10px hidden overlap with video */
+    top: -10px;        /* 10px above caption text top */
+    bottom: -10px;     /* 10px below caption text bottom — scales with content */
+    width: 164px;      /* visible 154px (video right → caption right) + 10px hidden overlap */
+    background: rgba(50, 65, 88, 0.8);   /* Secondary #324158 @ 80% opacity */
+    border-radius: 0 6px 6px 0;          /* flat left, rounded right (matches video's 6px) */
+    border-right: 3px solid #EDE9E1;     /* Primary color right edge */
+    z-index: -1;
+  }
+  .spellcard-a__caption-title {
+    font-weight: 700;
+    color: #ece6df;
+    font-size: 13.22px;                 /* 16 ÷ 1.21 zoom → renders at 16px inside the slides */
+    text-decoration: underline;
+    text-underline-offset: 4px;
+  }
+  .spellcard-a__caption-body {
+    margin-top: 8px;
+    color: rgba(236, 230, 223, 0.85);
+    font-size: 11.5px;                  /* 14 ÷ 1.21 zoom → renders at 14px inside the slides */
+    font-weight: 400;                   /* body text is not bold */
+    line-height: 1.625;
+    text-align: left;
+  }
+  /* Bulleted list for caption body — matches caption-body typography. */
+  .spellcard-a__caption-list {
+    margin: 8px 0 0 0;
+    padding-left: 16px;
+    color: rgba(236, 230, 223, 0.85);
+    font-size: 11.5px;                  /* matches caption-body → renders 14px in the zoomed slides */
+    font-weight: 400;
+    line-height: 1.58;          /* 3% tighter wrap within a bullet */
+    text-align: left;
+    list-style-type: disc;
+  }
+  .spellcard-a__caption-list li + li { margin-top: 5.5px; }  /* net bullet-to-bullet gap ~10% larger */
+
+  /* Process_Template_Below — caption tab stacked above a Primary-bordered image.
+     Caption ::before tucks 10px under image top. Wrap 730px.
+     See Template/Process_Template_Below.md. */
+  .process-tb {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;                  /* matches the 10px symmetric vertical padding around text */
+    width: 730px;               /* matches SpellCard_Template_A group width */
+    margin: 45px auto 0;        /* yields 40px visible gap to preceding [DESIGN PROCESS] divider (45 + 5 caption margin - 10 ::before top offset = 40) */
+    isolation: isolate;         /* scope ::before z-index: -1 to this block */
+  }
+  .process-tb__caption {
+    position: relative;
+    padding: 0 9px;             /* 9px symmetric L/R inner padding */
+    margin-top: 5px;            /* lower caption + rectangle 5px (matches spell card pattern) */
+  }
+  .process-tb__caption::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: -10px;                 /* 10px above text — visible top of rectangle */
+    bottom: -20px;              /* 10px past image top (10px flex gap + 10px under image) */
+    background: rgba(50, 65, 88, 0.8);   /* Secondary #324158 @ 80% opacity */
+    border-radius: 6px 6px 0 0;           /* both top corners rounded */
+    border-top: 3px solid #EDE9E1;        /* Primary color top edge */
+    z-index: -1;
+  }
+  .process-tb__image {
+    width: 100%;                /* scales to wrap width = rectangle width */
+    height: auto;
+    display: block;
+    border: 3px solid #EDE9E1;  /* Primary color border, matches video frames */
+    border-radius: 6px;
+  }
+
+  /* Encounter_Template_A — a Process_Template_Below variant: title tab (top), image, then a
+     caption tab (bottom). The caption box's bottom edge mirrors the title box's top-edge tab
+     treatment (Primary border, rounded corners, Secondary fill tucking under the image).
+     Typography reuses .spellcard-a__caption-title / -body. See Template/Encounter_Template_A.md. */
+  .encounter-a {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    width: 730px;
+    margin: 8px auto 0;
+    isolation: isolate;
+  }
+  .encounter-a__title,
+  .encounter-a__caption { position: relative; padding: 0 9px; }
+  .encounter-a__title { margin-top: 5px; }      /* lowers the title tab 5px (matches template) */
+  .encounter-a__caption { margin-bottom: 5px; } /* mirror: raises the caption tab 5px */
+  .encounter-a__title::before,
+  .encounter-a__caption::before {
+    content: '';
+    position: absolute;
+    left: 0; right: 0;
+    background: rgba(50, 65, 88, 0.8);   /* Secondary #324158 @ 80% */
+    z-index: -1;
+  }
+  /* title tab: visible top edge, tucks 10px under the image top */
+  .encounter-a__title::before {
+    top: -10px; bottom: -20px;
+    border-radius: 6px 6px 0 0;
+    border-top: 3px solid #EDE9E1;
+  }
+  /* caption tab: mirrored — visible bottom edge, tucks 10px under the image bottom */
+  .encounter-a__caption::before {
+    top: -20px; bottom: -10px;
+    border-radius: 0 0 6px 6px;
+    border-bottom: 3px solid #EDE9E1;
+  }
+  .encounter-a__image {
+    width: 100%;
+    aspect-ratio: 3 / 1.9;      /* 3:2 with height trimmed 5%; crops via object-fit to keep card sizes uniform */
+    object-fit: cover;
+    object-position: center;
+    display: block;
+    border: 3px solid #EDE9E1;
+    border-radius: 6px;
+  }
+
+  /* Encounter Design Process is un-zoomed (scale 1); bump the shared caption classes here to their
+     literal 16/14px (the classes carry ÷1.21 values tuned for the zoomed carousel slides). */
+  .enc-process .spellcard-a__caption-title { font-size: 16px; }
+  .enc-process .spellcard-a__caption-body,
+  .enc-process .spellcard-a__caption-list { font-size: 14px; }
+  /* no carousel arrows here, so the divider + process blocks span the full card width
+     (35px insets, matching the four encounter cards) instead of the fixed Combat width */
+  .enc-process .process-tl,
+  .enc-process .process-tr,
+  .enc-process .process-tb { width: auto; margin-left: 35px; margin-right: 35px; }
+  /* boxed variant: no image below — the caption's bottom edge mirrors its top edge
+     (symmetric 3px Primary border top & bottom, all four corners rounded) */
+  .enc-process .process-tb--boxed .process-tb__caption::before {
+    bottom: -10px;                        /* symmetric with the -10px top (was -20px to tuck under an image) */
+    border-radius: 6px;                   /* round all four corners */
+    border-bottom: 3px solid #EDE9E1;     /* mirror the top edge's Primary border */
+  }
+  .enc-process .process-tb--boxed { margin-bottom: 10px; }  /* clear the tab's 10px bottom overflow */
+
+  /* Fighting Spirit caption "tab" — same inner gaps as spellcard caption
+     (9px left, 0 right, 10px top, 10px bottom), mirrored geometry: visible
+     top edge emerges from image bottom (image z-index: 6 hides any overlap),
+     right edge tucks under the video frame. Bottom-right corner rounded;
+     bottom edge gets the Primary border. */
+  .fs-caption::before {
+    content: '';
+    position: absolute;
+    left: -9px;
+    right: -10px;
+    top: -15px;
+    bottom: -10px;
+    background: rgba(50, 65, 88, 0.8);
+    border-radius: 0 0 6px 6px;
+    border-bottom: 3px solid #EDE9E1;
+    z-index: -1;
+  }
+
+  /* Process_Template_Right — caption (left) + image (right). Default 1:3 via
+     flex: 1 / flex: 3. Wrap 730px, no gap. Caption tab: rounded LEFT corners,
+     Primary border on LEFT edge. See Template/Process_Template_Right.md. */
+  .process-tr {
+    display: flex;
+    gap: 0;                         /* no flex gap — caption text-box abuts image directly */
+    width: 730px;
+    margin: 24px auto 0;
+    isolation: isolate;             /* scope ::before z-index: -1 to this block */
+    align-items: flex-start;        /* caption keeps natural height; rectangle auto-follows text */
+  }
+  .process-tr__caption {
+    flex: 1 1 0;                    /* 1 part of 4 (1:3 ratio) */
+    min-width: 0;
+    position: relative;
+    padding: 9px 10px;              /* 9 top/bottom (symmetric), 10 left/right */
+    margin-top: 5px;                /* lower caption + rectangle 5px below image top (matches spell card pattern) */
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;    /* anchor text to top */
+    box-sizing: border-box;
+  }
+  .process-tr__caption::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;                       /* rectangle ends exactly at image left edge — element width = 293 */
+    background: rgba(50, 65, 88, 0.8);    /* Secondary #324158 @ 80% opacity */
+    border-radius: 6px 0 0 6px;            /* both LEFT corners rounded */
+    border-left: 3px solid #EDE9E1;        /* Primary color left edge */
+    z-index: -1;
+  }
+  .process-tr__image {
+    flex: 3 1 0;                    /* 3 parts of 4 (1:3 ratio) */
+    min-width: 0;                   /* prevent flex min-width: auto from using intrinsic 5207px */
+    height: auto;
+    display: block;
+    border: 3px solid #EDE9E1;      /* Primary color border, matches video frames */
+    border-radius: 6px;
+    align-self: flex-start;         /* preserve aspect ratio */
+    box-sizing: border-box;
+  }
+
+  /* Process_Template_Left — image (left) + caption (right). Default 2:1 via
+     flex: 2 / flex: 1. Wrap 730px, no gap. Caption tab: rounded RIGHT corners,
+     Primary border on RIGHT edge. See Template/Process_Template_Left.md. */
+  .process-tl {
+    display: flex;
+    gap: 0;
+    width: 730px;
+    margin: 24px auto 0;
+    isolation: isolate;
+    align-items: flex-start;
+  }
+  .process-tl__image {
+    flex: 2 1 0;                    /* 2 parts of 3 (2:1 ratio) */
+    min-width: 0;
+    height: auto;
+    display: block;
+    border: 3px solid #EDE9E1;
+    border-radius: 6px;
+    align-self: flex-start;
+    box-sizing: border-box;
+  }
+  .process-tl__caption {
+    flex: 1 1 0;                    /* 1 part of 3 */
+    min-width: 0;
+    position: relative;
+    padding: 9px 10px;
+    margin-top: 5px;                /* lower caption + rectangle 5px below image top (matches spell card pattern) */
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    box-sizing: border-box;
+  }
+  .process-tl__caption::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: rgba(50, 65, 88, 0.8);
+    border-radius: 0 6px 6px 0;     /* both RIGHT corners rounded */
+    border-right: 3px solid #EDE9E1;
+    z-index: -1;
+  }
+
+  /* shared banner styling — flat color, button-style shadow */
+  .yellow-card, .lav-card, .wurm-card {
+    position: relative;
+    border: 2px solid #EDE9E1;
+    border-radius: 6px;
+    box-shadow: 5px 5px 0 0 #EDE9E1;
+    width: 700px;
+    margin-left: auto;
+    margin-right: auto;
+  }
+  .yellow-card { background: #FFEF90; width: 730px; }
+  .lav-card    { background: #B797FF; }
+  .wurm-card   { background: #FF8888; }
+
+  /* portrait clip — top extends above border (no clip top), bottom touches inside of border.
+     z-index sits above the title/name block (z-2) but below the description (z-6). */
+  .portrait-clip {
+    position: absolute;
+    inset: 0;
+    overflow: visible;
+    clip-path: inset(-9999px 0 0 0);
+    pointer-events: none;
+    z-index: 3;
+  }
+
+  /* image/video frame: thin light border, rounded — inspiration style */
+  .frame {
+    border-radius: 14px;
+    border: 1.5px solid #efe9df;
+    background: #000;
+    box-shadow: 0 0 0 4px rgba(255,255,255,0.04), 0 24px 60px -28px rgba(0,0,0,0.85);
+    overflow: hidden;
+    position: relative;
+  }
+  /* image color treatment overlay */
+  .img-treat::after {
+    content:''; position:absolute; inset:0;
+    background: linear-gradient(to top, rgba(0,0,0,0.35), rgba(0,0,0,0) 55%);
+    pointer-events:none;
+  }
+  .video-slot {
+    display:flex; align-items:center; justify-content:center;
+    color: rgba(236,230,223,0.55);
+    font-weight:700; letter-spacing:0.22em; font-size:12px;
+  }
+
+  /* COMBAT DESIGN section pills — quick-jump to each character slide */
+  .combat-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    height: 38px;
+    padding: 0 22px;
+    border: 2px solid #0c0c0d;
+    border-radius: 8px;
+    font-family: Arial, 'Helvetica Neue', Helvetica, sans-serif;
+    font-weight: 700;
+    letter-spacing: 0.16em;
+    font-size: 12px;
+    color: #0c0c0d;
+    cursor: pointer;
+    transition: transform 180ms cubic-bezier(.2,.8,.2,1), box-shadow 180ms ease, background-color 300ms ease, color 300ms ease;
+    box-shadow: 3px 3px 0 0 #0c0c0d;
+    background: #5c5c5c;                /* medium-dark grey while the slide is inactive */
+    color: #EDE9E1;                     /* Main color text while inactive */
+  }
+  /* same hover treatment as the bottom character buttons */
+  .combat-btn:hover,
+  .combat-btn:focus-visible { transform: scale(1.05); box-shadow: 5px 5px 0 0 #EDE9E1; }
+  .combat-btn:active { transform: scale(1.02); box-shadow: 2px 2px 0 0 #EDE9E1; }
+  /* the active slide's pill — and any hovered pill — dissolves to its assigned color with ink text */
+  .combat-btn.is-active, .combat-btn:hover, .combat-btn:focus-visible { color: #0c0c0d; }
+  .combat-btn-hero.is-active,  .combat-btn-hero:hover,  .combat-btn-hero:focus-visible  { background: #FFEF90; }
+  .combat-btn-boss.is-active,  .combat-btn-boss:hover,  .combat-btn-boss:focus-visible  { background: #B797FF; }
+  .combat-btn-enemy.is-active, .combat-btn-enemy:hover, .combat-btn-enemy:focus-visible { background: #FF8888; }
+
+  /* role tag (Hero/Monster pill labels) */
+  .role-tag {
+    display:inline-flex; align-items:center; gap:14px;
+    width: 352px;                       /* standardized button width; fits the widest content (TUNNEL WURM at 322px natural) */
+    height: 64px;                       /* pinned to the pre-22.5px-name height; the taller text bleeds into the padding, not the box */
+    padding: 13px 14px;                 /* horizontal padding == gap so the arrow sits midway between the outer edge and the words */
+    border: 2px solid #0c0c0d; border-radius: 10px;
+    font-weight: 700; letter-spacing: 0.12em; font-size: 12px;
+    color: #0c0c0d;
+    cursor: pointer;
+    transition: transform 180ms cubic-bezier(.2,.8,.2,1), box-shadow 180ms ease;  /* same pattern as .combat-btn */
+  }
+  /* hover: whole button grows 5% and develops the banner cards' hard cream shadow */
+  .role-tag:hover,
+  .role-tag:focus-visible { transform: scale(1.05); box-shadow: 5px 5px 0 0 #EDE9E1; }
+  .role-tag:active { transform: scale(1.02); box-shadow: 2px 2px 0 0 #EDE9E1; }
+  /* pin the avatar to the inner edge (14px padding gap, same as Champion) — slack from the
+     fixed width opens between the words and the image, not at the edges */
+  .role-tag--prev .role-tag__avatar { margin-left:auto; }
+  .role-tag--next .role-tag__avatar { margin-right:auto; }
+  /* title (small) stacked above the name; the block hugs the arrow's inner edge */
+  .role-tag__text { display:inline-flex; flex-direction:column; gap:0; line-height:1.15; }
+  .role-tag--prev .role-tag__text { align-items:flex-start; text-align:left; }  /* text right of the left arrow */
+  .role-tag--next .role-tag__text { align-items:flex-end; text-align:right; }   /* text left of the right arrow */
+  .role-tag__arrow { font-size:12px; line-height:1; transform:scaleY(2.5); }  /* stretch the triangle vertically */
+  /* name line — Tungsten Bold. line-height:1 + negative top margin swallow the font's
+     built-in leading so the caps sit 2px below the title line. */
+  .role-tag__name { font-family:'Tungsten','Arial Black','Arial Bold',Arial,sans-serif; font-weight:700; font-size:32.5px; letter-spacing:0.04em; white-space:nowrap; line-height:1; margin-top:-4px; }
+  /* shrunk banner portrait — same top-slice crop as the banner. The in-flow wrapper only
+     reserves horizontal space; the clip window hangs off it, bottom flush with the button's
+     inner bottom edge (bottom:-13px cancels the 13px padding), poking above the button top
+     like the banner portraits. */
+  .role-tag__avatar { position:relative; align-self:stretch; flex:0 0 auto; }
+  .role-tag__avatar-clip { position:absolute; left:0; right:0; bottom:-13px; height:80px; overflow:hidden; }
+  .role-tag__avatar img { display:block; height:136px; width:auto; max-width:none; }  /* Champion's banner-derived size; Wurm/Vanguard override inline with theirs */
+  .role-tag .small { font-size: 12.5px; font-weight: 600; letter-spacing: 0.04em; opacity: 0.7; font-style: italic; }  /* base 10px + 25% */
+  .role-tag.yellow  { background: #FFEF90; }  /* Vanguard brand color */
+  .role-tag.pink    { background: #FF8888; }  /* Wurm brand color */
+  .role-tag.purple  { background: #B797FF; }  /* Champion brand color */
+
+  /* design process boxes */
+  .proc-box {
+    border: 2px solid #0c0c0d;
+    border-radius: 10px;
+    padding: 16px 18px;
+    line-height: 1.55;
+    font-size: 13.5px;
+  }
+  .proc-box h5 {
+    font-weight: 800; font-size: 14px; letter-spacing: 0.04em; margin-bottom: 8px;
+  }
+
+  /* tier strip color band */
+  .tier-strip {
+    height: 26px; border-radius: 8px;
+    background: linear-gradient(90deg,
+      #c8423f 0 9%, #d18039 9% 22%, #d8b73a 22% 34%,
+      #80b04a 34% 47%, #4ea38a 47% 60%, #4d7fb4 60% 72%,
+      #6a4fa0 72% 84%, #9a3b85 84% 100%);
+    box-shadow: 0 1px 0 rgba(255,255,255,0.4) inset, 0 1px 0 rgba(0,0,0,0.4);
+  }
+
+
+  /* anchor offset for sticky nav */
+  .anchor { scroll-margin-top: 55px; }  /* land section top at the header's bottom edge (50px bar + 5px white line) */
+
+  /* utility */
+  /* WORK dropdown — opens after hovering 0.5s */
+  .nav-item-work { position: relative; display: inline-flex; align-items: center; }
+  .nav-dropdown {
+    position: absolute;
+    top: 100%; left: 50%;
+    transform: translate(-50%, 8px);
+    background: #324158;
+    border: 1.5px solid #ffffff;
+    border-radius: 8px;
+    padding: 6px;
+    min-width: 170px;
+    box-shadow: 4px 4px 0 0 #ffffff;
+    opacity: 0; visibility: hidden;
+    transition: opacity 180ms ease, visibility 180ms;
+    z-index: 70;
+  }
+  .nav-dropdown.is-open { opacity: 1; visibility: visible; }
+  .nav-dropdown a {
+    display: block; padding: 9px 14px;
+    font-family: Arial, 'Helvetica Neue', Helvetica, sans-serif;
+    font-weight: 700; letter-spacing: 0.16em; font-size: 12px;
+    color: #ffffff; text-align: center;
+    border-radius: 6px; text-decoration: none;
+    transition: background-color 180ms ease, color 180ms ease;
+  }
+  .nav-dropdown a:hover, .nav-dropdown a:focus-visible { background: #EDE9E1; color: #324158; }
+
+  .container-x { max-width: 1180px; margin-inline: auto; padding-inline: 24px; }
+
+  /* responsibilities list */
+  .resp-list li { margin-bottom: 10px; line-height: 1.3; }
+
+  /* press-kit slideshow (What Is Sunderfolk block) */
+  .slideshow { min-width: 0; }
+  .slideshow__stage {
+    border: 3px solid #324158; border-radius: 8px; overflow: hidden;
+    background: #0c0c0d; aspect-ratio: 16 / 9;
+  }
+  .slideshow__main { display: block; width: 100%; height: 100%; object-fit: contain; }
+  .slideshow__thumbs { display: flex; gap: 10px; margin-top: 12px; }
+  .slideshow__thumb {
+    position: relative; flex: 1 1 0; min-width: 0; padding: 0; background: none;
+    cursor: pointer; border: 0; border-radius: 6px;
+    opacity: 0.6;
+    transition: opacity 250ms ease, transform 250ms cubic-bezier(.2,.8,.2,1);
+  }
+  .slideshow__thumb img { display: block; width: 100%; height: 100%; object-fit: cover; aspect-ratio: 16 / 9; border-radius: 6px; }
+  .slideshow__thumb.is-active { opacity: 1; }
+  /* selected marker: 2px secondary lines above AND below the thumbnail (replaces the border) */
+  .slideshow__thumb.is-active::before,
+  .slideshow__thumb.is-active::after {
+    content: ''; position: absolute; left: 0; right: 0; height: 2px; background: #324158;
+    transition: transform 250ms cubic-bezier(.2,.8,.2,1);
+  }
+  .slideshow__thumb.is-active::before { top: -5px; }
+  .slideshow__thumb.is-active::after  { bottom: -5px; }
+  /* on hover the thumb scales 1.1; counter the vertical scale so the lines stay 2px thick
+     (width/position still follow the thumb, only thickness is pinned) */
+  .slideshow__thumb.is-active:hover::before,
+  .slideshow__thumb.is-active:hover::after,
+  .slideshow__thumb.is-active:focus-visible::before,
+  .slideshow__thumb.is-active:focus-visible::after { transform: scaleY(0.909); }
+  /* hover: pop to full opacity and enlarge 10% (active thumb is already at 100%) */
+  .slideshow__thumb:hover,
+  .slideshow__thumb:focus-visible { opacity: 1; transform: scale(1.1); z-index: 2; }
+
+  /* ---- Cinematic storyboard variant: Main-color frame, thumbs centered on the display, title+caption on the display ---- */
+  /* Flex row: the display column stacks title → stage → caption so the caption stays glued to the stage's
+     bottom edge at any width; the thumbnail column is vertically centered on the display's center. */
+  .slideshow--cinematic .slideshow__row {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+  }
+  .slideshow--cinematic .slideshow__display {
+    flex: 1 1 0; min-width: 0;
+    display: flex; flex-direction: column; gap: 10px;
+    position: relative; isolation: isolate;
+  }
+  .slideshow--cinematic .slideshow__stage {
+    border-color: #EDE9E1;            /* Main-color frame (was Secondary) */
+    aspect-ratio: 3880 / 2558;        /* dimensions of the first storyboard image */
+  }
+  /* thumbnails: vertical filmstrip on the right, centered on the display's vertical center */
+  .slideshow--cinematic .slideshow__thumbs {
+    flex: 0 0 120px;
+    flex-direction: column; margin-top: 0; gap: 10px;
+    align-self: center;
+  }
+  /* Overview press-kit slideshow: two stacked layers crossfade on slide change, and the
+     selection lines are shared elements that slide to the active thumb (replacing the
+     per-thumb ::before/::after marker). */
+  #sunder-slideshow .slideshow__stage { position: relative; }
+  #sunder-slideshow .slideshow__main {
+    position: absolute; inset: 0;
+    transition: opacity 600ms ease;
+  }
+  #sunder-slideshow .slideshow__main.is-back { opacity: 0; }
+  /* Overview slideshow: encounter-style selection marker (border box with a 5px gap
+     around the thumb, replacing the two lines), in this section's Secondary color */
+  #sunder-slideshow .slideshow__thumb.is-active::before {
+    top: -5px; bottom: -5px; left: -5px; right: -5px;
+    height: auto; background: none;
+    border: 2px solid #324158; border-radius: 10px;
+  }
+  #sunder-slideshow .slideshow__thumb.is-active::after { display: none; }
+  /* keep the border box uniform on hover (don't apply the line-thickness scaleY counter) */
+  #sunder-slideshow .slideshow__thumb.is-active:hover::before,
+  #sunder-slideshow .slideshow__thumb.is-active:focus-visible::before { transform: none; }
+
+  .slideshow--cinematic .slideshow__thumb { flex: 0 0 auto; }   /* each thumb sizes to its 16/9 image */
+  /* selected marker: a Main-color border box with a 5px gap around the thumbnail (replaces the two lines) */
+  .slideshow--cinematic .slideshow__thumb.is-active::before {
+    top: -5px; bottom: -5px; left: -5px; right: -5px;
+    height: auto; background: none;
+    border: 2px solid #EDE9E1; border-radius: 10px;
+  }
+  .slideshow--cinematic .slideshow__thumb.is-active::after { display: none; }
+  /* keep the border box uniform on hover (don't apply the line-thickness scaleY counter) */
+  .slideshow--cinematic .slideshow__thumb.is-active:hover::before,
+  .slideshow--cinematic .slideshow__thumb.is-active:focus-visible::before { transform: none; }
+
+  /* focus ring */
+  a:focus-visible, button:focus-visible { outline: 3px solid #b97a3a; outline-offset: 3px; border-radius: 4px; }
+
+  /* big bold display headings — similar to the site's clean sans look */
+  .h-display {
+    font-family: 'Inter', sans-serif;
+    font-weight: 800; letter-spacing: -0.02em;
+  }
+
+  /* scroll-padding on body so anchors land below sticky nav */
+  body { scroll-padding-top: 55px; }
+
+  /* ===== Character carousel (Vanguard / Champion / Wurm) ===== */
+  .char-carousel {
+    position: relative;
+    /* arrows live outside the widest content (anchored to page center via calc), so no gutter needed */
+    padding: 0;
+  }
+  /* JS sets an explicit height = the active slide's height (dynamic per character);
+     the height animates alongside the slide transition. */
+  .char-viewport {
+    position: relative; width: 100%; overflow-x: clip; clip-path: inset(-9999px 0 0 0);
+    transition: height 600ms cubic-bezier(.2,.8,.2,1);
+  }
+  .char-track {
+    display: flex;
+    align-items: flex-start;    /* each slide keeps its natural height (no stretch to tallest) */
+    transition: transform 600ms cubic-bezier(.2,.8,.2,1);
+    will-change: transform;
+  }
+  .char-slide { flex: 0 0 100%; width: 100%; min-width: 0; }
+
+  /* Arrows live in a sticky rail scoped to Section_HeroBossEnemy. The rail is confined
+     to an absolutely-positioned span (out of flow, so layout is untouched):
+     - top: 225px  = the rail's natural flow spot (arrow top sits 186px below the
+       section top — the reference gap).
+     - bottom: 331px = clamps the release so the arrow's bottom edge stops 186px above
+       the WURM/CHAMPION button row (3514px) — same gap as at the top.
+     Re-measure both if content above/below the carousel changes height. */
+  .arrow-rail-span {
+    position: absolute;
+    left: 0; right: 0;
+    top: 225px;
+    bottom: 331px;
+    z-index: 30;
+    pointer-events: none;
+  }
+  .arrow-rail {
+    position: sticky;
+    top: 50vh;
+    height: 0;
+    pointer-events: none;
+  }
+  .carousel-arrow {
+    position: absolute; top: 0;
+    transform: translateY(-50%);
+    width: 52px; height: 78px;
+    border-radius: 8px;
+    border: 2px solid #ece6df;
+    background: rgba(20,20,25,0.55);
+    color: #ece6df;
+    font-size: 22px; font-weight: 700;
+    cursor: pointer;
+    pointer-events: auto;
+    display: inline-flex; align-items: center; justify-content: center;
+    transition: background-color 180ms ease, transform 180ms cubic-bezier(.2,.8,.2,1);
+    backdrop-filter: blur(4px);
+  }
+  .carousel-arrow:hover { background: rgba(20,20,25,0.85); transform: translateY(-50%) scale(1.05); }
+  /* Anchor arrows just outside the widest carousel content (~894px wide centered).
+     Below the body min-width, this naturally pushes them past the viewport edge. */
+  .carousel-arrow.prev { left: calc(50% - 535px); }
+  .carousel-arrow.next { left: auto; right: calc(50% - 535px); }
+
+  /* ===== Section_HeroBossEnemy — fixed/blurred RubbleMaze background ===== */
+  .section-rubble-bg { position: relative; background: #15121a; }
+  .section-rubble-bg::before {
+    content: '';
+    position: absolute;
+    /* extend well past section bounds so blur halo lands outside the visible area */
+    inset: -40px;
+    background-color: #0c0c0d; /* dark backstop in case blur fades to transparent */
+    background-image: var(--rubble-img, url('WebsiteAssets/Sunderfolk_2025/Sunderfolk_Images/Sunderfolk_RubbleMaze_Screenshot.jpg'));
+    background-size: cover;
+    background-position: center;
+    background-attachment: fixed;
+    filter: brightness(0.65) blur(8px);
+    z-index: 0;
+    pointer-events: none;
+  }
+  .section-rubble-bg > *:not(.carousel-arrow):not(.arrow-rail):not(.arrow-rail-span) { position: relative; z-index: 1; }
+
+  /* ===== Expandable image + lightbox ===== */
+  .expandable-image { cursor: zoom-in; }
+  .image-lightbox {
+    position: fixed;
+    inset: 0;
+    z-index: 100;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    padding: 5vh 5vw;
+    background: rgba(0, 0, 0, 0.8);
+    cursor: zoom-out;
+    touch-action: none;          /* let pointer events drive pan, not browser scroll */
+  }
+  .image-lightbox.is-open { display: flex; }
+  .image-lightbox img,
+  .image-lightbox video {
+    max-width: 100%;
+    max-height: 100%;
+    width: auto;
+    height: auto;
+    object-fit: contain;
+    display: block;
+    transform-origin: center center;
+    user-select: none;
+    -webkit-user-drag: none;     /* prevent native image-drag fighting our pointer drag */
+  }
+  .image-lightbox__hint {
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+    /* top is set in JS to track image's current visible bottom edge */
+    margin: 0;
+    color: rgba(255, 255, 255, 0.7);
+    font-size: 12px;
+    text-align: center;
+    font-family: Arial, 'Helvetica Neue', Helvetica, sans-serif;
+    letter-spacing: 0.08em;
+    user-select: none;
+    pointer-events: none;
+    white-space: nowrap;
+  }
+
+  /* ===== Cinemascope hero with parallax ===== */
+  .hero-cine {
+    position: relative;
+    width: 100%;
+    aspect-ratio: 2.77 / 1;     /* ultra-wide / Ultra Panavision */
+    overflow: hidden;
+    background: #0c0c0d;
+  }
+  .hero-cine-bg {
+    position: absolute;
+    /* top flush with the hero (= header bottom); bottom overscan gives the
+       downward parallax translation room */
+    top: 0; left: 0; right: 0; bottom: -12%;
+    background-image: url('WebsiteAssets/Sunderfolk_2025/Sunderfolk_Images/PrimaryArt_Logo/Sunderfolk2.0_PrimaryArt_2560x1440.png');
+    background-repeat: no-repeat;
+    /* zoomed enough to crop the dark cliff/mist below the characters out of frame */
+    background-size: 100% auto;
+    background-position: 50% 0%;
+    filter: brightness(0.70);
+    will-change: transform;
+    transform: translate3d(0, 0, 0);
+  }
+
+  /* When the page is at or below the 1000px design width (desktop scaled down, or the mobile
+     fixed 1000px viewport), a couple of elements anchored just outside 1000px would add a
+     sliver of horizontal scroll. Pull them back inside — no layout change, desktop >1000 is
+     untouched. */
+  @media (max-width: 1000px) {
+    /* blurred section background halo: drop its 40px sideways overhang */
+    .section-rubble-bg::before { left: 0; right: 0; }
+    /* carousel arrows are anchored at calc(50% - 535px), i.e. ~35px outside a 1000px
+       section — bring them to the section edges (also makes them usable when scaled) */
+    .carousel-arrow.prev { left: 0; }
+    .carousel-arrow.next { left: auto; right: 0; }
+  }
+</style>
+</head>
+<body class="bg-paper text-ink">
+
+<!-- ============================ TOP NAV ============================ -->
+<header class="sticky top-0 z-50 bg-white pb-[5px]">
+  <div class="absolute inset-0 bg-[#324158]" style="bottom: 5px;"></div>
+  <div class="container-x flex items-center justify-center h-[50px] relative">
+    <nav class="nav-desktop hidden md:flex items-center">
+      <a href="index.html#intro" class="nav-link">HOME</a>
+      <a href="index.html#about" class="nav-link">ABOUT</a>
+      <div class="nav-item-work">
+        <a href="index.html#work" class="nav-link">WORK</a>
+        <div class="nav-dropdown">
+          <a href="sunderfolk.html">SUNDERFOLK</a>
+        </div>
+      </div>
+      <a href="index.html#contact" class="nav-link">CONTACT</a>
+    </nav>
+
+  </div>
+</header>
+
+<script>
+  // WORK dropdown: opens after a 0.5s hover, closes shortly after the cursor leaves
+  (() => {
+    const wrap = document.querySelector('.nav-item-work');
+    if (!wrap) return;
+    const drop = wrap.querySelector('.nav-dropdown');
+    let openT = 0, closeT = 0;
+    wrap.addEventListener('mouseenter', () => {
+      clearTimeout(closeT);
+      openT = setTimeout(() => drop.classList.add('is-open'), 500);
+    });
+    wrap.addEventListener('mouseleave', () => {
+      clearTimeout(openT);
+      closeT = setTimeout(() => drop.classList.remove('is-open'), 200);
+    });
+  })();
+</script>
+
+
+<main id="top">
+
+<!-- ============================ HERO (cinemascope parallax) ============================ -->
+<section id="feature" class="hero-cine">
+  <div class="hero-cine-bg" aria-hidden="true"></div>
+  <div class="relative h-full w-full flex flex-col items-center justify-center text-cream text-center px-6">
+    <h1 class="relative flex items-center justify-center" aria-label="Sunderfolk">
+      <!-- soft elliptical shadow blob behind the logo -->
+      <span aria-hidden="true" style="position: absolute; inset: -85% -8%; background: radial-gradient(ellipse at center, rgba(0,0,0,0.55) 0%, rgba(0,0,0,0.48) 30%, rgba(0,0,0,0.22) 58%, rgba(0,0,0,0) 78%); pointer-events: none;"></span>
+      <img src="WebsiteAssets/Sunderfolk_2025/Sunderfolk_Images/PrimaryArt_Logo/Sunderfolk_Logo_White.png" alt="Sunderfolk logo"
+           class="relative object-contain drop-shadow-[0_4px_20px_rgba(0,0,0,0.6)]" style="height: clamp(48px, 6vw, 90px);" />
+    </h1>
+  </div>
+</section>
+
+<!-- ============================ Section_Summary ============================ -->
+<section id="summary" class="anchor bg-paper border-y-[5px] border-[#324158]">
+  <div class="container-x pt-[46px] pb-16 md:pb-20" style="zoom: 1.1;">
+    <!-- What Is Sunderfolk: blurb (top) + press-kit slideshow (below) -->
+    <div class="relative flex flex-col gap-6">
+
+      <!-- press-kit slideshow -->
+      <div class="slideshow" id="sunder-slideshow" style="order: 2; width: 85%; align-self: center;">
+        <div class="slideshow__stage">
+          <img class="slideshow__main" id="sunder-slideshow-main"
+               src="WebsiteAssets/Sunderfolk_2025/Sunderfolk_Images/What_Is_Sunderfolk/Sunderfolk_PressKit_001.png"
+               alt="Sunderfolk press kit preview" />
+          <img class="slideshow__main is-back" alt="" aria-hidden="true" />
+        </div>
+        <div class="slideshow__thumbs">
+          <button type="button" class="slideshow__thumb is-active" data-src="WebsiteAssets/Sunderfolk_2025/Sunderfolk_Images/What_Is_Sunderfolk/Sunderfolk_PressKit_001.png" aria-label="Show press kit image 1"><img src="WebsiteAssets/Sunderfolk_2025/Sunderfolk_Images/What_Is_Sunderfolk/Sunderfolk_PressKit_001.png" alt="" /></button>
+          <button type="button" class="slideshow__thumb" data-src="WebsiteAssets/Sunderfolk_2025/Sunderfolk_Images/What_Is_Sunderfolk/Sunderfolk_PressKit_003.jpg" aria-label="Show press kit image 3"><img src="WebsiteAssets/Sunderfolk_2025/Sunderfolk_Images/What_Is_Sunderfolk/Sunderfolk_PressKit_003.jpg" alt="" /></button>
+          <button type="button" class="slideshow__thumb" data-src="WebsiteAssets/Sunderfolk_2025/Sunderfolk_Images/What_Is_Sunderfolk/Sunderfolk_PressKit_002.png" aria-label="Show press kit image 2"><img src="WebsiteAssets/Sunderfolk_2025/Sunderfolk_Images/What_Is_Sunderfolk/Sunderfolk_PressKit_002.png" alt="" /></button>
+          <button type="button" class="slideshow__thumb" data-src="WebsiteAssets/Sunderfolk_2025/Sunderfolk_Images/What_Is_Sunderfolk/Sunderfolk_PressKit_004.png" aria-label="Show press kit image 4"><img src="WebsiteAssets/Sunderfolk_2025/Sunderfolk_Images/What_Is_Sunderfolk/Sunderfolk_PressKit_004.png" alt="" /></button>
+          <button type="button" class="slideshow__thumb" data-src="WebsiteAssets/Sunderfolk_2025/Sunderfolk_Images/What_Is_Sunderfolk/Sunderfolk_PressKit_005.png" aria-label="Show press kit image 5"><img src="WebsiteAssets/Sunderfolk_2025/Sunderfolk_Images/What_Is_Sunderfolk/Sunderfolk_PressKit_005.png" alt="" /></button>
+          <button type="button" class="slideshow__thumb" data-src="WebsiteAssets/Sunderfolk_2025/Sunderfolk_Images/What_Is_Sunderfolk/Sunderfolk_PressKit_006.jpg" aria-label="Show press kit image 6"><img src="WebsiteAssets/Sunderfolk_2025/Sunderfolk_Images/What_Is_Sunderfolk/Sunderfolk_PressKit_006.jpg" alt="" /></button>
+          <button type="button" class="slideshow__thumb" data-src="WebsiteAssets/Sunderfolk_2025/Sunderfolk_Images/What_Is_Sunderfolk/Sunderfolk_PressKit_007.png" aria-label="Show press kit image 7"><img src="WebsiteAssets/Sunderfolk_2025/Sunderfolk_Images/What_Is_Sunderfolk/Sunderfolk_PressKit_007.png" alt="" /></button>
+          <button type="button" class="slideshow__thumb" data-src="WebsiteAssets/Sunderfolk_2025/Sunderfolk_Images/What_Is_Sunderfolk/Sunderfolk_PressKit_008.png" aria-label="Show press kit image 8"><img src="WebsiteAssets/Sunderfolk_2025/Sunderfolk_Images/What_Is_Sunderfolk/Sunderfolk_PressKit_008.png" alt="" /></button>
+        </div>
+      </div>
+
+      <!-- What is Sunderfolk blurb -->
+      <div class="bordercard" style="order: 1; padding: 24px 30px; background: #324158; color: #EDE9E1; border-color: #0c0c0d;">
+        <h2 class="text-[29px] md:text-[34px] leading-none" style="font-family:'Tungsten','Arial Black','Arial Bold',Arial,sans-serif; font-weight:700; letter-spacing:0.04em;">What is Sunderfolk</h2>
+        <p class="mt-4 text-[16px] md:text-[17px] leading-[1.7]" style="font-family:Arial,'Helvetica Neue',Helvetica,sans-serif; color:#EDE9E1;">
+          Sunderfolk is a <strong style="color:#EDE9E1; font-weight:900;">couch co-op tactical RPG</strong> inspired by game nights. Up to four players join using their <strong style="color:#EDE9E1; font-weight:900;">phones as controllers</strong>, with mouse and keyboard support also available, and <strong style="color:#EDE9E1; font-weight:900;">only one copy of the game is needed</strong> for the whole group.
+        </p>
+      </div>
+
+    </div>
+    <script>
+    (function () {
+      var root = document.getElementById('sunder-slideshow');
+      if (!root) return;
+      var layers = root.querySelectorAll('.slideshow__main');
+      var front = layers[0], back = layers[1];
+      var thumbs = Array.prototype.slice.call(root.querySelectorAll('.slideshow__thumb'));
+
+      // crossfade: load the next image on the hidden layer, then swap opacities
+      function crossfadeTo(src) {
+        if (!src || front.getAttribute('src') === src) return;
+        function swap() {
+          back.classList.remove('is-back');
+          front.classList.add('is-back');
+          var t = front; front = back; back = t;
+        }
+        if (back.getAttribute('src') === src) { swap(); return; }
+        back.onload = function () { back.onload = null; swap(); };
+        back.src = src;
+      }
+      function select(btn) {
+        crossfadeTo(btn.getAttribute('data-src'));
+        thumbs.forEach(function (b) { b.classList.remove('is-active'); });
+        btn.classList.add('is-active');
+      }
+      thumbs.forEach(function (btn) {
+        btn.addEventListener('click', function () { select(btn); });
+      });
+      function activeThumb() {
+        for (var i = 0; i < thumbs.length; i++) if (thumbs[i].classList.contains('is-active')) return i;
+        return 0;
+      }
+      // Auto-advance every 5s (looping) — paused while the cursor is over the
+      // display image or the thumbnail strip.
+      var hovered = false;
+      root.addEventListener('mouseenter', function () { hovered = true; });
+      root.addEventListener('mouseleave', function () { hovered = false; });
+      setInterval(function () {
+        if (hovered || document.hidden) return;
+        select(thumbs[(activeThumb() + 1) % thumbs.length]);
+      }, 5000);
+    })();
+    </script>
+
+    <div class="flex items-stretch gap-6 mt-8">
+      <article class="bordercard" style="flex: 1 1 0; min-width: 0; margin: 0;">
+        <h2 class="text-[29px] md:text-[34px] leading-none" style="font-family:'Tungsten','Arial Black','Arial Bold',Arial,sans-serif; font-weight:700; letter-spacing:0.04em;">Summarized Contribution</h2>
+        <ul class="resp-list list-disc pl-6 mt-3 text-[16px]" style="font-family:Arial,'Helvetica Neue',Helvetica,sans-serif;">
+          <li>Led design of 10 levels/missions from paper concept and blockout through ship, anchoring each mission on a distinct feature (puzzle, combat, exploration) that rewards co-op strategy.</li>
+          <li>Owned 10 characters from concept through implementation and ship (1 playable hero, 4 bosses, 5 enemies), turning each character's fantasy into a distinct ability kit, passive, and AI behavior.</li>
+          <li>Co-led creative direction and implementation of 30+ cinematics, streamlining handoffs between Narrative, Art, and Animation to hit tight deadlines without compromising story quality.</li>
+          <li>Balanced the hero against the full enemy roster, tuning power, counterplay, and difficulty so co-op encounters stayed fair, readable, and engaging.</li>
+          <li>Designed for first-time tabletop players, shaping mission flow, pacing, and narrative for accessibility while preserving depth for repeat play.</li>
+          <li>Ran 3+ internal playtests weekly, turning feedback and edge cases into concrete design changes.</li>
+        </ul>
+      </article>
+      <!-- Team / Role box — same treatment as the What is Sunderfolk card -->
+      <aside class="bordercard" style="flex: 0 0 300px; align-self: flex-start; margin: 0; background: #324158; color: #EDE9E1; border-color: #0c0c0d;">
+        <h2 class="text-[29px] md:text-[34px] leading-none" style="font-family:'Tungsten','Arial Black','Arial Bold',Arial,sans-serif; font-weight:700; letter-spacing:0.04em;">Team</h2>
+        <p class="mt-2 text-[16px] leading-[1.7]" style="font-family:Arial,'Helvetica Neue',Helvetica,sans-serif; color:#EDE9E1;">Dreamhaven, Secret Door</p>
+        <h2 class="mt-5 text-[29px] md:text-[34px] leading-none" style="font-family:'Tungsten','Arial Black','Arial Bold',Arial,sans-serif; font-weight:700; letter-spacing:0.04em;">Role</h2>
+        <p class="mt-2 text-[16px] leading-[1.7]" style="font-family:Arial,'Helvetica Neue',Helvetica,sans-serif; color:#EDE9E1;">Level &amp; Mission Design<br />Hero &amp; Enemy Design<br />Technical Design<br />Cinematic Design<br />Narrative Design<br />Design Implementation</p>
+      </aside>
+    </div>
+  </div>
+</section>
+
+<!-- ============================ Section_HeroBossEnemy ============================ -->
+<section id="character-design" class="anchor relative text-cream section-rubble-bg" style="clip-path: inset(0);">
+  <!-- title strip -->
+  <div class="text-cream py-12 md:py-14">
+    <div class="container-x text-center">
+      <h2 class="flex items-center gap-[18px] text-[45px] md:text-[63px] tracking-wide uppercase -mt-[20px]" style="font-family:'Tungsten','Arial Black','Arial Bold',Arial,sans-serif; font-weight:700;">
+        <span class="flex-1 h-[5px]" style="background:#EDE9E1;"></span>
+        <span>COMBAT DESIGN</span>
+        <span class="flex-1 h-[5px]" style="background:#EDE9E1;"></span>
+      </h2>
+      <div class="mt-6 flex justify-center" style="gap: 10px;">
+        <button class="combat-btn combat-btn-hero" data-carousel-go="0">HERO CLASS</button>
+        <button class="combat-btn combat-btn-boss" data-carousel-go="1">BOSS</button>
+        <button class="combat-btn combat-btn-enemy" data-carousel-go="2">ENEMY</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="arrow-rail-span">
+    <div class="arrow-rail">
+      <button class="carousel-arrow prev" data-carousel-prev aria-label="Previous character">◀</button>
+      <button class="carousel-arrow next" data-carousel-next aria-label="Next character">▶</button>
+    </div>
+  </div>
+
+  <div class="char-carousel" id="char-carousel">
+    <div class="char-viewport">
+    <div class="char-track" id="char-track">
+
+    <!-- ===== VANGUARD (Hero, yellow) ===== -->
+    <div class="char-slide"><div class="container-x pt-12 pb-6 md:pt-16 md:pb-6" style="zoom: 1.21;">
+    <div id="vanguard">
+      <!-- Yellow hero banner -->
+      <article class="yellow-card" style="height: 117px; margin-top: -67px; overflow: visible;">
+        <!-- portrait clip: top can escape, bottom hidden by frame's pseudo border -->
+        <div class="portrait-clip">
+          <img src="WebsiteAssets/Sunderfolk_2025/Sunderfolk_Images/Sunderfolk_Vanguard_Profile_02.png" alt="Vanguard hero art"
+               class="absolute"
+               style="left: 155px; bottom: -25px; height: 200px; width: auto; object-fit: contain; clip-path: inset(30px 0 0 0);" />
+        </div>
+
+        <!-- Title: 8px from bottom-left of container -->
+        <div class="absolute leading-none" style="left: 8px; bottom: 8px; z-index: 2;">
+          <div class="text-ink italic" style="font-family:Arial,'Helvetica Neue',Helvetica,sans-serif; font-size:19px; font-weight:600; letter-spacing:0.04em; opacity:0.7;">Hero</div>
+          <div class="text-ink" style="font-family:'Tungsten','Arial Black','Arial Bold',Arial,sans-serif; font-weight:700; font-size:48.5px; letter-spacing:0.04em; line-height:1; margin-top:-6px; white-space:nowrap;">VANGUARD</div>
+        </div>
+
+        <!-- Description: 8px from top-right, justified, 12px, +25% width -->
+        <p class="absolute text-ink italic leading-tight"
+           style="top: 8px; right: 8px; z-index: 6; font-family:Arial,'Helvetica Neue',Helvetica,sans-serif; font-size: 11.5px; max-width: 327px; text-align: justify;">
+          Born for battle, the Vanguard pushes deep into enemy lines where their abilities burn brightest. Small yet mighty, they stand as a fierce contender to the Berserker.
+        </p>
+      </article>
+
+      <!-- Passive Ability (Fighting Spirit) -->
+      <div class="mt-10 relative" style="padding-bottom: 0;">
+        <div class="relative" style="width: 732px; height: 281px; left: 50%; transform: translateX(-50%);">
+          <!-- Video frame at the right of the group -->
+          <div class="frame absolute" style="left: 232px; top: 0; width: 500px; height: 281px; border: 3px solid #EDE9E1; border-radius: 6px; box-shadow: none;">
+            <video src="WebsiteAssets/Sunderfolk_2025/Sundefolk_Videos/Vanguard_Passive_Retaliate_001.mp4" autoplay loop muted playsinline style="width: 100%; height: 100%; object-fit: cover; display: block;"></video>
+          </div>
+
+          <!-- Fighting Spirit image at the left of the group -->
+          <img src="WebsiteAssets/Sunderfolk_2025/Sunderfolk_Images/Character Design/Sunderfolk_Vanguard_PassiveAbility_Desc.png" alt="Fighting Spirit — passive ability description"
+               class="absolute" style="left: 0; top: 19px; width: 307px; height: auto; max-width: none; z-index: 6; border: 3px solid #EDE9E1; border-radius: 6px; box-shadow: none;" />
+
+          <!-- Caption: text positioned with 9px left + 0 right + 10px top + 10px bottom inner gaps to match SpellCard_Template_A. -->
+          <p class="fs-caption absolute text-cream/85 leading-relaxed" style="top: 115px; left: 12px; width: 220px; font-size: 11.5px; font-weight: 400; text-align: left;">
+            For each Grit, the Vanguard takes 1 less damage when attacked and deals 2 damage to the attacker, reinforcing their role as both a frontliner and a DPS.
+          </p>
+        </div>
+      </div>
+
+      <!-- SpellCard_Template_A: Into the Fray (image top sits 15px below Video 1) -->
+      <div class="spellcard-a-wrap" style="margin-top: 15px;">
+        <div class="spellcard-a">
+          <img class="spellcard-a__image" src="WebsiteAssets/Sunderfolk_2025/Sunderfolk_Images/Character Design/Sunderfolk_Vanguard_SpellCard_IntoTheFray.png" alt="Into the Fray spell card" />
+          <div class="spellcard-a__video" style="padding: 0;">
+            <video src="WebsiteAssets/Sunderfolk_2025/Sundefolk_Videos/Vanguard_Spell_IntoTheFray_001.mp4" autoplay loop muted playsinline style="width: 100%; height: 100%; object-fit: cover; display: block;"></video>
+          </div>
+          <div class="spellcard-a__caption">
+            <p class="spellcard-a__caption-title">Into the Fray</p>
+            <p class="spellcard-a__caption-body">
+              As the first spell available to the player, Into the Fray teaches the Vanguard's unique keyword and the Grit mechanic.
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <!-- SpellCard_Template_A: Bladefall -->
+      <div class="spellcard-a-wrap" style="margin-top: 15px;">
+        <div class="spellcard-a">
+          <img class="spellcard-a__image" src="WebsiteAssets/Sunderfolk_2025/Sunderfolk_Images/Character Design/Sunderfolk_Vanguard_SpellCard_Bladefall.png" alt="Bladefall spell card" />
+          <div class="spellcard-a__video" style="padding: 0;">
+            <video src="WebsiteAssets/Sunderfolk_2025/Sundefolk_Videos/Vanguard_Spell_Bladefall_001.mp4" autoplay loop muted playsinline style="width: 100%; height: 100%; object-fit: cover; display: block;"></video>
+          </div>
+          <div class="spellcard-a__caption">
+            <p class="spellcard-a__caption-title">Bladefall</p>
+            <p class="spellcard-a__caption-body">
+              One of the 3 early spells, Bladefall reinforces the Vanguard's role as frontliner by granting extra damage for each adjacent enemy.
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Divider beneath the second spell card, with DESIGN PROCESS label breaking the line -->
+      <div style="display: flex; align-items: center; gap: 5px; width: 730px; margin: 35px auto 0;">
+        <div style="flex: 1; height: 5px; background: #EDE9E1;"></div>
+        <span style="font-family: 'Tungsten','Arial Black','Arial Bold',Arial,sans-serif; font-weight: 700; font-size: 34.71px; color: #EDE9E1; white-space: nowrap;">DESIGN PROCESS</span>
+        <div style="flex: 1; height: 5px; background: #EDE9E1;"></div>
+      </div>
+
+      <!-- Ideation block — uses Process_Template_Below. -->
+      <div class="process-tb">
+        <div class="process-tb__caption">
+          <p class="spellcard-a__caption-title">Ideation</p>
+          <p class="spellcard-a__caption-body">Starting from the product goals for a new playable hero, brainstormed the hero's class fantasy, core mechanics, passive ability, and skill kit.</p>
+        </div>
+        <img class="process-tb__image expandable-image"
+             src="WebsiteAssets/Sunderfolk_2025/Sunderfolk_Images/Character Design/Sunderfolk_Vanguard_Ideation_01.jpg"
+             alt="Vanguard ideation reference" />
+      </div>
+
+      <!-- Passive Ability block — uses Process_Template_Right. -->
+      <div class="process-tr">
+        <div class="process-tr__caption">
+          <p class="spellcard-a__caption-title">Passive Ability</p>
+          <p class="spellcard-a__caption-body">Brainstorm passive ability options based on the core mechanic, then collaborate with the lead designer and game director to finalize the design.</p>
+        </div>
+        <img class="process-tr__image expandable-image"
+             src="WebsiteAssets/Sunderfolk_2025/Sunderfolk_Images/Character Design/Sunderfolk_Vanguard_PassiveAbility_01.jpg"
+             alt="Passive ability ideation reference" />
+      </div>
+
+      <!-- Spell Cards block — uses Process_Template_Left. -->
+      <div class="process-tl">
+        <img class="process-tl__image expandable-image"
+             src="WebsiteAssets/Sunderfolk_2025/Sunderfolk_Images/Character Design/Sunderfolk_Vanguard_SpellCard_01.jpg"
+             alt="Spell cards reference" />
+        <div class="process-tl__caption">
+          <p class="spellcard-a__caption-title">Spell Cards</p>
+          <p class="spellcard-a__caption-body">Designed 10 distinct ability cards to support flexible deck building:</p>
+          <ul class="spellcard-a__caption-list">
+            <li>Starter cards that teach the Vanguard's core mechanics and passive ability.</li>
+            <li>Situational cards that give players unique answers to different scenarios and encounters.</li>
+            <li>An Ultimate card that captures the Vanguard's class identity and drives team synergy.</li>
+          </ul>
+        </div>
+      </div>
+
+      <!-- Implementation, Playtest & Iteration block — uses Process_Template_Below.
+           margin-top: 29px overrides the class default 45px so the visible gap to the
+           preceding "Spell Cards" block matches the 24px gap between the other steps
+           (29 + 5 caption margin - 10 ::before offset = 24 visible). -->
+      <div class="process-tb" style="margin-top: 29px;">
+        <div class="process-tb__caption">
+          <p class="spellcard-a__caption-title">Implementation, Playtest, and Iteration</p>
+          <p class="spellcard-a__caption-body">Took the hero from concept to a playable prototype, building it in-engine with existing assets as temporary visuals so the team could play it in the three rapid playtests every week.</p>
+          <p class="spellcard-a__caption-body">Owned iteration end to end: turned feedback from each playtest into design changes, solved technical edge cases, and fixed bugs to keep the hero stable and improving throughout development.</p>
+        </div>
+        <img class="process-tb__image expandable-image"
+             src="WebsiteAssets/Sunderfolk_2025/Sunderfolk_Images/Character Design/Sunderfolk_Vanguard_Implementation_001.png"
+             alt="Vanguard implementation reference" />
+      </div>
+
+      <!-- Playtest feedback image beneath the Implementation block — full width, 10px below,
+           same border treatment as the reference-image pair that follows. -->
+      <img class="expandable-image"
+           src="WebsiteAssets/Sunderfolk_2025/Sunderfolk_Images/Character Design/Sunderfolk_Vanguard_PlaytestFeedback_001.png"
+           alt="Vanguard playtest feedback reference"
+           style="width: 730px; margin: 10px auto 0; height: auto; display: block; border: 3px solid #EDE9E1; border-radius: 6px; box-sizing: border-box;" />
+
+      <!-- Two reference images beneath Implementation — side by side, 10px below the block,
+           10px apart, 730px total (fills the section width). Each flex-grow equals the
+           image's aspect ratio so both render at the same height with no cropping. -->
+      <div style="display: flex; gap: 10px; width: 730px; margin: 10px auto 0; align-items: flex-start;">
+        <img class="expandable-image"
+             src="WebsiteAssets/Sunderfolk_2025/Sunderfolk_Images/Character Design/Sunderfolk_Vanguard_Iteration_002.jpg"
+             alt="Vanguard iteration reference"
+             style="flex: 1.5119 1 0; min-width: 0; height: auto; display: block; border: 3px solid #EDE9E1; border-radius: 6px; box-sizing: border-box;" />
+        <img class="expandable-image"
+             src="WebsiteAssets/Sunderfolk_2025/Sunderfolk_Images/Character Design/Sunderfolk_Vanguard_Iteration_001.jpg"
+             alt="Vanguard iteration reference"
+             style="flex: 2.2459 1 0; min-width: 0; height: auto; display: block; border: 3px solid #EDE9E1; border-radius: 6px; box-sizing: border-box;" />
+      </div>
+
+      <!-- carousel arrows -->
+      <div class="flex items-center justify-between mt-14">
+        <button class="role-tag pink role-tag--prev" data-carousel-go="2" aria-label="Previous: Tunnel Wurm">
+          <span class="role-tag__arrow">◀</span>
+          <span class="role-tag__text">
+            <span class="small">Enemy</span>
+            <span class="role-tag__name">TUNNEL WURM</span>
+          </span>
+          <span class="role-tag__avatar" style="width:133px;"><span class="role-tag__avatar-clip"><img src="WebsiteAssets/Sunderfolk_2025/Sunderfolk_Images/Sunderfolk_TunnelWurm_Profile_01.png" alt="" style="height:133px; margin-top:-24.5px;" /></span></span>
+        </button>
+        <button class="role-tag purple role-tag--next" data-carousel-go="1" aria-label="Next: Champion">
+          <span class="role-tag__avatar" style="width:136px;"><span class="role-tag__avatar-clip"><img src="WebsiteAssets/Sunderfolk_2025/Sunderfolk_Images/Sunderfolk_Champion_Profile_02.png" alt="" /></span></span>
+          <span class="role-tag__text">
+            <span class="small">Boss</span>
+            <span class="role-tag__name">CHAMPION</span>
+          </span>
+          <span class="role-tag__arrow">▶</span>
+        </button>
+      </div>
+    </div>
+
+    </div></div><!-- /vanguard slide -->
+
+    <!-- ===== CHAMPION (Boss, lavender) ===== -->
+    <div class="char-slide"><div class="container-x pt-12 pb-6 md:pt-16 md:pb-6" style="zoom: 1.21;">
+    <div id="champion">
+      <!-- Purple Champion banner -->
+      <article class="lav-card" style="height: 117px; margin-top: -67px; overflow: visible;">
+        <div class="portrait-clip">
+          <img src="WebsiteAssets/Sunderfolk_2025/Sunderfolk_Images/Sunderfolk_Champion_Profile_02.png" alt="Champion boss art"
+               class="absolute"
+               style="left: 155px; bottom: -95px; height: 232px; width: auto; object-fit: contain;" />
+        </div>
+
+        <!-- Title: 8px from bottom-left of container -->
+        <div class="absolute leading-none" style="left: 8px; bottom: 8px; z-index: 2;">
+          <div class="text-ink italic" style="font-family:Arial,'Helvetica Neue',Helvetica,sans-serif; font-size:19px; font-weight:600; letter-spacing:0.04em; opacity:0.7;">Boss Monster</div>
+          <div class="text-ink" style="font-family:'Tungsten','Arial Black','Arial Bold',Arial,sans-serif; font-weight:700; font-size:48.5px; letter-spacing:0.04em; line-height:1; margin-top:-6px; white-space:nowrap;">CHAMPION</div>
+        </div>
+
+        <!-- Description: 8px from top-right, justified, 12px -->
+        <p class="absolute text-ink italic leading-tight"
+           style="top: 8px; right: 8px; z-index: 6; font-family:Arial,'Helvetica Neue',Helvetica,sans-serif; font-size: 11.5px; max-width: 327px; text-align: justify;">
+          This charismatic muscle-bound Champion has big plans for the Hero. Trained in the art of the Muscle, they present a unique challenge that forces players to approach the fight differently from their usual high-damage strategies.
+        </p>
+      </article>
+
+      <!-- Passive Ability (Absolute Muscle) — same treatment as Vanguard's Fighting Spirit -->
+      <div class="mt-10 relative" style="padding-bottom: 0;">
+        <div class="relative" style="width: 732px; height: 281px; left: 50%; transform: translateX(-50%);">
+          <!-- Video frame at the right of the group -->
+          <div class="frame absolute" style="left: 232px; top: 0; width: 500px; height: 281px; border: 3px solid #EDE9E1; border-radius: 6px; box-shadow: none;">
+            <video src="WebsiteAssets/Sunderfolk_2025/Sundefolk_Videos/Champion_Passive_DmgReduct_001.mp4" autoplay loop muted playsinline style="width: 100%; height: 100%; object-fit: cover; display: block;"></video>
+          </div>
+
+          <!-- Absolute Muscle image at the left of the group -->
+          <img src="WebsiteAssets/Sunderfolk_2025/Sunderfolk_Images/Screenshot 2025-11-26 225607.png" alt="Absolute Muscle — passive ability description"
+               class="absolute" style="left: 0; top: 19px; width: 307px; height: auto; max-width: none; z-index: 6; border: 3px solid #EDE9E1; border-radius: 6px; box-shadow: none;" />
+
+          <!-- Caption: same tucked-tab treatment as Fighting Spirit -->
+          <p class="fs-caption absolute text-cream/85 leading-relaxed" style="top: 90px; left: 12px; width: 220px; font-size: 11.5px; font-weight: 400; text-align: left;">
+            With damage capped at 1, raw output won't win this fight — players must turn the Champion's own abilities and the environment against them.
+          </p>
+        </div>
+      </div>
+
+      <!-- SpellCard_Template_A: Bombs Away -->
+      <div class="spellcard-a-wrap" style="margin-top: 15px;">
+        <div class="spellcard-a">
+          <img class="spellcard-a__image" src="WebsiteAssets/Sunderfolk_2025/Sunderfolk_Images/Sunderfolk_Champion_SpellCard_BombsAway.png" alt="Bombs Away spell card" />
+          <div class="spellcard-a__video" style="padding: 0;">
+            <video src="WebsiteAssets/Sunderfolk_2025/Sundefolk_Videos/Champion_SpellCard_BombsAway_001.mp4" autoplay loop muted playsinline style="width: 100%; height: 100%; object-fit: cover; display: block;"></video>
+          </div>
+          <div class="spellcard-a__caption">
+            <p class="spellcard-a__caption-title">Bombs Away</p>
+            <p class="spellcard-a__caption-body">A ranged AoE whose damage scales with each minion, keeping crowd control crucial.</p>
+            <p class="spellcard-a__caption-body">Spread out to minimize damage. The blast also leaves objects players can use against the Champion.</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- SpellCard_Template_A: Galvanize -->
+      <div class="spellcard-a-wrap" style="margin-top: 15px;">
+        <div class="spellcard-a">
+          <img class="spellcard-a__image" src="WebsiteAssets/Sunderfolk_2025/Sunderfolk_Images/Sunderfolk_Champion_SpellCard_Galvanize.png" alt="Galvanize spell card" />
+          <div class="spellcard-a__video" style="padding: 0;">
+            <video src="WebsiteAssets/Sunderfolk_2025/Sundefolk_Videos/Champion_SpellCard_Galvanize_001.mp4" autoplay loop muted playsinline style="width: 100%; height: 100%; object-fit: cover; display: block;"></video>
+          </div>
+          <div class="spellcard-a__caption">
+            <p class="spellcard-a__caption-title">Galvanize</p>
+            <p class="spellcard-a__caption-body">
+              Past a certain threshold, the Champion summons additional minions. The result is a fun interplay between the boss's abilities, the crowd, and the narrative.
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Divider beneath Galvanize, with DESIGN PROCESS label breaking the line (same as Vanguard) -->
+      <div style="display: flex; align-items: center; gap: 5px; width: 730px; margin: 35px auto 0;">
+        <div style="flex: 1; height: 5px; background: #EDE9E1;"></div>
+        <span style="font-family: 'Tungsten','Arial Black','Arial Bold',Arial,sans-serif; font-weight: 700; font-size: 34.71px; color: #EDE9E1; white-space: nowrap;">DESIGN PROCESS</span>
+        <div style="flex: 1; height: 5px; background: #EDE9E1;"></div>
+      </div>
+
+      <!-- Research block — uses Process_Template_Right. margin-top: 40px matches the divider gap
+           of the Vanguard's first process block. -->
+      <div class="process-tr" style="margin-top: 40px;">
+        <div class="process-tr__caption">
+          <p class="spellcard-a__caption-title">Research</p>
+          <p class="spellcard-a__caption-body">Define the product goals for the boss and its encounter.</p>
+          <p class="spellcard-a__caption-body">Evaluate existing boss fights to find opportunities that make this one compelling for players.</p>
+        </div>
+        <img class="process-tr__image expandable-image"
+             src="WebsiteAssets/Sunderfolk_2025/Sunderfolk_Images/Sunderfolk_Champion_Ideation_001.jpg"
+             alt="Champion research reference" />
+      </div>
+
+      <!-- Ideation & Goal block — uses Process_Template_Left (custom 50:50 image:text ratio for the longer caption). -->
+      <div class="process-tl">
+        <img class="process-tl__image expandable-image" style="flex: 1 1 0;"
+             src="WebsiteAssets/Sunderfolk_2025/Sunderfolk_Images/Sunderfolk_Champion_Inspiration_001.jpg"
+             alt="Champion inspiration reference" />
+        <div class="process-tl__caption" style="flex: 1 1 0;">
+          <p class="spellcard-a__caption-title">Ideation</p>
+          <p class="spellcard-a__caption-body">Find inspiration that aligns with the goals of designing this boss. Draw references from other media and games as a starting point for its mechanics, personality, and presentation.</p>
+          <p class="spellcard-a__caption-title" style="margin-top: 10px;">Goal</p>
+          <p class="spellcard-a__caption-body">Create a character that is memorable through both its storytelling and its gameplay. Design experiences that challenge players in ways that feel fresh while remaining fair and rewarding.</p>
+        </div>
+      </div>
+
+      <!-- Design & Implementation block — uses Process_Template_Below.
+           margin-top: 29px nets a 24px visible gap when stacked mid-flow (see Vanguard's Implementation block). -->
+      <div class="process-tb" style="margin-top: 29px;">
+        <div class="process-tb__caption">
+          <p class="spellcard-a__caption-title">Design and Implementation</p>
+          <p class="spellcard-a__caption-body">Building on the inspiration, design the boss's passive ability and core kit, then implement them alongside the mission, enemy composition, game direction, and narrative as a playable prototype for playtesting.</p>
+        </div>
+        <img class="process-tb__image expandable-image"
+             src="WebsiteAssets/Sunderfolk_2025/Sunderfolk_Images/Sunderfolk_Champion_FirstPass_001.jpg"
+             alt="Champion first pass design reference" />
+      </div>
+
+      <!-- Playtest & Iteration + Narrative — two Process_Template_Below blocks side by side
+           (each block's 730px/45px defaults overridden; row splits 40:60). -->
+      <div style="display: flex; gap: 10px; width: 730px; margin: 29px auto 0; align-items: flex-start;">
+        <div class="process-tb" style="width: auto; flex: 2 1 0; min-width: 0; margin: 0;">
+          <div class="process-tb__caption">
+            <p class="spellcard-a__caption-title">Playtest and Iteration</p>
+            <p class="spellcard-a__caption-body">Conduct multiple rapid internal playtests every week. Collect playtest feedback and edge-case findings, turning them into actionable design changes with every iteration.</p>
+          </div>
+          <img class="process-tb__image expandable-image"
+               src="WebsiteAssets/Sunderfolk_2025/Sunderfolk_Images/Sunderfolk_Champion_Iteration_001.jpg"
+               alt="Champion playtest iteration reference" />
+        </div>
+        <div class="process-tb" style="width: auto; flex: 3 1 0; min-width: 0; margin: 0;">
+          <div class="process-tb__caption">
+            <p class="spellcard-a__caption-title">Narrative</p>
+            <p class="spellcard-a__caption-body">Write and implement all narrative elements (tutorials, dialogue, and information) in the engine. Maintain a source of truth the team can reliably reference.</p>
+          </div>
+          <img class="process-tb__image expandable-image"
+               src="WebsiteAssets/Sunderfolk_2025/Sunderfolk_Images/Sunderfolk_Champion_Narrative_001.png"
+               alt="Champion narrative reference" />
+        </div>
+      </div>
+
+      <!-- Divider with MORE BOSSES label breaking the line (same treatment as DESIGN PROCESS) -->
+      <div style="display: flex; align-items: center; gap: 5px; width: 730px; margin: 35px auto 0;">
+        <div style="flex: 1; height: 5px; background: #EDE9E1;"></div>
+        <span style="font-family: 'Tungsten','Arial Black','Arial Bold',Arial,sans-serif; font-weight: 700; font-size: 34.71px; color: #EDE9E1; white-space: nowrap;">MORE BOSSES</span>
+        <div style="flex: 1; height: 5px; background: #EDE9E1;"></div>
+      </div>
+
+      <!-- Boss components in a triangle: Redcap centered on top, the two Warriors side by side below.
+           Each component: headshot left; title with passive card below on the right. -->
+      <div style="width: 730px; margin: 24px auto 0; display: flex; justify-content: center;">
+        <div style="width: 360px; display: flex; gap: 10px; align-items: flex-start;">
+          <div class="w-[88px] h-[88px] flex-none">
+            <img src="WebsiteAssets/Sunderfolk_2025/Sunderfolk_Images/Sunderfolk_Boss_UnstableRedcap.png" alt="Unstable Redcap" class="w-full h-full object-cover" />
+          </div>
+          <div class="flex-1 min-w-0">
+            <p class="font-bold underline underline-offset-4" style="font-size:13.22px;">Unstable Redcap</p>
+            <img class="expandable-image" src="WebsiteAssets/Sunderfolk_2025/Sunderfolk_Images/Screenshot 2025-11-26 233526.png" alt="Unstable Redcap passive ability"
+                 style="width: 100%; height: auto; display: block; margin-top: 8px; border: 2px solid #EDE9E1; border-radius: 6px;" />
+          </div>
+        </div>
+      </div>
+      <div style="display: flex; gap: 10px; width: 730px; margin: 16px auto 0; align-items: flex-start;">
+        <div style="flex: 1 1 0; min-width: 0; display: flex; gap: 10px; align-items: flex-start;">
+          <div class="w-[88px] h-[88px] flex-none">
+            <img src="WebsiteAssets/Sunderfolk_2025/Sunderfolk_Images/Sunderfolk_Boss_ArcherWarrior.png" alt="Archer Warrior" class="w-full h-full object-cover" />
+          </div>
+          <div class="flex-1 min-w-0">
+            <p class="font-bold underline underline-offset-4" style="font-size:13.22px;">Archer Warrior</p>
+            <img class="expandable-image" src="WebsiteAssets/Sunderfolk_2025/Sunderfolk_Images/Screenshot 2025-11-26 233654.png" alt="Archer Warrior passive ability"
+                 style="width: 100%; height: auto; display: block; margin-top: 8px; border: 2px solid #EDE9E1; border-radius: 6px;" />
+          </div>
+        </div>
+        <div style="flex: 1 1 0; min-width: 0; display: flex; gap: 10px; align-items: flex-start;">
+          <div class="w-[88px] h-[88px] flex-none">
+            <img src="WebsiteAssets/Sunderfolk_2025/Sunderfolk_Images/Sunderfolk_Boss_SpearWarrior.png" alt="Spear Warrior" class="w-full h-full object-cover" />
+          </div>
+          <div class="flex-1 min-w-0">
+            <p class="font-bold underline underline-offset-4" style="font-size:13.22px;">Spear Warrior</p>
+            <img class="expandable-image" src="WebsiteAssets/Sunderfolk_2025/Sunderfolk_Images/Screenshot 2025-11-26 233718.png" alt="Spear Warrior passive ability"
+                 style="width: 100%; height: auto; display: block; margin-top: 8px; border: 2px solid #EDE9E1; border-radius: 6px;" />
+          </div>
+        </div>
+      </div>
+
+      <div class="flex items-center justify-between mt-14">
+        <button class="role-tag yellow role-tag--prev" data-carousel-go="0" aria-label="Previous: Vanguard">
+          <span class="role-tag__arrow">◀</span>
+          <span class="role-tag__text">
+            <span class="small">Hero</span>
+            <span class="role-tag__name">VANGUARD</span>
+          </span>
+          <span class="role-tag__avatar" style="width:132px;"><span class="role-tag__avatar-clip"><img src="WebsiteAssets/Sunderfolk_2025/Sunderfolk_Images/Sunderfolk_Vanguard_Profile_02.png" alt="" style="height:110px; margin-top:-16.5px;" /></span></span>
+        </button>
+        <button class="role-tag pink role-tag--next" data-carousel-go="2" aria-label="Next: Tunnel Wurm">
+          <span class="role-tag__avatar" style="width:133px;"><span class="role-tag__avatar-clip"><img src="WebsiteAssets/Sunderfolk_2025/Sunderfolk_Images/Sunderfolk_TunnelWurm_Profile_01.png" alt="" style="height:133px; margin-top:-24.5px;" /></span></span>
+          <span class="role-tag__text">
+            <span class="small">Enemy</span>
+            <span class="role-tag__name">TUNNEL WURM</span>
+          </span>
+          <span class="role-tag__arrow">▶</span>
+        </button>
+      </div>
+    </div>
+
+    </div></div><!-- /champion slide -->
+
+    <!-- ===== WURM (Monster, pink) ===== -->
+    <div class="char-slide"><div class="container-x pt-12 pb-6 md:pt-16 md:pb-6" style="zoom: 1.21;">
+    <div id="wurm">
+      <!-- Red Wurm banner -->
+      <article class="wurm-card" style="height: 117px; margin-top: -67px; overflow: visible;">
+        <div class="portrait-clip">
+          <img src="WebsiteAssets/Sunderfolk_2025/Sunderfolk_Images/Sunderfolk_TunnelWurm_Profile_01.png" alt="Wurm monster art"
+               class="absolute"
+               style="left: 135px; bottom: -50px; height: 231px; width: auto; object-fit: contain;" />
+        </div>
+
+        <!-- Title: 8px from bottom-left of container -->
+        <div class="absolute leading-none" style="left: 8px; bottom: 8px; z-index: 2;">
+          <div class="text-ink italic" style="font-family:Arial,'Helvetica Neue',Helvetica,sans-serif; font-size:19px; font-weight:600; letter-spacing:0.04em; opacity:0.7;">Monster</div>
+          <div class="text-ink" style="font-family:'Tungsten','Arial Black','Arial Bold',Arial,sans-serif; font-weight:700; font-size:48.5px; letter-spacing:0.04em; line-height:1; margin-top:-6px; white-space:nowrap;">WURM</div>
+        </div>
+
+        <!-- Description: 8px from top-right, justified, 12px -->
+        <p class="absolute text-ink italic leading-tight"
+           style="top: 8px; right: 8px; z-index: 6; font-family:Arial,'Helvetica Neue',Helvetica,sans-serif; font-size: 11.5px; max-width: 327px; text-align: justify;">
+          A subterranean ambusher, the Tunnel Wurm strikes from beneath the hex grid with a crushing double-bite. Reposition or pay the price.
+        </p>
+      </article>
+
+      <!-- SpellCard_Template_A: Swallow the World -->
+      <div class="spellcard-a-wrap" style="margin-top: 40px;">
+        <div class="spellcard-a">
+          <img class="spellcard-a__image" src="WebsiteAssets/Sunderfolk_2025/Sunderfolk_Images/Sunderfolk_TunnelWurm_DoubleBite_Card.PNG" alt="Swallow the World spell card" />
+          <div class="spellcard-a__video" style="padding: 0;">
+            <video src="WebsiteAssets/Sunderfolk_2025/Sundefolk_Videos/Sunderfolk_TunnelWurm_Frenzy_Clip_A.mp4" autoplay loop muted playsinline style="width: 100%; height: 100%; object-fit: cover; display: block;"></video>
+          </div>
+          <div class="spellcard-a__caption">
+            <p class="spellcard-a__caption-title">Swallow the World</p>
+            <p class="spellcard-a__caption-body">Unique to the Wurm, this ability forcefully repositions every character in range, dragging them through hazardous terrain and objects such as pits and boomshrooms before unleashing a powerful attack.</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- SpellCard_Template_A: Devour -->
+      <div class="spellcard-a-wrap" style="margin-top: 15px;">
+        <div class="spellcard-a">
+          <img class="spellcard-a__image" src="WebsiteAssets/Sunderfolk_2025/Sunderfolk_Images/Sunderfolk_TunnelWurm_Frenzy_Card.PNG" alt="Devour spell card" />
+          <div class="spellcard-a__video" style="padding: 0;">
+            <video src="WebsiteAssets/Sunderfolk_2025/Sundefolk_Videos/Sunderfolk_TunnelWurm_DoubleBite_Clip_A.mp4" autoplay loop muted playsinline style="width: 100%; height: 100%; object-fit: cover; display: block;"></video>
+          </div>
+          <div class="spellcard-a__caption">
+            <p class="spellcard-a__caption-title">Devour</p>
+            <p class="spellcard-a__caption-body">Powerful and dangerous, this spell makes the Wurm a significant threat while also serving as a useful tool against other monsters.</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Divider with DESIGN PROCESS label breaking the line (same treatment as the other slides) -->
+      <div style="display: flex; align-items: center; gap: 5px; width: 730px; margin: 40px auto 0;">
+        <div style="flex: 1; height: 5px; background: #EDE9E1;"></div>
+        <span style="font-family: 'Tungsten','Arial Black','Arial Bold',Arial,sans-serif; font-weight: 700; font-size: 34.71px; color: #EDE9E1; white-space: nowrap;">DESIGN PROCESS</span>
+        <div style="flex: 1; height: 5px; background: #EDE9E1;"></div>
+      </div>
+
+      <!-- Concept block — uses Process_Template_Below. -->
+      <div class="process-tb">
+        <div class="process-tb__caption">
+          <p class="spellcard-a__caption-title">Concept</p>
+          <p class="spellcard-a__caption-body">Collaborate with artists to establish the monster's look and fantasy. Ideate on its core abilities and combat strategy, drawing inspiration from other media and real-life references.</p>
+        </div>
+        <img class="process-tb__image expandable-image"
+             src="WebsiteAssets/Sunderfolk_2025/Sunderfolk_Images/Sunderfolk_Wurm_Concept.jpg"
+             alt="Wurm concept reference" />
+      </div>
+
+      <!-- Ideation row — passive brainstorm image (left) + Ideation Below block (right), split 40:60. -->
+      <div style="display: flex; gap: 10px; width: 730px; margin: 29px auto 0; align-items: flex-start;">
+        <img class="expandable-image" style="flex: 2 1 0; min-width: 0; height: auto; display: block; margin-top: -5px; border: 3px solid #EDE9E1; border-radius: 6px;"
+             src="WebsiteAssets/Sunderfolk_2025/Sunderfolk_Images/Sunderfolk_Wurm_PassiveBrainstorm.jpg"
+             alt="Wurm passive brainstorm reference" />
+        <div class="process-tb" style="width: auto; flex: 3 1 0; min-width: 0; margin: 0;">
+          <div class="process-tb__caption">
+            <p class="spellcard-a__caption-title">Ideation</p>
+            <p class="spellcard-a__caption-body">Select the strongest concept and develop the monster's passive, core mechanics, and ability kit. Draft multiple design options, review them with the Encounter Design Lead, and refine down to a final design.</p>
+          </div>
+          <img class="process-tb__image expandable-image"
+               src="WebsiteAssets/Sunderfolk_2025/Sunderfolk_Images/Sunderfolk_TunnelWurm_Spell_001.jpg"
+               alt="Wurm spell design reference" />
+        </div>
+      </div>
+
+      <!-- Prototype & Iteration block — uses Process_Template_Right (caption:image overridden to 35:75). -->
+      <div class="process-tr" style="margin-top: 29px;">
+        <div class="process-tr__caption" style="flex: 35 1 0;">
+          <p class="spellcard-a__caption-title">Prototype and Iteration</p>
+          <p class="spellcard-a__caption-body">Run several paper playtests to validate the design's integrity, then implement a playable prototype in-engine for team-wide playtests.</p>
+          <p class="spellcard-a__caption-body">Gather feedback and observations to iterate on the monster's balance, mechanical clarity, and overall gameplay.</p>
+        </div>
+        <img class="process-tr__image expandable-image" style="flex: 75 1 0;"
+             src="WebsiteAssets/Sunderfolk_2025/Sunderfolk_Images/Sunderfolk_Wurm_Playtest.jpg"
+             alt="Wurm playtest reference" />
+      </div>
+
+      <!-- Iteration notes image beneath the Prototype block. -->
+      <img class="expandable-image" style="display: block; width: 730px; height: auto; margin: 10px auto 0; border: 3px solid #EDE9E1; border-radius: 6px;"
+           src="WebsiteAssets/Sunderfolk_2025/Sunderfolk_Images/Sunderfolk_Wurm_IterationNotes-60c446bfa459493f81792fcbe4f624ed.jpg"
+           alt="Wurm iteration notes reference" />
+
+      <div class="flex items-center justify-between mt-14">
+        <button class="role-tag purple role-tag--prev" data-carousel-go="1" aria-label="Previous: Champion">
+          <span class="role-tag__arrow">◀</span>
+          <span class="role-tag__text">
+            <span class="small">Boss</span>
+            <span class="role-tag__name">CHAMPION</span>
+          </span>
+          <span class="role-tag__avatar" style="width:136px;"><span class="role-tag__avatar-clip"><img src="WebsiteAssets/Sunderfolk_2025/Sunderfolk_Images/Sunderfolk_Champion_Profile_02.png" alt="" /></span></span>
+        </button>
+        <button class="role-tag yellow role-tag--next" data-carousel-go="0" aria-label="Next: Vanguard">
+          <span class="role-tag__avatar" style="width:132px;"><span class="role-tag__avatar-clip"><img src="WebsiteAssets/Sunderfolk_2025/Sunderfolk_Images/Sunderfolk_Vanguard_Profile_02.png" alt="" style="height:110px; margin-top:-16.5px;" /></span></span>
+          <span class="role-tag__text">
+            <span class="small">Hero</span>
+            <span class="role-tag__name">VANGUARD</span>
+          </span>
+          <span class="role-tag__arrow">▶</span>
+        </button>
+      </div>
+    </div>
+    </div></div><!-- /wurm slide -->
+
+    </div><!-- /char-track -->
+    </div><!-- /char-viewport -->
+
+  </div><!-- /char-carousel -->
+</section>
+
+<!-- Image lightbox (used by .expandable-image elements) -->
+<div class="image-lightbox" id="image-lightbox" aria-hidden="true" role="dialog">
+  <img src="" alt="" />
+  <video autoplay loop muted playsinline style="display: none;"></video>
+  <p class="image-lightbox__hint">Scroll to zoom in/out. Drag to move the image. Click to exit viewing mode.</p>
+</div>
+
+<!-- ============================ MISSION & ENCOUNTER ============================ -->
+<section id="mission-design" class="anchor relative text-cream section-rubble-bg" style="clip-path: inset(0); --rubble-img: url('WebsiteAssets/Sunderfolk_2025/Sunderfolk_Images/SF_Combat2.png');">
+  <!-- Main-color divider line at the top edge (mirrors the dark line above Combat) -->
+  <div style="height: 5px; background: #EDE9E1;"></div>
+  <!-- title strip (same treatment as Combat Design) -->
+  <div class="text-cream pt-12 pb-[30px] md:pt-14 md:pb-[35px]">
+    <div class="container-x text-center">
+      <h2 class="flex items-center gap-[18px] text-[45px] md:text-[63px] tracking-wide uppercase -mt-[20px]" style="font-family:'Tungsten','Arial Black','Arial Bold',Arial,sans-serif; font-weight:700;">
+        <span class="flex-1 h-[5px]" style="background:#EDE9E1;"></span>
+        <span>ENCOUNTER &amp; QUEST DESIGN</span>
+        <span class="flex-1 h-[5px]" style="background:#EDE9E1;"></span>
+      </h2>
+    </div>
+  </div>
+
+  <div class="container-x pb-16 md:pb-20">
+    <!-- Encounter slideshow — borrowed from the cinematic storyboard variant (Main-color
+         frame, vertical thumbs on the right); the title tab and caption tab swap to the
+         selected encounter's own text. -->
+    <div class="slideshow slideshow--cinematic" id="encounter-slideshow" style="width: 76.5%; margin: 8px auto 0;">
+      <div class="slideshow__row" style="flex-direction: column; align-items: stretch;">
+        <!-- display column: title tab (title + caption together) → stage -->
+        <div class="slideshow__display" style="flex: 0 0 auto;">
+          <div class="encounter-a__title">
+            <p class="spellcard-a__caption-title" id="encounter-slideshow-title" style="font-family:'Tungsten','Arial Black','Arial Bold',Arial,sans-serif; font-size:35px; text-decoration:none; text-transform:uppercase;">Tavern Trouble <span style="font-size:30px;">(Tutorial)</span></p>
+            <!-- all slides share one grid cell so the tab always reserves the tallest caption's height -->
+            <div id="encounter-slideshow-captions" style="margin-top: 6px; display: grid;">
+            <div data-slide="0" style="grid-area: 1 / 1;">
+              <p class="spellcard-a__caption-body" style="font-size:14px; margin-top:0;">This tutorial teaches the game's basic controls, how your phone becomes your controller, and your role in the Sunderlands.</p>
+            </div>
+            <div data-slide="1" style="grid-area: 1 / 1; visibility: hidden;">
+              <p class="spellcard-a__caption-body" style="font-size:14px; margin-top:0;">Help the Sacred Bug reclaim their throne from the Ancient Wurm, the game's first multi-hex boss, in the new DLC!</p>
+            </div>
+            <div data-slide="2" style="grid-area: 1 / 1; visibility: hidden;">
+              <p class="spellcard-a__caption-body" style="font-size:14px; margin-top:0;">Face the Wurm, Sunderfolk's toughest enemy, as rockfalls reshape the board into a maze, demanding new tactics every round.</p>
+            </div>
+            <div data-slide="3" style="grid-area: 1 / 1; visibility: hidden;">
+              <p class="spellcard-a__caption-body" style="font-size:14px; margin-top:0;">Take down the Brightstone lamp in the game's most dangerous encounter, facing some of its strongest enemies.</p>
+            </div>
+            </div>
+          </div>
+          <!-- 3 / 1.9 + cover: same crop-to-fill framing the encounter cards used -->
+          <div class="slideshow__stage" style="aspect-ratio: 3 / 1.9;">
+            <img class="slideshow__main" id="encounter-slideshow-main"
+                 src="WebsiteAssets/Sunderfolk_2025/Sunderfolk_Images/Mission_Design/Sunderfolk_Screenshot_A_edited.jpg"
+                 alt="Tavern Trouble screenshot" style="object-fit: cover; object-position: center;" />
+          </div>
+        </div>
+        <!-- thumbnails: horizontal row underneath the stage, centered -->
+        <div class="slideshow__thumbs" style="flex: 0 0 auto; flex-direction: row; justify-content: center; align-self: center;">
+          <button type="button" class="slideshow__thumb is-active" style="width: 150px;" data-src="WebsiteAssets/Sunderfolk_2025/Sunderfolk_Images/Mission_Design/Sunderfolk_Screenshot_A_edited.jpg" aria-label="Show Tavern Trouble"><img src="WebsiteAssets/Sunderfolk_2025/Sunderfolk_Images/Mission_Design/Sunderfolk_Screenshot_A_edited.jpg" alt="" /></button>
+          <button type="button" class="slideshow__thumb" style="width: 150px;" data-src="WebsiteAssets/Sunderfolk_2025/Sunderfolk_Images/Screenshot 2025-12-04 174947.png" aria-label="Show Sacred Throne"><img src="WebsiteAssets/Sunderfolk_2025/Sunderfolk_Images/Screenshot 2025-12-04 174947.png" alt="" /></button>
+          <button type="button" class="slideshow__thumb" style="width: 150px;" data-src="WebsiteAssets/Sunderfolk_2025/Sunderfolk_Images/Mission_Design/Sunderfolk_Screenshot_C_edited.jpg" aria-label="Show Rubble Maze"><img src="WebsiteAssets/Sunderfolk_2025/Sunderfolk_Images/Mission_Design/Sunderfolk_Screenshot_C_edited.jpg" alt="" /></button>
+          <button type="button" class="slideshow__thumb" style="width: 150px;" data-src="WebsiteAssets/Sunderfolk_2025/Sunderfolk_Images/Mission_Design/Sunderfolk_Screenshot_B_edited.jpg" aria-label="Show Bright Cleanup"><img src="WebsiteAssets/Sunderfolk_2025/Sunderfolk_Images/Mission_Design/Sunderfolk_Screenshot_B_edited.jpg" alt="" /></button>
+        </div>
+      </div>
+    </div>
+    <script>
+    (function () {
+      var root = document.getElementById('encounter-slideshow');
+      if (!root) return;
+      var main = document.getElementById('encounter-slideshow-main');
+      var title = document.getElementById('encounter-slideshow-title');
+      var captions = root.querySelectorAll('#encounter-slideshow-captions > div');
+      var titles = ['Tavern Trouble <span style="font-size:30px;">(Tutorial)</span>', 'Sacred Throne <span style="font-size:30px;">(Boss Battle)</span>', 'Rubble Maze <span style="font-size:30px;">(Puzzle Battle)</span>', 'Bright Cleanup <span style="font-size:30px;">(Exploration)</span>'];
+      var names = ['Tavern Trouble', 'Sacred Throne', 'Rubble Maze', 'Bright Cleanup'];
+      var thumbs = root.querySelectorAll('.slideshow__thumb');
+      thumbs.forEach(function (btn, i) {
+        btn.addEventListener('click', function () {
+          var src = btn.getAttribute('data-src');
+          if (src) main.src = src;
+          main.alt = names[i] + ' screenshot';
+          title.innerHTML = titles[i];
+          captions.forEach(function (c, j) { c.style.visibility = j === i ? 'visible' : 'hidden'; });
+          thumbs.forEach(function (b) { b.classList.remove('is-active'); });
+          btn.classList.add('is-active');
+        });
+      });
+    })();
+    </script>
+
+    <!-- Design Process (mirrors Combat's) — un-zoomed, so scoped by .enc-process for scale-1 type -->
+    <div class="enc-process">
+      <!-- DESIGN PROCESS divider -->
+      <div style="display: flex; align-items: center; gap: 5px; margin: 44px 35px 0;">
+        <div style="flex: 1; height: 5px; background: #EDE9E1;"></div>
+        <span style="font-family: 'Tungsten','Arial Black','Arial Bold',Arial,sans-serif; font-weight: 700; font-size: 42px; color: #EDE9E1; white-space: nowrap;">DESIGN PROCESS</span>
+        <div style="flex: 1; height: 5px; background: #EDE9E1;"></div>
+      </div>
+
+      <!-- Ideation — Process_Template_Left -->
+      <div class="process-tl">
+        <img class="process-tl__image expandable-image"
+             src="WebsiteAssets/Sunderfolk_2025/Sunderfolk_Images/Mission_Design/Sunderfolk_Encounter_SacredRescue_Ideation.jpg"
+             alt="Ideation reference" />
+        <div class="process-tl__caption">
+          <p class="spellcard-a__caption-title">Ideation</p>
+          <p class="spellcard-a__caption-body">Design goals:</p>
+          <ul class="spellcard-a__caption-list">
+            <li>Set up the narrative premise for the DLC campaign.</li>
+            <li>Introduce the new Ally and Monster.</li>
+            <li>Offer a fresh strategy uncommon to the main game.</li>
+          </ul>
+          <p class="spellcard-a__caption-body">Defined the encounter's map shape, quest, and objectives, and built the enemy lineup and starting positions. Wrote the narrative alongside the design so the story drives the encounter, giving players a reason to care about the new Ally and a clear sense of the Monster's threat.</p>
+        </div>
+      </div>
+
+      <!-- Paper Prototype and Implementation — Process_Template_Below -->
+      <div class="process-tb">
+        <div class="process-tb__caption">
+          <p class="spellcard-a__caption-title">Paper Prototype and Implementation</p>
+          <p class="spellcard-a__caption-body">Prototyped the encounter through remote paper playtests on Miro, refining mechanics with each round of feedback.</p>
+          <p class="spellcard-a__caption-body">Then built it in-engine with in-house tools and scripts to create a playable version for team-wide testing.</p>
+        </div>
+        <img class="process-tb__image expandable-image"
+             src="WebsiteAssets/Sunderfolk_2025/Sunderfolk_Images/Mission_Design/Sunderfolk_Encounter_SacredRescue_PaperPlaytest.jpg"
+             alt="Paper playtest reference" />
+      </div>
+
+      <!-- Implementation image beneath the Paper Prototype block — same 35px side margins,
+           10px below, same border treatment as the template images. -->
+      <img class="expandable-image"
+           src="WebsiteAssets/Sunderfolk_2025/Sunderfolk_Images/Mission_Design/Sunderfolk_SacredRescue_Implementation_001.png"
+           alt="Sacred Rescue implementation reference"
+           style="display: block; margin: 10px 35px 0; width: calc(100% - 70px); height: auto; border: 3px solid #EDE9E1; border-radius: 6px; box-sizing: border-box;" />
+
+      <!-- Iteration and Polish — Process_Template_Below -->
+      <div class="process-tb">
+        <div class="process-tb__caption">
+          <p class="spellcard-a__caption-title">Iteration and Polish</p>
+          <p class="spellcard-a__caption-body">Debug code, wire up animation and VFX hookups, and write the encounter's narrative and tutorials. Then keep gathering feedback and iterating as more team-wide playtests are run.</p>
+        </div>
+        <img class="process-tb__image expandable-image"
+             src="WebsiteAssets/Sunderfolk_2025/Sunderfolk_Images/Mission_Design/Sunderfolk_Encounter_SacredRescue_Iteration.jpg"
+             alt="Iteration reference" />
+      </div>
+
+      <!-- PRODUCT RESULT divider (copy of DESIGN PROCESS) -->
+      <div style="display: flex; align-items: center; gap: 5px; margin: 44px 35px 0;">
+        <div style="flex: 1; height: 5px; background: #EDE9E1;"></div>
+        <span style="font-family: 'Tungsten','Arial Black','Arial Bold',Arial,sans-serif; font-weight: 700; font-size: 42px; color: #EDE9E1; white-space: nowrap;">PRODUCT RESULT</span>
+        <div style="flex: 1; height: 5px; background: #EDE9E1;"></div>
+      </div>
+
+      <!-- Visitor From Afar — Process_Template_Below with a Tungsten title + Type subtitle -->
+      <div class="process-tb">
+        <div class="process-tb__caption">
+          <p class="spellcard-a__caption-title" style="font-family:'Tungsten','Arial Black','Arial Bold',Arial,sans-serif; font-size:30px; text-decoration:none;">Visitor From Afar</p>
+          <p class="spellcard-a__caption-body" style="font-size:16px; margin-top:3px; font-family:Arial,'Helvetica Neue',Helvetica,sans-serif;"><strong style="font-weight:700;">Type:</strong> Defense &amp; Extraction</p>
+          <p class="spellcard-a__caption-body">Kick off the new DLC mini-campaign with its first mission, featuring the debut of a new Ally and a fearsome new Monster! Defend against the horde of incoming monsters, and extract the injured ally.</p>
+        </div>
+        <img class="process-tb__image expandable-image"
+             src="WebsiteAssets/Sunderfolk_2025/Sunderfolk_Images/Screenshot 2025-12-04 174653.png"
+             alt="Visitor From Afar screenshot" />
+      </div>
+
+      <!-- Two video components: Encounter_Template_A without the title tab, video instead of image -->
+      <div class="flex flex-col md:flex-row justify-center items-start gap-6 md:gap-7 mt-6 md:mt-7" style="margin-left:35px; margin-right:35px;">
+        <div class="encounter-a" style="width: auto; flex: 1 1 0; min-width: 0; margin: 0;">
+          <video class="encounter-a__image" autoplay loop muted playsinline
+                 src="WebsiteAssets/Sunderfolk_2025/Sundefolk_Videos/Sunderfolk_SacredRescue_Design_002.mp4"></video>
+          <div class="encounter-a__caption">
+            <p class="spellcard-a__caption-body" style="font-size:14px; margin-top:0;">With the Sandstone wall in place, Monsters are forced to travel around it, exhausting their movement.</p>
+          </div>
+        </div>
+        <div class="encounter-a" style="width: auto; flex: 1 1 0; min-width: 0; margin: 0;">
+          <video class="encounter-a__image" autoplay loop muted playsinline
+                 src="WebsiteAssets/Sunderfolk_2025/Sundefolk_Videos/Sunderfolk_SacredRescue_Design_001.mp4"></video>
+          <div class="encounter-a__caption">
+            <p class="spellcard-a__caption-body" style="font-size:14px; margin-top:0;">Leverage the Mummy's ability to turn into a Sandstone obstacle, forming a wall that protects your team from the advancing horde.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================ CINEMATICS ============================ -->
+<section id="cinematics" class="anchor relative text-cream section-rubble-bg" style="clip-path: inset(0); overflow: hidden; --rubble-img: url('WebsiteAssets/Sunderfolk_2025/Sunderfolk_Images/What_Is_Sunderfolk/Sunderfolk_PressKit_006.jpg');">
+  <!-- Main-color divider line at the top edge (mirrors the Encounter section) -->
+  <div style="height: 5px; background: #EDE9E1;"></div>
+  <!-- title strip (same treatment as Encounter & Quest Design) -->
+  <div class="text-cream pt-12 pb-[30px] md:pt-14 md:pb-[35px]">
+    <div class="container-x text-center">
+      <h2 class="flex items-center gap-[18px] text-[45px] md:text-[63px] tracking-wide uppercase -mt-[20px]" style="font-family:'Tungsten','Arial Black','Arial Bold',Arial,sans-serif; font-weight:700;">
+        <span class="flex-1 h-[5px]" style="background:#EDE9E1;"></span>
+        <span>CINEMATIC &amp; CUTSCENE DESIGN</span>
+        <span class="flex-1 h-[5px]" style="background:#EDE9E1;"></span>
+      </h2>
+    </div>
+  </div>
+
+  <div class="relative container-x pt-2 pb-[99px]">
+    <!-- Cinematic Production — Encounter_Template_A (title, image, caption); full section width, full image shown -->
+    <div class="encounter-a" style="width:auto; margin:8px 35px 0;">
+      <div class="encounter-a__title">
+        <p class="spellcard-a__caption-title" style="font-family:'Tungsten','Arial Black','Arial Bold',Arial,sans-serif; font-size:35px; text-decoration:none; text-transform:uppercase;">Cinematic Production</p>
+      </div>
+      <img class="encounter-a__image expandable-image"
+           style="aspect-ratio:auto; height:auto; object-fit:fill;"
+           src="WebsiteAssets/Sunderfolk_2025/Sunderfolk_Images/Sunderfolk_Cinematic_Production.jpg"
+           alt="Cinematic Production screenshot" />
+      <div class="encounter-a__caption">
+        <p class="spellcard-a__caption-body" style="font-size:14px; margin-top:0;">In Sunderfolk, tight budgets and a demanding schedule shaped how every cinematic was produced. The majority are built by repurposing existing gameplay animation and finding creative ways to tell a compelling story — reserving costly, custom one-off animation only for the key narrative moments.</p>
+      </div>
+    </div>
+
+    <!-- Three cinematic sample videos — Encounter_Template_A (centered title + centered caption), video instead of image -->
+    <div class="flex flex-col md:flex-row justify-center items-start gap-6 md:gap-7 mt-6 md:mt-7" style="margin-left:35px; margin-right:35px;">
+      <div class="encounter-a" style="width: auto; flex: 1 1 0; min-width: 0; margin: 0;">
+        <div class="encounter-a__title">
+          <p class="spellcard-a__caption-title" style="font-family:'Tungsten','Arial Black','Arial Bold',Arial,sans-serif; font-size:35px; text-decoration:none; text-transform:uppercase; text-align:center;">Low Budget</p>
+        </div>
+        <video class="encounter-a__image expandable-image" autoplay loop muted playsinline
+               src="WebsiteAssets/Sunderfolk_2025/Sundefolk_Videos/Sunderfolk_Cinematic_Sample_A.mp4"></video>
+        <div class="encounter-a__caption" style="display:flex; flex-direction:column; justify-content:center; min-height:45.5px;">
+          <p class="spellcard-a__caption-body" style="font-size:14px; margin-top:0; text-align:center;">100% Gameplay Assets</p>
+        </div>
+      </div>
+      <div class="encounter-a" style="width: auto; flex: 1 1 0; min-width: 0; margin: 0;">
+        <div class="encounter-a__title">
+          <p class="spellcard-a__caption-title" style="font-family:'Tungsten','Arial Black','Arial Bold',Arial,sans-serif; font-size:35px; text-decoration:none; text-transform:uppercase; text-align:center;">Medium Budget</p>
+        </div>
+        <video class="encounter-a__image expandable-image" autoplay loop muted playsinline
+               src="WebsiteAssets/Sunderfolk_2025/Sundefolk_Videos/Sunderfolk_Cinematic_Sample_B.mp4"></video>
+        <div class="encounter-a__caption" style="display:flex; flex-direction:column; justify-content:center; min-height:45.5px;">
+          <p class="spellcard-a__caption-body" style="font-size:14px; margin-top:0; text-align:center;">75% Gameplay Assets and 25% Custom Animation</p>
+        </div>
+      </div>
+      <div class="encounter-a" style="width: auto; flex: 1 1 0; min-width: 0; margin: 0;">
+        <div class="encounter-a__title">
+          <p class="spellcard-a__caption-title" style="font-family:'Tungsten','Arial Black','Arial Bold',Arial,sans-serif; font-size:35px; text-decoration:none; text-transform:uppercase; text-align:center;">High Budget</p>
+        </div>
+        <video class="encounter-a__image expandable-image" autoplay loop muted playsinline
+               src="WebsiteAssets/Sunderfolk_2025/Sundefolk_Videos/Sunderfolk_Cinematic_Sample_C.mp4"></video>
+        <div class="encounter-a__caption" style="display:flex; flex-direction:column; justify-content:center; min-height:45.5px;">
+          <p class="spellcard-a__caption-body" style="font-size:14px; margin-top:0; text-align:center;">100% Custom Animation</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Storyboard slideshow — cinematic variant: Main-color frame, thumbs down the right, title+caption on the display -->
+    <div class="slideshow slideshow--cinematic" id="cinematic-slideshow" style="width: 85%; margin: 40px auto 0;">
+      <div class="slideshow__row">
+        <!-- display column: title tab → stage → caption tab (caption stays glued to the stage's bottom) -->
+        <div class="slideshow__display">
+          <div class="encounter-a__title">
+            <p class="spellcard-a__caption-title" style="font-family:'Tungsten','Arial Black','Arial Bold',Arial,sans-serif; font-size:35px; text-decoration:none; text-transform:uppercase;">Storyboard</p>
+          </div>
+          <div class="slideshow__stage">
+            <img class="slideshow__main" id="cinematic-slideshow-main"
+                 src="WebsiteAssets/Sunderfolk_2025/Sunderfolk_Images/Cinematic_Storyboard/Sunderfolk_Cinematic_Storyboard_001.jpg"
+                 alt="Cinematic storyboard preview" />
+          </div>
+          <div class="encounter-a__caption">
+            <p class="spellcard-a__caption-body" style="font-size:14px; margin-top:0;">After identifying the key narrative beats of each cinematic cutscene, I head into the game space to scout potential locations, then draw storyboards — complete with notes and iterations — before executing the full development of the cinematic.</p>
+          </div>
+        </div>
+        <!-- thumbnails: vertical filmstrip on the right, centered on the display -->
+        <div class="slideshow__thumbs">
+          <button type="button" class="slideshow__thumb is-active" data-src="WebsiteAssets/Sunderfolk_2025/Sunderfolk_Images/Cinematic_Storyboard/Sunderfolk_Cinematic_Storyboard_001.jpg" aria-label="Show storyboard image 1"><img src="WebsiteAssets/Sunderfolk_2025/Sunderfolk_Images/Cinematic_Storyboard/Sunderfolk_Cinematic_Storyboard_001.jpg" alt="" /></button>
+          <button type="button" class="slideshow__thumb" data-src="WebsiteAssets/Sunderfolk_2025/Sunderfolk_Images/Cinematic_Storyboard/Sunderfolk_Cinematic_Storyboard_002.jpg" aria-label="Show storyboard image 2"><img src="WebsiteAssets/Sunderfolk_2025/Sunderfolk_Images/Cinematic_Storyboard/Sunderfolk_Cinematic_Storyboard_002.jpg" alt="" /></button>
+          <button type="button" class="slideshow__thumb" data-src="WebsiteAssets/Sunderfolk_2025/Sunderfolk_Images/Cinematic_Storyboard/Sunderfolk_Cinematic_Storyboard_004.jpg" aria-label="Show storyboard image 4"><img src="WebsiteAssets/Sunderfolk_2025/Sunderfolk_Images/Cinematic_Storyboard/Sunderfolk_Cinematic_Storyboard_004.jpg" alt="" /></button>
+          <button type="button" class="slideshow__thumb" data-src="WebsiteAssets/Sunderfolk_2025/Sunderfolk_Images/Cinematic_Storyboard/Sunderfolk_Cinematic_Storyboard_005.jpg" aria-label="Show storyboard image 5"><img src="WebsiteAssets/Sunderfolk_2025/Sunderfolk_Images/Cinematic_Storyboard/Sunderfolk_Cinematic_Storyboard_005.jpg" alt="" /></button>
+          <button type="button" class="slideshow__thumb" data-src="WebsiteAssets/Sunderfolk_2025/Sunderfolk_Images/Cinematic_Storyboard/Sunderfolk_Cinematic_Storyboard_006.jpg" aria-label="Show storyboard image 6"><img src="WebsiteAssets/Sunderfolk_2025/Sunderfolk_Images/Cinematic_Storyboard/Sunderfolk_Cinematic_Storyboard_006.jpg" alt="" /></button>
+          <button type="button" class="slideshow__thumb" data-src="WebsiteAssets/Sunderfolk_2025/Sunderfolk_Images/Cinematic_Storyboard/Sunderfolk_Cinematic_Storyboard_007.jpg" aria-label="Show storyboard image 7"><img src="WebsiteAssets/Sunderfolk_2025/Sunderfolk_Images/Cinematic_Storyboard/Sunderfolk_Cinematic_Storyboard_007.jpg" alt="" /></button>
+        </div>
+      </div>
+    </div>
+    <script>
+    (function () {
+      var root = document.getElementById('cinematic-slideshow');
+      if (!root) return;
+      var main = document.getElementById('cinematic-slideshow-main');
+      var thumbs = root.querySelectorAll('.slideshow__thumb');
+      thumbs.forEach(function (btn) {
+        btn.addEventListener('click', function () {
+          var src = btn.getAttribute('data-src');
+          if (src) main.src = src;
+          thumbs.forEach(function (b) { b.classList.remove('is-active'); });
+          btn.classList.add('is-active');
+        });
+      });
+    })();
+    </script>
+
+    <!-- Design Process (mirrors the Encounter section) — un-zoomed, scoped by .enc-process for scale-1 type -->
+    <div class="enc-process">
+      <!-- DESIGN PROCESS divider -->
+      <div style="display: flex; align-items: center; gap: 5px; margin: 44px 35px 0;">
+        <div style="flex: 1; height: 5px; background: #EDE9E1;"></div>
+        <span style="font-family: 'Tungsten','Arial Black','Arial Bold',Arial,sans-serif; font-weight: 700; font-size: 42px; color: #EDE9E1; white-space: nowrap;">DESIGN PROCESS</span>
+        <div style="flex: 1; height: 5px; background: #EDE9E1;"></div>
+      </div>
+
+      <!-- Pre-Production & Planning — Process_Template_Below -->
+      <div class="process-tb">
+        <div class="process-tb__caption">
+          <p class="spellcard-a__caption-title">Pre-Production &amp; Planning</p>
+          <p class="spellcard-a__caption-body">Analyze the encounter's narrative and gameplay elements to pinpoint the key story beats, then develop concepts that raise the stakes and give players a glimpse of the challenges ahead.</p>
+        </div>
+        <img class="process-tb__image expandable-image"
+             src="WebsiteAssets/Sunderfolk_2025/Sunderfolk_Images/Sunderfolk_Cinematic_Story.jpg"
+             alt="Pre-production and planning reference" />
+      </div>
+
+      <!-- Research & Storyboarding — Process_Template_Below without image (bottom edge mirrors the top) -->
+      <div class="process-tb process-tb--boxed">
+        <div class="process-tb__caption">
+          <p class="spellcard-a__caption-title">Research &amp; Storyboarding</p>
+          <p class="spellcard-a__caption-body">Survey the assets already available — gameplay animation, environment set dressing, and VFX — and shape them into a narrative pitch that supports the established key story beats. Design the storyboard to carry players through a smooth, natural transition from gameplay into the cutscene and back to gameplay.</p>
+        </div>
+      </div>
+
+      <!-- Three cinematic animation videos side by side — Encounter_Template_A image slot, video only -->
+      <div class="flex flex-col md:flex-row justify-center items-start gap-6 md:gap-7 mt-6 md:mt-7" style="margin-left:35px; margin-right:35px;">
+        <div class="encounter-a" style="width: auto; flex: 1 1 0; min-width: 0; margin: 0;">
+          <video class="encounter-a__image" autoplay loop muted playsinline
+                 src="WebsiteAssets/Sunderfolk_2025/Sundefolk_Videos/Cinematic/Sunderfolk_Cinematic_Animation_A.mp4"></video>
+        </div>
+        <div class="encounter-a" style="width: auto; flex: 1 1 0; min-width: 0; margin: 0;">
+          <video class="encounter-a__image" autoplay loop muted playsinline
+                 src="WebsiteAssets/Sunderfolk_2025/Sundefolk_Videos/Cinematic/Sunderfolk_Cinematic_Animation_B.mp4"></video>
+        </div>
+        <div class="encounter-a" style="width: auto; flex: 1 1 0; min-width: 0; margin: 0;">
+          <video class="encounter-a__image" autoplay loop muted playsinline
+                 src="WebsiteAssets/Sunderfolk_2025/Sundefolk_Videos/Cinematic/Sunderfolk_Cinematic_Animation_C.mp4"></video>
+        </div>
+      </div>
+
+      <!-- Storyboard image below the video row (shrunk 15% → 85% width, centered) -->
+      <div style="margin: 24px 35px 0;">
+        <img class="expandable-image"
+             src="WebsiteAssets/Sunderfolk_2025/Sunderfolk_Images/Cinematic_Storyboard/Sunderfolk_BugRollOut_Storyboard.jpg"
+             alt="Bug Roll Out storyboard"
+             style="display:block; width:85%; height:auto; margin-left:auto; margin-right:auto; border:3px solid #EDE9E1; border-radius:6px;" />
+      </div>
+
+      <!-- Kitbashing & First Draft — Process_Template_Left with a video instead of the image (video enlarged 10%: flex 2→2.75) -->
+      <div class="process-tl">
+        <video class="process-tl__image" autoplay loop muted playsinline style="flex: 2.75 1 0;"
+               src="WebsiteAssets/Sunderfolk_2025/Sundefolk_Videos/Cinematic/Sunderfolk_Cinematic_Prototype.mp4"></video>
+        <div class="process-tl__caption">
+          <p class="spellcard-a__caption-title">Kitbashing &amp; First Draft</p>
+          <p class="spellcard-a__caption-body">Working from the storyboard, build a first draft — or prototype — directly in the engine using only existing gameplay animation, and lock in a shot list that keeps the camera clear of any unpolished areas of the environment.</p>
+          <p class="spellcard-a__caption-body">Author in-engine animation to move characters naturally through the game space, then collaborate closely with the Animation, 3D, and VFX teams to continuously refine and polish the cinematic.</p>
+        </div>
+      </div>
+
+      <!-- Final Polish — Process_Template_Right with a video instead of the image -->
+      <div class="process-tr">
+        <div class="process-tr__caption">
+          <p class="spellcard-a__caption-title">Final Polish</p>
+          <p class="spellcard-a__caption-body">Through iteration and polish alongside the Animation, 3D, and VFX teams, the result is a low-budget cinematic built entirely from in-game assets — the same animation, VFX, and models players already see in the game.</p>
+          <p class="spellcard-a__caption-body">Clever camera angles, deliberate character blocking, and careful pre-planning let the team deliver a low-cost cinematic that still lands its narrative beat — freeing up hours for the higher-priority polish elsewhere in the game.</p>
+        </div>
+        <video class="process-tr__image" autoplay loop muted playsinline
+               src="WebsiteAssets/Sunderfolk_2025/Sundefolk_Videos/Cinematic/Sunderfolk_Cinematic_FinalPolish.mp4"></video>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- bottom "jump to" menu — emerges once the hero banner scrolls out of view;
+     at the very bottom it sits flush against the Cinematic section's bottom edge -->
+<nav class="jump-menu" id="jump-menu" aria-hidden="true" aria-label="Jump to section">
+  <span class="jump-menu__label">JUMP&nbsp;TO</span>
+  <a href="#summary">OVERVIEW</a>
+  <a href="#character-design">COMBAT &amp; CHARACTER</a>
+  <a href="#mission-design">ENCOUNTER &amp; QUEST</a>
+  <a href="#cinematics">CINEMATIC &amp; CUTSCENE</a>
+  <a href="#top" class="jump-menu__top" onclick="event.preventDefault(); window.scrollTo({ top: 0, behavior: 'smooth' });" aria-label="Back to top"><svg width="22" height="10" viewBox="0 0 22 10" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M1 9 L11 1 L21 9"/></svg></a>
+</nav>
+<script>
+  // Bottom jump menu: hidden while the hero is in view; emerges upward, tied to scroll,
+  // over ~220px once the hero's bottom edge passes the top of the viewport.
+  (() => {
+    const menu = document.getElementById('jump-menu');
+    const hero = document.getElementById('feature');
+    if (!menu || !hero) return;
+    const spy = Array.from(menu.querySelectorAll('a[href^="#"]:not(.jump-menu__top)'))
+      .map(a => ({ a, el: document.getElementById(a.getAttribute('href').slice(1)) }))
+      .filter(x => x.el);
+    let ticking = false;
+    function update() {
+      ticking = false;
+      const bottom = hero.getBoundingClientRect().bottom;   // hero bottom (= Summary top) relative to viewport
+      // Fully emerged by the time the Summary section reaches the top (bottom ≈ 90.5px — the jump-landing
+      // point), emerging over the preceding 176px. Below Summary it stays out; it only retracts when you
+      // scroll back UP into the hero (bottom climbs past ~110 → 286).
+      const t = Math.min(Math.max((286 - bottom) / 176, 0), 1);
+      menu.style.transform = `translateY(${(1 - t) * 100}%)`;
+      menu.setAttribute('aria-hidden', t <= 0.001 ? 'true' : 'false');
+      // scroll-spy: fill in the link for the section currently sitting under the header
+      let current = null;
+      spy.forEach(({ a, el }) => { if (el.getBoundingClientRect().top <= 140) current = a; });
+      spy.forEach(({ a }) => a.classList.toggle('is-current', a === current));
+    }
+    function onScroll() { if (!ticking) { ticking = true; requestAnimationFrame(update); } }
+    window.addEventListener('scroll', onScroll, { passive: true });
+    window.addEventListener('resize', onScroll);
+    update();
+  })();
+</script>
+
+</main>
+
+<script>
+  // Image lightbox: click .expandable-image to view full-screen with dark backdrop.
+  // Scroll-wheel zooms (cursor-anchored), drag pans, hint tracks the image's bottom edge.
+  (() => {
+    const lightbox = document.getElementById('image-lightbox');
+    if (!lightbox) return;
+    const lightboxImg = lightbox.querySelector('img');
+    const lightboxVideo = lightbox.querySelector('video');
+    const hint = lightbox.querySelector('.image-lightbox__hint');
+    const ZOOM_MIN = 0.5, ZOOM_MAX = 8, ZOOM_STEP = 1.1, DRAG_THRESHOLD = 5;
+    let activeEl = lightboxImg;   // the media being viewed: the img or the video
+    let scale = 1, tx = 0, ty = 0;
+    let activePointerId = null, didDrag = false;
+    let dragStartX = 0, dragStartY = 0, dragStartTx = 0, dragStartTy = 0;
+
+    function updateHintPosition() {
+      if (!lightbox.classList.contains('is-open')) return;
+      const r = activeEl.getBoundingClientRect();
+      hint.style.top = `${r.bottom + 5}px`;
+    }
+    function applyTransform() {
+      activeEl.style.transform = `translate(${tx}px, ${ty}px) scale(${scale})`;
+      updateHintPosition();
+    }
+    function reset() { scale = 1; tx = 0; ty = 0; }
+    function show() {
+      reset();
+      applyTransform();
+      lightbox.classList.add('is-open');
+      lightbox.setAttribute('aria-hidden', 'false');
+      document.body.style.overflow = 'hidden';
+    }
+    function open(src, alt) {
+      activeEl = lightboxImg;
+      lightboxImg.style.display = '';
+      lightboxVideo.style.display = 'none';
+      lightboxImg.src = src;
+      lightboxImg.alt = alt || '';
+      show();
+    }
+    function openVideo(src) {
+      activeEl = lightboxVideo;
+      lightboxImg.style.display = 'none';
+      lightboxVideo.style.display = 'block';
+      lightboxVideo.src = src;
+      lightboxVideo.play().catch(() => {});
+      show();
+    }
+    function close() {
+      lightbox.classList.remove('is-open');
+      lightbox.setAttribute('aria-hidden', 'true');
+      document.body.style.overflow = '';
+      lightboxImg.src = '';
+      lightboxVideo.pause();
+      lightboxVideo.removeAttribute('src');
+      lightboxVideo.load();
+      reset();
+      lightboxImg.style.transform = '';
+      lightboxVideo.style.transform = '';
+    }
+
+    // Public API: window.ImageViewNav(target?) — bind lightbox feature to one
+    // or more images. target can be an HTMLImageElement, NodeList, array,
+    // selector string, or omitted (rebinds all .expandable-image). Idempotent;
+    // adds .expandable-image class and a click handler that opens the lightbox.
+    function bindImageViewNav(target) {
+      let elements;
+      if (target == null) {
+        elements = document.querySelectorAll('.expandable-image');
+      } else if (typeof target === 'string') {
+        elements = document.querySelectorAll(target);
+      } else if (target instanceof Element) {
+        elements = [target];
+      } else if (target && typeof target.length === 'number') {
+        elements = target;
+      } else {
+        return 0;
+      }
+      let count = 0;
+      Array.from(elements).forEach(el => {
+        if (el.dataset.imageviewnavBound === '1') return;
+        el.dataset.imageviewnavBound = '1';
+        el.classList.add('expandable-image');
+        if (el.tagName === 'VIDEO') {
+          el.addEventListener('click', () => openVideo(el.currentSrc || el.src));
+        } else {
+          el.addEventListener('click', () => open(el.currentSrc || el.src, el.alt));
+        }
+        count++;
+      });
+      return count;
+    }
+    window.ImageViewNav = bindImageViewNav;
+    bindImageViewNav();   // auto-bind any .expandable-image in the initial DOM
+
+    // Click closes — unless the user just finished dragging.
+    lightbox.addEventListener('click', () => {
+      if (didDrag) { didDrag = false; return; }
+      close();
+    });
+
+    // Wheel: zoom, anchored on cursor when over image.
+    lightbox.addEventListener('wheel', e => {
+      if (!lightbox.classList.contains('is-open')) return;
+      e.preventDefault();
+      const factor = e.deltaY < 0 ? ZOOM_STEP : 1 / ZOOM_STEP;
+      const newScale = Math.max(ZOOM_MIN, Math.min(ZOOM_MAX, scale * factor));
+      if (newScale === scale) return;
+      const actualFactor = newScale / scale;
+      const rect = activeEl.getBoundingClientRect();
+      const overImg = e.clientX >= rect.left && e.clientX <= rect.right &&
+                      e.clientY >= rect.top  && e.clientY <= rect.bottom;
+      if (overImg) {
+        const cx = rect.left + rect.width / 2;
+        const cy = rect.top  + rect.height / 2;
+        tx += (actualFactor - 1) * (cx - e.clientX);
+        ty += (actualFactor - 1) * (cy - e.clientY);
+      }
+      scale = newScale;
+      applyTransform();
+    }, { passive: false });
+
+    // Drag to pan (Pointer Events handle mouse/touch/pen uniformly).
+    lightbox.addEventListener('pointerdown', e => {
+      if (!lightbox.classList.contains('is-open')) return;
+      if (e.button !== 0 && e.pointerType === 'mouse') return;  // primary mouse button only
+      activePointerId = e.pointerId;
+      lightbox.setPointerCapture(e.pointerId);
+      didDrag = false;
+      dragStartX = e.clientX;
+      dragStartY = e.clientY;
+      dragStartTx = tx;
+      dragStartTy = ty;
+      lightbox.style.cursor = 'grabbing';
+    });
+    lightbox.addEventListener('pointermove', e => {
+      if (e.pointerId !== activePointerId) return;
+      const dx = e.clientX - dragStartX;
+      const dy = e.clientY - dragStartY;
+      if (!didDrag && Math.hypot(dx, dy) > DRAG_THRESHOLD) didDrag = true;
+      if (didDrag) {
+        tx = dragStartTx + dx;
+        ty = dragStartTy + dy;
+        applyTransform();
+      }
+    });
+    function endDrag(e) {
+      if (e.pointerId !== activePointerId) return;
+      activePointerId = null;
+      try { lightbox.releasePointerCapture(e.pointerId); } catch (_) {}
+      lightbox.style.cursor = '';
+    }
+    lightbox.addEventListener('pointerup', endDrag);
+    lightbox.addEventListener('pointercancel', endDrag);
+
+    // Keep hint pinned 5px below the image's visible bottom across loads & resizes.
+    lightboxImg.addEventListener('load', updateHintPosition);
+    lightboxVideo.addEventListener('loadedmetadata', updateHintPosition);
+    window.addEventListener('resize', updateHintPosition);
+
+    document.addEventListener('keydown', e => {
+      if (e.key === 'Escape' && lightbox.classList.contains('is-open')) close();
+    });
+  })();
+
+  // Character carousel (Vanguard / Champion / Wurm) with directional infinite loop
+  (() => {
+    const track = document.getElementById('char-track');
+    if (!track) return;
+
+    const realSlides = Array.from(track.querySelectorAll('.char-slide'));
+    const totalReal  = realSlides.length;
+    if (totalReal < 2) return;
+
+    // Clone last to the start, first to the end → [last', s0, s1, s2, first']
+    const firstClone = realSlides[0].cloneNode(true);
+    const lastClone  = realSlides[totalReal - 1].cloneNode(true);
+    firstClone.setAttribute('data-clone', 'first');
+    lastClone.setAttribute('data-clone', 'last');
+    track.insertBefore(lastClone, realSlides[0]);
+    track.appendChild(firstClone);
+
+    const TRANSITION = 'transform 600ms cubic-bezier(.2,.8,.2,1)';
+    const viewport = document.querySelector('.char-viewport');
+    const section  = document.getElementById('character-design');
+    let real = 0;        // current real character (0..totalReal-1)
+    let virtual = 1;     // current track index (0..totalReal+1) — start at first real slide
+
+    function setVirtual(v, animate) {
+      track.style.transition = animate ? TRANSITION : 'none';
+      track.style.transform  = `translateX(-${v * 100}%)`;
+      virtual = v;
+    }
+    // Dynamic section height: the viewport tracks the ACTIVE slide's natural height
+    // (slides no longer stretch to the tallest), animating alongside the slide move.
+    function syncHeight() {
+      const s = realSlides[real];
+      if (viewport && s) viewport.style.height = s.offsetHeight + 'px';
+    }
+    // On character navigation, return to the top of the section — but only when the
+    // section top has scrolled past the top of the window. Lands the section top at
+    // the header's bottom edge (55px: 50px bar + 5px white line).
+    function scrollToSection() {
+      if (!section) return;
+      const top = section.getBoundingClientRect().top;
+      if (top < 0) {
+        window.scrollTo({ top: window.scrollY + top - 55, behavior: 'smooth' });
+      }
+    }
+    // Combat Design pills: the active slide's pill shows its assigned color, the rest grey.
+    const pills = document.querySelectorAll('.combat-btn[data-carousel-go]');
+    function updatePills() {
+      pills.forEach(p => p.classList.toggle('is-active', parseInt(p.getAttribute('data-carousel-go'), 10) === real));
+    }
+    let busy = false;
+    function next() {
+      if (busy) return; busy = true;
+      const target = real === totalReal - 1 ? totalReal + 1 : virtual + 1; // last clone, else next real
+      setVirtual(target, true);
+      real = (real + 1) % totalReal;
+      syncHeight();
+      updatePills();
+      scrollToSection();
+    }
+    function prev() {
+      if (busy) return; busy = true;
+      const target = real === 0 ? 0 : virtual - 1; // first clone (before start), else prev real
+      setVirtual(target, true);
+      real = (real - 1 + totalReal) % totalReal;
+      syncHeight();
+      updatePills();
+      scrollToSection();
+    }
+    function jumpTo(targetReal) {
+      if (busy || targetReal === real) return;
+      busy = true;
+      setVirtual(targetReal + 1, true);
+      real = targetReal;
+      syncHeight();
+      updatePills();
+      scrollToSection();
+    }
+
+    track.addEventListener('transitionend', () => {
+      // Snap clones back to the matching real slide with no animation
+      if (virtual === 0) setVirtual(totalReal, false);            // last clone → last real
+      else if (virtual === totalReal + 1) setVirtual(1, false);   // first clone → first real
+      busy = false;
+    });
+
+    // Initial position (no animation)
+    setVirtual(1, false);
+    syncHeight();
+    updatePills();
+    // Re-sync when the active slide's content changes size (images/fonts loading, resize).
+    window.addEventListener('load', syncHeight);
+    window.addEventListener('resize', syncHeight);
+    if (typeof ResizeObserver !== 'undefined') {
+      const ro = new ResizeObserver(() => syncHeight());
+      realSlides.forEach(s => ro.observe(s));
+    }
+
+    document.querySelectorAll('[data-carousel-prev]').forEach(b => b.addEventListener('click', prev));
+    document.querySelectorAll('[data-carousel-next]').forEach(b => b.addEventListener('click', next));
+    document.querySelectorAll('[data-carousel-go]').forEach(b =>
+      b.addEventListener('click', () => jumpTo(parseInt(b.getAttribute('data-carousel-go'), 10)))
+    );
+  })();
+
+  // Parallax for the cinemascope hero — the background scrolls slower than the page.
+  (() => {
+    const section = document.querySelector('.hero-cine');
+    const bg = document.querySelector('.hero-cine-bg');
+    if (!section || !bg) return;
+    const speed = 0.525;
+    let ticking = false;
+    function update() {
+      const rect = section.getBoundingClientRect();
+      // Distance the section has scrolled past the top of the viewport (positive when scrolling down).
+      const scrolled = -rect.top;
+      // Translate the bg DOWN as the section moves UP — so the bg appears to lag behind the foreground.
+      bg.style.transform = `translate3d(0, ${scrolled * speed}px, 0)`;
+      ticking = false;
+    }
+    function onScroll() {
+      if (!ticking) {
+        requestAnimationFrame(update);
+        ticking = true;
+      }
+    }
+    window.addEventListener('scroll', onScroll, { passive: true });
+    window.addEventListener('resize', onScroll);
+    update();
+  })();
+
+  // Below the design width (1000) the whole page scales down uniformly (CSS zoom):
+  // everything shrinks together with the window, smoothly, with no reflow jumps.
+  // (The md: breakpoint is forced always-on so the desktop layout never re-flows.)
+  (() => {
+    const DESIGN_WIDTH = 1000;
+    const root = document.documentElement;
+    let raf = 0;
+    function applyScale() {
+      const vw = window.innerWidth;
+      if (vw < DESIGN_WIDTH) {
+        root.style.setProperty('--page-scale', (vw / DESIGN_WIDTH).toString());
+        document.body.classList.add('page-scaled');
+      } else {
+        root.style.removeProperty('--page-scale');
+        document.body.classList.remove('page-scaled');
+      }
+    }
+    function schedule() {
+      cancelAnimationFrame(raf);
+      raf = requestAnimationFrame(applyScale);
+    }
+    window.addEventListener('resize', schedule);
+    applyScale();
+  })();
+</script>
+
+</body>
+</html>

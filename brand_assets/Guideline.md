@@ -4,6 +4,7 @@ Regular Text Font: Arial
 Color Palatte
 Main Color: #EDE9E1
 Secondary Color: #324158
+Accent Color (Terracotta): #C4693B
 
 Vanguard: #FFEF90
 Champion: #B797FF
