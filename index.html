@@ -336,7 +336,7 @@
   .work-card:hover .work-card__pop,
   .work-card:focus-visible .work-card__pop { transform: scale(1); opacity: 1; }
   /* prototype entries = the trading card drawn from the packs, blown up.
-     Geometry mirrors CARD_SVG's 120x168 viewBox at 2.5x: 116x164 units of card
+     Geometry mirrors the pack art's 120x168 card viewBox at 2.5x: 116x164 units
      -> 290x410px, stroke 4 -> 6.5px (the same 10%-growth rule the draw uses). */
   .proto-row { display: flex; justify-content: center; gap: 30px; max-width: 1060px; margin: 44px auto 0; }
   .proto-card {
@@ -549,13 +549,59 @@
      card-pull sequence sinks it away — the inline sink transform then wins */
   .card-pack.is-open { transform: translateY(-49px); }
 
-  /* the card that slides out of an opened pack */
+  /* the card that slides out of an opened pack — a fun fact from
+     WebsiteAssets/FunFactSheet.csv, colored by its rarity. Geometry matches the
+     pack art's 120x168 card at 1.5086x (116 units wide -> 175px); the frame is an
+     inset shadow rather than a border so thickening it never shifts the contents. */
   .card-out {
     position: absolute;
     width: 175px;
     will-change: transform, opacity;
   }
-  .card-out svg { display: block; width: 100%; height: auto; }
+  .fact-card {
+    position: relative; box-sizing: border-box;
+    width: 175px; height: 247.5px;
+    background: var(--card-bg, #bfd9ec);
+    border-radius: 7.5px;
+    box-shadow: inset 0 0 0 6px #324158;
+    transition: box-shadow 650ms cubic-bezier(.2, .8, .3, 1.05);
+    font-family: 'Comic Sans MS', 'Comic Neue', 'Chalkboard SE', cursive;
+    color: #324158;
+  }
+  .fact-card__name {
+    position: absolute; left: 15px; top: 11px; right: 15px;
+    font-family: Arial, 'Helvetica Neue', Helvetica, sans-serif;
+    font-size: 11.5px; font-weight: 700; line-height: 1.05;
+  }
+  .fact-card__art {
+    position: absolute; left: 15px; top: 28.5px;
+    width: 145px; height: 105.5px;
+    background: #ffffff; border-radius: 3px;
+  }
+  .fact-card__text {
+    position: absolute; left: 15px; top: 148px;
+    width: 145px; height: 81.5px;
+    background: #ffffff; border-radius: 3.5px;
+    padding: 6px 7px;
+    display: flex; align-items: center; justify-content: center;
+    text-align: center;
+    font-size: 8.5px; line-height: 1.45;
+  }
+
+  /* rare pull: four-point sparkles burst from the cut pack, arc outward, then
+     fall past the section's bottom edge — #about (z-index 5) swallows them */
+  .sparkle {
+    position: absolute; z-index: 4;
+    pointer-events: none;
+    animation: sparkle-fly 1400ms cubic-bezier(.25, .6, .4, 1) forwards;
+  }
+  .sparkle svg { display: block; width: 100%; height: auto; }
+  @keyframes sparkle-fly {
+    0%   { transform: translate(0, 0) rotate(0deg) scale(0.2); opacity: 0; }
+    10%  { opacity: 1; }
+    32%  { transform: translate(calc(var(--dx) * 0.5), var(--peak)) rotate(calc(var(--rot) * 0.35)) scale(1); }
+    100% { transform: translate(var(--dx), var(--fall)) rotate(var(--rot)) scale(0.9); opacity: 1; }
+  }
   .card-pack:hover { transform: translateY(-49px); }
   .card-pack svg { display: block; width: 100%; height: auto; }
 
@@ -859,14 +905,85 @@
     const caption = section.querySelector('.pack-caption');
     const packsRow = section.querySelector('.card-packs');
     const palette = ['#f7d599', '#fbc8c2', '#f5c0db', '#bfd9ec'];
-    const CARD_W = 175, CARD_H = 245, CARD_SCALE = 1.66;
-    const CARD_SVG = '<svg viewBox="0 0 120 168" fill="none">' +
-      '<rect x="4" y="4" width="112" height="160" rx="5" fill="#bfd9ec" stroke="#324158" stroke-width="4"/>' +
-      '<text x="12" y="17" fill="#324158" style="font: 700 9.5px Arial, sans-serif; letter-spacing: 0.04em;">Name of Card</text>' +
-      '<rect x="12" y="21" width="96" height="70" rx="2" fill="#ffffff"/>' +
-      '<rect x="12" y="100" width="96" height="54" rx="2.5" fill="#ffffff"/>' +
-      '</svg>';
+    const CARD_W = 175, CARD_H = 247.5, CARD_SCALE = 1.66;
+    const reducedMotion = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
     let cardEl = null, busyLock = false;
+
+    // ---- fun facts: name / rarity / fact, read from the CSV so edits there
+    // ---- flow straight through to the cards
+    const RARITY_COLOR = { common: '#CFCBC4', uncommon: '#bfd9ec', rare: '#f7d599' };
+    const FALLBACK = { name: 'Fun Fact', rarity: 'Common', fact: 'Pick another pack to learn something about me!' };
+    let deck = [], bag = [];
+
+    function parseCSV(text) {
+      const rows = [];
+      let row = [], field = '', quoted = false;
+      for (let i = 0; i < text.length; i++) {
+        const c = text[i];
+        if (quoted) {
+          if (c !== '"') { field += c; }
+          else if (text[i + 1] === '"') { field += '"'; i++; }
+          else quoted = false;
+        } else if (c === '"') quoted = true;
+        else if (c === ',') { row.push(field); field = ''; }
+        else if (c === '\n') { row.push(field); rows.push(row); row = []; field = ''; }
+        else if (c !== '\r') field += c;
+      }
+      if (field || row.length) { row.push(field); rows.push(row); }
+      return rows;
+    }
+    fetch('WebsiteAssets/FunFactSheet.csv')
+      .then(r => r.ok ? r.text() : Promise.reject())
+      .then(t => {
+        deck = parseCSV(t.replace(/^\uFEFF/, '')).slice(1)
+          .filter(r => r.length >= 3 && r[0].trim() && r[2].trim())
+          .map(r => ({ name: r[0].trim(), rarity: r[1].trim(), fact: r[2].trim() }));
+      })
+      .catch(() => {});
+    // draw without repeats until the deck is exhausted, then reshuffle
+    function drawFact() {
+      if (!deck.length) return FALLBACK;
+      if (!bag.length) bag = deck.slice();
+      return bag.splice(Math.floor(Math.random() * bag.length), 1)[0];
+    }
+    function esc(t) {
+      return t.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+    }
+    function cardHTML(fact) {
+      const bg = RARITY_COLOR[fact.rarity.toLowerCase()] || RARITY_COLOR.common;
+      return '<div class="fact-card" style="--card-bg: ' + bg + ';">' +
+        '<span class="fact-card__name">' + esc(fact.name) + '</span>' +
+        '<span class="fact-card__art"></span>' +
+        '<span class="fact-card__text">' + esc(fact.fact) + '</span>' +
+        '</div>';
+    }
+
+    // four-point sparkle, outlined like the pack art
+    const SPARKLE_SVG = '<svg viewBox="0 0 48 48" fill="none">' +
+      '<path d="M24 2 C26.5 17.5 30.5 21.5 46 24 C30.5 26.5 26.5 30.5 24 46 C21.5 30.5 17.5 26.5 2 24 C17.5 21.5 21.5 17.5 24 2 Z"' +
+      ' fill="#EDE9E1" stroke="#324158" stroke-width="3.5" stroke-linejoin="round"/></svg>';
+    function sparkleBurst(cx, cy) {
+      if (reducedMotion) return;
+      for (let i = 0; i < 11; i++) {
+        const size = 16 + Math.random() * 20;
+        const dir = i % 2 ? 1 : -1;
+        const s = document.createElement('div');
+        s.className = 'sparkle';
+        s.innerHTML = SPARKLE_SVG;
+        s.style.width = size + 'px';
+        s.style.left = (cx - size / 2) + 'px';
+        s.style.top = (cy - size / 2) + 'px';
+        s.style.setProperty('--dx', (dir * (70 + Math.random() * 260)).toFixed(1) + 'px');
+        s.style.setProperty('--peak', (-(60 + Math.random() * 170)).toFixed(1) + 'px');
+        s.style.setProperty('--fall', (420 + Math.random() * 320).toFixed(1) + 'px');
+        s.style.setProperty('--rot', (dir * (90 + Math.random() * 260)).toFixed(0) + 'deg');
+        const dur = 1200 + Math.random() * 500;
+        s.style.animationDuration = dur + 'ms';
+        s.style.animationDelay = (Math.random() * 120).toFixed(0) + 'ms';
+        section.appendChild(s);
+        setTimeout(() => s.remove(), dur + 200);
+      }
+    }
 
     function packColor(pack) {
       const el = pack && pack.querySelector('.pk-fill');
@@ -924,9 +1041,14 @@
         const px = (pr.left - sr.left) / zoom, py = (pr.top - sr.top) / zoom;
         const pw = pr.width / zoom, ph = pr.height / zoom, sw = sr.width / zoom;
         // the card starts centered on its pack, layered BEHIND the whole row
+        const fact = drawFact();
         const card = document.createElement('div');
         card.className = 'card-out';
-        card.innerHTML = CARD_SVG;
+        card.innerHTML = cardHTML(fact);
+        // a rare pull throws sparkles out of the opening as the seal is cut
+        if (fact.rarity.toLowerCase() === 'rare') {
+          setTimeout(() => sparkleBurst(px + pw / 2, py + 26), 120);
+        }
         card.style.left = (px + (pw - CARD_W) / 2) + 'px';
         card.style.top = (py + (ph - CARD_H) / 2) + 'px';
         card.style.zIndex = 0;                // under every pack and the band
@@ -957,10 +1079,8 @@
           card.style.zIndex = 11;             // now above everything
           card.style.transition = 'transform 650ms cubic-bezier(.2,.8,.3,1.05)';
           card.style.transform = 'translate(' + dx + 'px, ' + dy + 'px) scale(' + CARD_SCALE + ')';
-          card.querySelectorAll('svg [stroke-width]').forEach(el => {
-            el.style.transition = 'stroke-width 650ms cubic-bezier(.2,.8,.3,1.05)';
-            el.style.strokeWidth = (parseFloat(el.getAttribute('stroke-width')) * (1.1 / CARD_SCALE)).toFixed(2) + 'px';
-          });
+          const frame = card.querySelector('.fact-card');
+          if (frame) frame.style.boxShadow = 'inset 0 0 0 ' + (6 * 1.1 / CARD_SCALE).toFixed(2) + 'px #324158';
         }, 260 + 500);
         // once landed, pin the card to section-relative CSS coordinates (like the
         // name/title) so it holds its spot in the section when the window resizes
