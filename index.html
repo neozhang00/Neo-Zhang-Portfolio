@@ -288,6 +288,82 @@
   .about-btn:active { background: #A85830; border-color: #A85830; }
   .about-btn svg { flex: 0 0 auto; }
 
+  /* Contact: a single segment card on the About section's grid paper */
+  /* five sparkles (the rare-pull star) idle around the card in the loader's mana
+     colors, bobbing on the same easing as the pick-a-pack caption */
+  .contact-wrap { position: relative; max-width: 720px; margin: 44px auto 0; }
+  .contact-star {
+    position: absolute;
+    cursor: pointer;
+    animation: contact-bob 1.8s ease-in-out infinite;
+  }
+  .contact-star svg { display: block; width: 100%; height: auto; }
+  @keyframes contact-bob {
+    0%, 100% { transform: translateY(0); }
+    50%      { transform: translateY(6.5px); }
+  }
+  /* clicked: a short wind-up, then it spins off the side of the window */
+  .contact-star.is-flying {
+    pointer-events: none;
+    animation: contact-fly 850ms cubic-bezier(.35, .05, .6, 1) forwards;
+  }
+  @keyframes contact-fly {
+    0%   { transform: translate(0, 0) rotate(0deg) scale(1); }
+    14%  { transform: translate(calc(var(--fx) * -0.035), 9px) rotate(calc(var(--fr) * -0.05)) scale(0.86); }
+    100% { transform: translate(var(--fx), var(--fy)) rotate(var(--fr)) scale(0.7); }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .contact-star { animation: none; }
+  }
+
+  .contact-card {
+    max-width: 720px;
+    margin: 0;
+    flex-direction: column;
+    text-align: center;
+    padding: 30px 34px 26px;
+  }
+  .contact-card__lede { margin: 0; }
+  .contact-card__note { margin: 24px 0 0; }   /* same size as the lede (inherited) */
+  .contact-link {
+    font-weight: 700; color: #C4693B;
+    text-decoration: underline; text-underline-offset: 3px; text-decoration-thickness: 2px;
+    transition: color 180ms ease;
+  }
+  .contact-link:hover, .contact-link:focus-visible { color: #A85830; }
+  .contact-card__actions { display: flex; width: 100%; max-width: 420px; margin-top: 33px; }
+  /* resume button filled in the Secondary color (hover still goes terracotta) */
+  .about-btn--solid { background: #324158; color: #EDE9E1; }
+  /* square social tiles under the resume button */
+  .contact-socials { display: flex; gap: 12px; margin-top: 14px; }
+  .contact-social {
+    width: 54px; height: 54px;
+    display: inline-flex; align-items: center; justify-content: center;
+    border-radius: 6px;
+    color: #ffffff; background: var(--tile, #324158);
+    box-shadow: 3px 3px 0 0 #1f2b3c;
+    transition: transform 180ms cubic-bezier(.2, .8, .2, 1), box-shadow 180ms ease;
+  }
+  .contact-social:hover, .contact-social:focus-visible { transform: translateY(-3px); box-shadow: 5px 6px 0 0 #1f2b3c; }
+  .contact-social:active { transform: translateY(0); box-shadow: 3px 3px 0 0 #1f2b3c; }
+
+  /* back-to-top tile: parks in the bottom-right corner once the page is scrolled */
+  .to-top {
+    position: fixed; right: 24px; bottom: 24px; z-index: 60;
+    width: 52px; height: 52px;
+    display: inline-flex; align-items: center; justify-content: center;
+    border: 0; padding: 0;
+    border-radius: 6px;
+    background: #C4693B; color: #EDE9E1;
+    box-shadow: 3px 3px 0 0 #1f2b3c;
+    cursor: pointer;
+    opacity: 0; visibility: hidden; transform: translateY(10px);
+    transition: opacity 220ms ease, transform 220ms cubic-bezier(.2, .8, .2, 1), background-color 180ms ease, box-shadow 180ms ease, visibility 0s linear 220ms;
+  }
+  .to-top.is-visible { opacity: 1; visibility: visible; transform: translateY(0); transition-delay: 0s; }
+  .to-top:hover, .to-top:focus-visible { background: #A85830; box-shadow: 5px 6px 0 0 #1f2b3c; transform: translateY(-3px); }
+  .to-top:active { transform: translateY(0); box-shadow: 3px 3px 0 0 #1f2b3c; }
+
   /* grid-paper page background: main color with a very faint secondary grid */
   .grid-paper {
     background-color: #EDE9E1;
@@ -853,6 +929,49 @@
   </div>
 </section>
 
+<!-- ============================ Section_Contact ============================ -->
+<section id="contact" class="anchor grid-paper">
+  <div class="container-x" style="padding-top: 44px; padding-bottom: 64px;">
+
+    <!-- section title strip, matching the site's header pattern -->
+    <h2 class="flex items-center gap-[18px] text-[45px] tracking-wide uppercase" style="font-family:'Tungsten','Arial Black','Arial Bold',Arial,sans-serif; font-weight:700; color: #324158;">
+      <span class="flex-1 h-[5px]" style="background:#324158;"></span>
+      <span>LET'S CONNECT</span>
+      <span class="flex-1 h-[5px]" style="background:#324158;"></span>
+    </h2>
+
+    <div class="contact-wrap">
+    <!-- sparkles: green / red / white / blue / black, staggered so they never bob in unison -->
+    <span class="contact-star" style="left: -70px; top: 24px; width: 54px; animation-delay: 0s;" aria-hidden="true"><svg viewBox="0 0 48 48" fill="none"><path d="M24 2 C26.5 17.5 30.5 21.5 46 24 C30.5 26.5 26.5 30.5 24 46 C21.5 30.5 17.5 26.5 2 24 C17.5 21.5 21.5 17.5 24 2 Z" fill="#9BD3AE" stroke="#324158" stroke-width="3.5" stroke-linejoin="round"/></svg></span>
+    <span class="contact-star" style="right: -52px; top: -22px; width: 36px; animation-delay: 0.45s;" aria-hidden="true"><svg viewBox="0 0 48 48" fill="none"><path d="M24 2 C26.5 17.5 30.5 21.5 46 24 C30.5 26.5 26.5 30.5 24 46 C21.5 30.5 17.5 26.5 2 24 C17.5 21.5 21.5 17.5 24 2 Z" fill="#F9AA8F" stroke="#324158" stroke-width="3.5" stroke-linejoin="round"/></svg></span>
+    <span class="contact-star" style="left: -40px; bottom: 34px; width: 28px; animation-delay: 0.9s;" aria-hidden="true"><svg viewBox="0 0 48 48" fill="none"><path d="M24 2 C26.5 17.5 30.5 21.5 46 24 C30.5 26.5 26.5 30.5 24 46 C21.5 30.5 17.5 26.5 2 24 C17.5 21.5 21.5 17.5 24 2 Z" fill="#FFFBD5" stroke="#324158" stroke-width="3.5" stroke-linejoin="round"/></svg></span>
+    <span class="contact-star" style="right: -74px; bottom: 8px; width: 60px; animation-delay: 0.25s;" aria-hidden="true"><svg viewBox="0 0 48 48" fill="none"><path d="M24 2 C26.5 17.5 30.5 21.5 46 24 C30.5 26.5 26.5 30.5 24 46 C21.5 30.5 17.5 26.5 2 24 C17.5 21.5 21.5 17.5 24 2 Z" fill="#AAE0FA" stroke="#324158" stroke-width="3.5" stroke-linejoin="round"/></svg></span>
+    <span class="contact-star" style="right: -34px; top: 128px; width: 22px; animation-delay: 1.15s;" aria-hidden="true"><svg viewBox="0 0 48 48" fill="none"><path d="M24 2 C26.5 17.5 30.5 21.5 46 24 C30.5 26.5 26.5 30.5 24 46 C21.5 30.5 17.5 26.5 2 24 C17.5 21.5 21.5 17.5 24 2 Z" fill="#CBC2BF" stroke="#324158" stroke-width="3.5" stroke-linejoin="round"/></svg></span>
+
+    <div class="about-seg seg-nochip contact-card">
+      <p class="contact-card__lede">I'm a versatile designer who picks things up fast, and I'd love to make games across every genre. If my work and what I can bring to a team interest you, let's get in touch and <strong style="color: #C4693B;">build something amazing together!</strong></p>
+      <p class="contact-card__note">You can reach me directly via
+        <a class="contact-link" href="mailto:neo.zhang.00@gmail.com">email</a> or
+        <a class="contact-link" href="https://www.linkedin.com/in/ne0zhang/" target="_blank" rel="noopener">LinkedIn</a>.</p>
+      <div class="contact-card__actions">
+        <a href="WebsiteAssets/KaiXiangZhang_GameDesigner_Sep_Resume.pdf" download class="about-btn about-btn--solid">
+          <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v12M7 11l5 5 5-5M4 20h16"/></svg>
+          DOWNLOAD CV/RESUME</a>
+      </div>
+      <div class="contact-socials">
+        <a class="contact-social" style="--tile: #4CA64C;" href="mailto:neo.zhang.00@gmail.com" aria-label="Email Neo">
+          <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2" y="5" width="20" height="14" rx="2"/><path d="M2 7l10 7 10-7"/></svg>
+        </a>
+        <a class="contact-social" style="--tile: #0A66C2;" href="https://www.linkedin.com/in/ne0zhang/" target="_blank" rel="noopener" aria-label="Neo on LinkedIn">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M4.98 3.5C4.98 4.88 3.87 6 2.5 6S0 4.88 0 3.5 1.12 1 2.5 1s2.48 1.12 2.48 2.5zM.5 8h4v16h-4V8zm7.5 0h3.8v2.2h.05c.53-1 1.83-2.2 3.77-2.2 4.03 0 4.78 2.65 4.78 6.1V24h-4v-8.5c0-2.03-.04-4.64-2.83-4.64-2.83 0-3.27 2.2-3.27 4.48V24h-4V8z"/></svg>
+        </a>
+      </div>
+    </div>
+    </div>
+
+  </div>
+</section>
+
 </main>
 
 <script>
@@ -1122,6 +1241,27 @@
     if (img && Math.random() < 0.05) img.src = 'WebsiteAssets/About/ProfilePicture_002.jpg';
   })();
 
+  // Contact sparkles: click one and it spins off the nearest side of the window
+  // and despawns. Distances are converted to local px so the page-scale zoom on
+  // narrow windows doesn't cut the flight short.
+  (() => {
+    document.querySelectorAll('.contact-star').forEach(star => {
+      star.addEventListener('click', () => {
+        if (star.classList.contains('is-flying')) return;
+        const zoom = document.body.classList.contains('page-scaled')
+          ? (parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--page-scale')) || 1) : 1;
+        const r = star.getBoundingClientRect();
+        const left = (r.left + r.width / 2) < window.innerWidth / 2;
+        const dist = (left ? r.right + 140 : window.innerWidth - r.left + 140) / zoom;
+        star.style.setProperty('--fx', ((left ? -1 : 1) * dist).toFixed(0) + 'px');
+        star.style.setProperty('--fy', (-90 + Math.random() * 260).toFixed(0) + 'px');
+        star.style.setProperty('--fr', ((left ? -1 : 1) * (300 + Math.random() * 420)).toFixed(0) + 'deg');
+        star.classList.add('is-flying');
+        setTimeout(() => star.remove(), 900);
+      });
+    });
+  })();
+
   // Nav scroll-spy: highlight the nav link for the section currently under the
   // header as the page scrolls (HOME -> #intro, ABOUT -> #about, WORK -> #work).
   (() => {
@@ -1173,6 +1313,28 @@
   })();
 </script>
 
+
+<!-- ============================ BACK TO TOP ============================ -->
+<button type="button" class="to-top" id="to-top" aria-label="Back to top">
+  <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 15l6-6 6 6"/></svg>
+</button>
+<script>
+  // shows once the first screenful is behind you; returns to the very top
+  (() => {
+    const btn = document.getElementById('to-top');
+    if (!btn) return;
+    let ticking = false;
+    function update() {
+      ticking = false;
+      btn.classList.toggle('is-visible', window.scrollY > 400);
+    }
+    window.addEventListener('scroll', () => {
+      if (!ticking) { requestAnimationFrame(update); ticking = true; }
+    }, { passive: true });
+    btn.addEventListener('click', () => window.scrollTo({ top: 0, behavior: 'smooth' }));
+    update();
+  })();
+</script>
 
 <!-- ============================ PAGE TRANSITION ============================ -->
 <div class="curtain" id="page-curtain" aria-hidden="true">
