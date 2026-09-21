@@ -124,29 +124,12 @@
   }
   .nav-dropdown a:hover, .nav-dropdown a:focus-visible { background: #EDE9E1; color: #324158; }
 
-  /* About: LinkedIn / Email buttons under the profile picture */
-  .about-btn {
-    flex: 1 1 0;
-    display: inline-flex; align-items: center; justify-content: center;
-    height: 52px;
-    border: 2px solid #EDE9E1;
-    color: #EDE9E1; background: transparent;
-    font-family: Arial, 'Helvetica Neue', Helvetica, sans-serif;
-    font-weight: 700; letter-spacing: 0.16em; font-size: 12px;
-    text-decoration: none;
-    transition: background-color 180ms ease, color 180ms ease;
-  }
-  .about-btn + .about-btn { border-left: 0; }   /* single shared seam where they touch */
-  .about-btn:hover, .about-btn:focus-visible { background: #C4693B; border-color: #C4693B; color: #EDE9E1; }
-  .about-btn:active { background: #A85830; border-color: #A85830; }
-
   /* About: speech bubbles coming off the profile picture */
   .about-bubble {
     position: absolute;
     background: #ffffff;
     border: 3px solid #324158;
-    border-radius: 12px;
-    padding: 12px 24px 8px;
+    padding: 12px 26.5px 8.5px;
     font-family: 'Tungsten','Arial Black','Arial Bold',Arial,sans-serif;
     font-weight: 700;
     color: #324158;
@@ -167,6 +150,27 @@
     border-right: 3px solid #324158;
     border-bottom: 3px solid #324158;
   }
+  /* greeting bubbles drift gently in place, each on its own path/tempo */
+  @keyframes bubble-float-a {
+    0%   { transform: translate(0, 0); }
+    25%  { transform: translate(4px, -6px); }
+    50%  { transform: translate(-3px, -2px); }
+    75%  { transform: translate(-6px, 5px); }
+    100% { transform: translate(0, 0); }
+  }
+  @keyframes bubble-float-b {
+    0%   { transform: translate(0, 0); }
+    30%  { transform: translate(-5px, 4px); }
+    55%  { transform: translate(3px, -5px); }
+    80%  { transform: translate(6px, 3px); }
+    100% { transform: translate(0, 0); }
+  }
+  .about-bubble--flag   { animation: bubble-float-a 7s ease-in-out infinite; }
+  .about-bubble--flag-r { animation: bubble-float-b 8.5s ease-in-out infinite; }
+  @media (prefers-reduced-motion: reduce) {
+    .about-bubble--flag, .about-bubble--flag-r { animation: none; }
+  }
+
   /* flag tail: right side straight (vertical), only the left side slanted.
      Built from two clipped triangles: navy outline layer + white fill layer. */
   .about-bubble--flag::before,
@@ -216,14 +220,201 @@
     border-bottom: 3px solid #324158;
   }
 
-  /* About: paragraph speech bubbles (tail-less) */
-  .about-para {
+  /* About: ability-line cards beside the character card. Each row is its own
+     card with a pastel chip edge, echoing the pack palette. */
+  .about-seg {
+    position: relative;
+    overflow: hidden;                 /* clips the chip strip to the rounded corner */
+    display: flex; align-items: center;
+    text-align: left;
+    padding: 14px 18px 14px 38px;
     background: #ffffff;
+    color: #324158;
+    border: 2.5px solid #324158;
+    border-radius: 10px;
+    box-shadow: 3px 3px 0 0 #1f2b3c;
+    font-family: Arial, 'Helvetica Neue', Helvetica, sans-serif;
+    font-size: 17.5px; line-height: 1.7;
+  }
+  .about-seg::before {                /* pastel chip drawn inside the border */
+    content: '';
+    position: absolute;
+    left: 0; top: 0; bottom: 0;
+    width: 20px;
+    background: var(--chip, #C4693B);
+  }
+  .about-seg + .about-seg { margin-top: 14px; }
+  .seg-nochip::before { display: none; }   /* segment variant without the left color tab */
+
+  /* the character card holding the portrait */
+  .char-card {
+    flex: 0 0 360px;
+    display: flex;
+    flex-direction: column;
+    background: #bfd9ec;
     border: 3px solid #324158;
     border-radius: 12px;
-    padding: 13px 20px;
+    padding: 14px;
+    box-shadow: 4px 4px 0 0 #1f2b3c;
+  }
+  .char-card__name {
+    font-family: 'Tungsten','Arial Black','Arial Bold',Arial,sans-serif;
+    font-weight: 700; font-size: 40px; letter-spacing: 0.04em;
+    color: #324158; line-height: 1;
+    margin: 2px 2px 10px;
+  }
+  .char-card__photo {
+    display: block; width: 100%;
+    flex: 1 1 0; min-height: 0;
+    object-fit: cover; object-position: center 25%;   /* crops to fill, keeps the face */
+    border: 2.5px solid #324158; border-radius: 6px;
+  }
+
+  /* About: LinkedIn / Email buttons stacked under the profile picture */
+  .about-btn {
+    flex: 1 1 0;
+    display: flex; align-items: center; justify-content: center; gap: 10px;
+    height: 48px;
+    border: 2.5px solid #324158;
+    border-radius: 8px;
+    color: #324158; background: #ffffff;
+    font-family: Arial, 'Helvetica Neue', Helvetica, sans-serif;
+    font-weight: 700; letter-spacing: 0.16em; font-size: 12px;
+    text-decoration: none;
+    transition: background-color 180ms ease, border-color 180ms ease, color 180ms ease;
+  }
+  .about-btn + .about-btn { margin-left: 10px; }
+  .about-btn:hover, .about-btn:focus-visible { background: #C4693B; border-color: #C4693B; color: #EDE9E1; }
+  .about-btn:active { background: #A85830; border-color: #A85830; }
+  .about-btn svg { flex: 0 0 auto; }
+
+  /* grid-paper page background: main color with a very faint secondary grid */
+  .grid-paper {
+    background-color: #EDE9E1;
+    background-image:
+      linear-gradient(rgba(50, 65, 88, 0.10) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(50, 65, 88, 0.10) 1px, transparent 1px);
+    background-size: 28px 28px;
+  }
+
+  /* Work: project rows presented as sealed packs. Hover perks the card up,
+     tears the seal off, and slides in the terracotta OPEN strip. */
+  .work-card {
+    position: relative;
+    display: flex;
+    align-items: stretch;
+    max-width: 1060px; height: 300px;
+    margin: 40px auto 0;
+    padding: 0;
+    border-color: #EDE9E1;
+    box-shadow: 3px 3px 0 0 #EDE9E1;
+    text-decoration: none;
+    cursor: pointer;
+    transition: transform 220ms cubic-bezier(.2,.8,.2,1), box-shadow 220ms ease;
+  }
+  .work-card:hover, .work-card:focus-visible { transform: translateY(-16px); box-shadow: 8px 12px 0 0 #C4693B; }
+  /* pop balloon: bubble + tail drawn as ONE svg path, so the outline flows
+     continuously into the tail; the text sits on top */
+  .pop-balloon { position: relative; width: 187px; }
+  .pop-balloon svg { display: block; width: 100%; height: auto; }
+  .pop-balloon__text {
+    /* centered on the oval itself (center 92.55, 54.6 in the svg's 187x150 box),
+       not on the container — the tail hangs below-left and must not pull the text */
+    position: absolute; left: -1px; right: 1px; top: 23px;
+    text-align: center;
+    font-family: 'Tungsten','Arial Black','Arial Bold',Arial,sans-serif;
+    font-weight: 700; font-size: 30px; line-height: 1.05;
+    color: #324158; letter-spacing: 0.03em;
+  }
+  .work-card__pop {                  /* comic bubble pops off the art on hover */
+    position: absolute; right: 105px; top: 45px; z-index: 4;
+    transform: scale(0); opacity: 0;
+    transform-origin: 25% 115%;
+    transition: transform 260ms cubic-bezier(.2,.8,.3,1.35), opacity 160ms ease;
+    pointer-events: none;
+  }
+  .work-card:hover .work-card__pop,
+  .work-card:focus-visible .work-card__pop { transform: scale(1); opacity: 1; }
+  /* prototype entries = the trading card drawn from the packs, blown up.
+     Geometry mirrors CARD_SVG's 120x168 viewBox at 2.5x: 116x164 units of card
+     -> 290x410px, stroke 4 -> 6.5px (the same 10%-growth rule the draw uses). */
+  .proto-row { display: flex; justify-content: center; gap: 30px; max-width: 1060px; margin: 44px auto 0; }
+  .proto-card {
+    position: relative; display: block;
+    box-sizing: border-box;
+    width: 290px; height: 410px;
+    background: #bfd9ec;
+    border: 6.5px solid #EDE9E1;
+    border-radius: 12.5px;
+    box-shadow: 3px 3px 0 0 #EDE9E1;
+    text-decoration: none;
+    transition: transform 220ms cubic-bezier(.2,.8,.2,1);
+  }
+  .proto-card:hover, .proto-card:focus-visible { transform: scale(1.06); z-index: 2; }
+  .proto-card__name {
+    position: absolute; left: 18.5px; top: 9px; right: 18.5px;
+    font-family: Arial, 'Helvetica Neue', Helvetica, sans-serif;
+    font-weight: 700; font-size: 24px; letter-spacing: 0.04em;
+    color: #324158; line-height: 1;
+  }
+  .proto-card__art {
+    position: absolute; left: 18.5px; top: 41px;
+    width: 240px; height: 175px;
+    background: #ffffff; border-radius: 5px; overflow: hidden;
+  }
+  .proto-card__art img { display: block; width: 100%; height: 100%; object-fit: cover; }
+  .proto-card__text {
+    position: absolute; left: 18.5px; top: 238.5px;
+    width: 240px; height: 135px;
+    background: #ffffff; border-radius: 5px;
+    padding: 12px 14px;
+    font-family: Arial, 'Helvetica Neue', Helvetica, sans-serif;
+    font-size: 15px; line-height: 1.5; color: #324158;
+  }
+  .work-card__panel {
+    flex: 0 0 350px;
+    background: #bfd9ec;
+    padding: 44px 26px 24px;
+    display: flex; flex-direction: column;
+  }
+  .work-card__name {
+    font-family: 'Tungsten','Arial Black','Arial Bold',Arial,sans-serif;
+    font-weight: 700; font-size: 46px; letter-spacing: 0.04em;
+    color: #324158; line-height: 1;
+  }
+  .work-card__name-img { display: block; width: 100%; height: auto; margin: -14px 0 0 4px; }  /* sits 30px off the card corner */
+  .work-card__platform {
+    margin: 5px 0 0 4px;       /* 5px under the logo, 30px from the left edge */
+    width: 350px;              /* may run to the slant's bottom corner (x=380) */
+    font-family: Arial, 'Helvetica Neue', Helvetica, sans-serif;
+    font-size: 16px;
     color: #324158;
   }
+  .work-card__role {
+    margin: 16px 0 0 4px;
+    width: 350px;              /* may run to the slant's bottom corner (x=380) */
+    font-family: Arial, 'Helvetica Neue', Helvetica, sans-serif;
+    font-size: 16px; line-height: 1.6; color: #324158;
+  }
+  .work-card__role strong { color: #C4693B; }
+  .work-card__img { display: block; flex: 1 1 0; min-width: 0; height: 100%; object-fit: cover; }
+  /* the whole row is the drawn card — art framed in an outlined window */
+  .work-card--frame { background: #bfd9ec; }
+  .work-card--frame .work-card__panel { background: transparent; }
+  .work-card--frame .work-card__imgbox {
+    flex: 1 1 0; min-width: 0;
+    height: 100%;
+    overflow: hidden;
+    /* left edge slants: top starts 40px in, running down-left to the corner —
+       the card's blue ground shows through the cut */
+    clip-path: polygon(70px 0, 100% 0, 100% 100%, 30px 100%);
+  }
+  .work-card--frame .work-card__img {
+    width: 100%; height: 100%;
+    object-fit: cover;
+    transform: translate(35px, -15px) scale(1.4);   /* centered to the slanted window */
+  }
+
 
   .container-x { max-width: 1180px; margin-inline: auto; padding-inline: 24px; }
   .anchor { scroll-margin-top: 55px; }  /* land section top at the header's bottom edge (50px bar + 5px white line) */
@@ -367,6 +558,55 @@
   .card-out svg { display: block; width: 100%; height: auto; }
   .card-pack:hover { transform: translateY(-49px); }
   .card-pack svg { display: block; width: 100%; height: auto; }
+
+  /* ===== Page transition curtain =====
+     A Secondary-color panel sweeps left -> right to cover the window, five pack-colored
+     dots orbit at the center while the next page loads, then the panel keeps travelling
+     left -> right to uncover it. Sizing is percentage-based so the body's CSS zoom
+     (narrow windows) still resolves to full-viewport coverage. */
+  .curtain {
+    position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+    z-index: 200;
+    background: #324158;
+    display: flex; align-items: center; justify-content: center;
+    transform: translateX(-100%);
+    visibility: hidden;
+    pointer-events: none;
+    transition: transform 500ms cubic-bezier(.65, 0, .35, 1);
+  }
+  .curtain.is-covering { transform: translateX(0); visibility: visible; pointer-events: auto; }
+  .curtain.is-leaving  { transform: translateX(100%); visibility: visible; pointer-events: auto; }
+  /* outer wrapper carries the pop-in / shrink-out, inner wrapper carries the orbit */
+  .curtain__loader {
+    width: 86px; height: 86px;
+    transform: scale(0); opacity: 0;
+    transition: transform 280ms cubic-bezier(.2, .8, .3, 1.3), opacity 200ms ease;
+  }
+  .curtain.is-loading .curtain__loader { transform: scale(1); opacity: 1; }
+  .curtain__orbit {
+    position: relative; width: 100%; height: 100%;
+    animation: curtain-orbit 1.3s linear infinite;
+  }
+  .curtain__dot {
+    position: absolute; left: 50%; top: 50%;
+    width: 13px; height: 13px; margin: -6.5px 0 0 -6.5px;
+    border-radius: 50%;
+    background: var(--dot, #EDE9E1);
+    animation: curtain-dot 1.3s ease-in-out infinite;
+  }
+  /* five dots evenly spaced around a 34px radius, staggered opacity pulse.
+     Colors are Magic's five mana identities: green, red, white, blue, black. */
+  .curtain__dot:nth-child(1) { transform: rotate(0deg)   translateY(-34px); animation-delay: 0s; }
+  .curtain__dot:nth-child(2) { transform: rotate(72deg)  translateY(-34px); animation-delay: 0.13s; }
+  .curtain__dot:nth-child(3) { transform: rotate(144deg) translateY(-34px); animation-delay: 0.26s; }
+  .curtain__dot:nth-child(4) { transform: rotate(216deg) translateY(-34px); animation-delay: 0.39s; }
+  .curtain__dot:nth-child(5) { transform: rotate(288deg) translateY(-34px); animation-delay: 0.52s; }
+  @keyframes curtain-orbit { to { transform: rotate(360deg); } }
+  @keyframes curtain-dot { 0%, 100% { opacity: 0.35; } 50% { opacity: 1; } }
+  @media (prefers-reduced-motion: reduce) {
+    .curtain { transition: none; }
+    .curtain__orbit, .curtain__dot { animation: none; }
+  }
 </style>
 </head>
 <body class="bg-paper text-ink">
@@ -434,32 +674,134 @@
 </section>
 
 <!-- ============================ Section_About ============================ -->
-<section id="about" class="anchor text-cream" style="background: #324158;">
-  <div class="container-x" style="height: 650px;">
+<section id="about" class="anchor grid-paper" style="border-top: 5px solid #324158;">
+  <div class="container-x" style="padding-top: 44px; padding-bottom: 56px; position: relative;">
 
-    <!-- profile picture — left edge flush to the 1000px design frame's left edge
-         (50% - 500px), top flush to the section's top edge; the LinkedIn/Email
-         buttons sit flush under it, together spanning exactly the image width -->
-    <div style="position: absolute; left: calc(50% - 500px); top: 60px; width: 360px;">
-      <img src="WebsiteAssets/About/ProfilePicture_001.jpg" alt="Neo Zhang portrait"
-           style="display: block; width: 100%; height: auto; border: 3px solid #EDE9E1; border-radius: 5px;" />
-      <div style="display: flex;">
-        <a href="https://www.linkedin.com/" target="_blank" rel="noopener" class="about-btn">LINKEDIN</a>
-        <a href="mailto:neozhang.dev@gmail.com" class="about-btn">EMAIL</a>
+    <!-- section title strip, matching the site's header pattern -->
+    <h2 class="flex items-center gap-[18px] text-[45px] tracking-wide uppercase" style="font-family:'Tungsten','Arial Black','Arial Bold',Arial,sans-serif; font-weight:700; color: #324158;">
+      <span class="flex-1 h-[5px]" style="background:#324158;"></span>
+      <span>ABOUT ME</span>
+      <span class="flex-1 h-[5px]" style="background:#324158;"></span>
+    </h2>
+
+    <div style="display: flex; align-items: stretch; justify-content: center; gap: 40px; margin-top: 40px;">
+      <!-- character card: the pack-card motif made real -->
+      <div class="char-card">
+        <div class="char-card__name">Ghost <span style="font-size: 32px;">#7875</span></div>
+        <img src="WebsiteAssets/About/ProfilePicture_001.jpg?v=2" alt="Neo Zhang portrait" class="char-card__photo" />
+        <div style="display: flex; margin-top: 12px;">
+          <a href="https://www.linkedin.com/in/ne0zhang/" target="_blank" rel="noopener" class="about-btn">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M4.98 3.5C4.98 4.88 3.87 6 2.5 6S0 4.88 0 3.5 1.12 1 2.5 1s2.48 1.12 2.48 2.5zM.5 8h4v16h-4V8zm7.5 0h3.8v2.2h.05c.53-1 1.83-2.2 3.77-2.2 4.03 0 4.78 2.65 4.78 6.1V24h-4v-8.5c0-2.03-.04-4.64-2.83-4.64-2.83 0-3.27 2.2-3.27 4.48V24h-4V8z"/></svg>
+            LINKEDIN</a>
+          <a href="mailto:neo.zhang.00@gmail.com" class="about-btn">
+            <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2" y="5" width="20" height="14" rx="2"/><path d="M2 7l10 7 10-7"/></svg>
+            EMAIL</a>
+        </div>
+      </div>
+
+      <!-- ability lines -->
+      <div style="flex: 1 1 0; max-width: 660px;">
+        <div class="about-seg" style="--chip: #C4693B;"><p style="margin: 0;">Hi, I'm <strong style="color: #C4693B;">Neo Zhang (張凱翔)</strong>, a Game Designer based in the <strong style="color: #C4693B;">Bay Area and open to relocation</strong>.</p></div>
+        <div class="about-seg" style="--chip: #bfd9ec;"><p style="margin: 0;">I've worked across a <strong style="color: #C4693B;">wide range of design areas</strong>, including combat, systems, level and mission, character, cinematic, narrative, and technical design, often <strong style="color: #C4693B;">juggling three or more at once</strong>.</p></div>
+        <div class="about-seg" style="--chip: #f7d599;"><p style="margin: 0;">With a background in Computer Science, I can script in <strong style="color: #C4693B;">C#</strong>, <strong style="color: #C4693B;">C++</strong>, and <strong style="color: #C4693B;">Python</strong> and handle in-engine implementation independently in <strong style="color: #C4693B;">Unity</strong>, <strong style="color: #C4693B;">Unreal</strong>, and <strong style="color: #C4693B;">Godot</strong>.</p></div>
+        <div class="about-seg" style="--chip: #fbc8c2;"><p style="margin: 0;">What drives me most is <strong style="color: #C4693B;">problem-solving</strong>: finding <strong style="color: #C4693B;">creative solutions</strong> to tough design challenges, especially alongside a <strong style="color: #C4693B;">collaborative team</strong>.</p></div>
+        <div class="about-seg" style="--chip: #f5c0db;"><p style="margin: 0;"><strong style="color: #C4693B;">Outside of work</strong>, I enjoy playing video games, watching movies and anime, discussing cinematography, and photography.</p></div>
       </div>
     </div>
 
-    <!-- speech bubbles coming off the profile picture, one per language -->
-    <div class="about-bubble about-bubble--flag" style="left: calc(50% - 520px); top: 58px; font-size: 60px; --tail-x: 85%;">你好!</div>
-    <div class="about-bubble about-bubble--flag-r" style="left: calc(50% - 295px); top: 75px; font-size: 60px; --tail-x: 15%;">HELLO!</div>
+    <!-- greeting bubbles floating over the character card -->
+    <div class="about-bubble about-bubble--flag" style="left: 65px; top: 230px; font-size: 51px; --tail-x: 65%; border-radius: 50% 50% 48% 52% / 58% 62% 55% 60%;">你好!</div>
+    <div class="about-bubble about-bubble--flag-r" style="left: 245px; top: 255px; font-size: 51px; --tail-x: 30%; border-radius: 48% 52% 50% 50% / 62% 56% 60% 58%;">HELLO!</div>
 
-    <!-- about paragraphs as staggered speech bubbles (no tails) -->
-    <div style="position: absolute; left: calc(50% - 100px); top: 65px; right: max(24px, calc(50% - 566px)); font-family: Arial, 'Helvetica Neue', Helvetica, sans-serif; font-size: 17px; line-height: 1.7;">
-      <p class="about-para" style="margin: 0 55px 14px 0;">Hi, I'm Neo Zhang (張凱翔), a Game Designer based in the Bay Area and open to relocation.</p>
-      <p class="about-para" style="margin: 0 0 14px 45px;">I've worked across a wide range of design areas, including combat, systems, level and mission, character, cinematic, narrative, and technical design, often juggling three or more at once.</p>
-      <p class="about-para" style="margin: 0 35px 14px 10px;">With a background in Computer Science, I can script in C#, C++, and Python and handle in-engine implementation independently in Unity, Unreal, and Godot.</p>
-      <p class="about-para" style="margin: 0 5px 14px 55px;">What drives me most is problem-solving: finding creative solutions to tough design challenges, especially alongside a collaborative team.</p>
-      <p class="about-para" style="margin: 0 45px 0 20px;">Outside of work, I enjoy playing video games, watching movies and anime, discussing cinematography, and photography.</p>
+  </div>
+</section>
+
+<!-- ============================ Section_Work ============================ -->
+<section id="work" class="anchor text-cream" style="background: #324158;">
+  <div class="container-x" style="min-height: 1300px; padding-top: 44px; padding-bottom: 56px;">
+
+    <!-- section title strip, matching the site's header pattern -->
+    <h2 class="flex items-center gap-[18px] text-[45px] tracking-wide uppercase" style="font-family:'Tungsten','Arial Black','Arial Bold',Arial,sans-serif; font-weight:700; color: #EDE9E1;">
+      <span class="flex-1 h-[5px]" style="background:#EDE9E1;"></span>
+      <span>MY WORK</span>
+      <span class="flex-1 h-[5px]" style="background:#EDE9E1;"></span>
+    </h2>
+
+    <!-- project rows -->
+    <a class="about-seg seg-nochip work-card work-card--frame" href="sunderfolk.html">
+      <div class="work-card__panel">
+        <img class="work-card__name-img" src="WebsiteAssets/Sunderfolk_2025/Sunderfolk_Images/PrimaryArt_Logo/Sunderfolk_Logo_Black.png" alt="Sunderfolk" />
+        <p class="work-card__platform"><strong>Platform:</strong> Console, PC, and Mobile Game</p>
+        <p class="work-card__role">Designed heroes, enemies, levels, encounters, cinematics, and narrative for Sunderfolk, a couch co-op tactical RPG where players control their heroes with their phones.</p>
+      </div>
+      <div class="work-card__pop" aria-hidden="true">
+        <div class="pop-balloon">
+          <svg viewBox="0 0 187 150" aria-hidden="true"><path d="M46 97 A87 50 0 1 1 59.5 101 C58 107 51 112 41.5 115 C45 108 45 102 46 97 Z" fill="#ffffff" stroke="#324158" stroke-width="3.5" stroke-linejoin="round"/></svg>
+          <span class="pop-balloon__text">Click to<br />Learn More</span>
+        </div>
+      </div>
+      <div class="work-card__imgbox"><img src="WebsiteAssets/Sunderfolk_2025/Sunderfolk_Images/PrimaryArt_Logo/Sunderfolk_PrimaryArt_withTitle_16x9.png" alt="Sunderfolk cover art" class="work-card__img" /></div>
+    </a>
+
+    <!-- second title strip — prototype projects live below this -->
+    <h2 class="flex items-center gap-[18px] text-[45px] tracking-wide uppercase" style="font-family:'Tungsten','Arial Black','Arial Bold',Arial,sans-serif; font-weight:700; color: #EDE9E1; margin-top: 72px;">
+      <span class="flex-1 h-[5px]" style="background:#EDE9E1;"></span>
+      <span>SMALL PROJECTS</span>
+      <span class="flex-1 h-[5px]" style="background:#EDE9E1;"></span>
+    </h2>
+
+    <div class="proto-row">
+      <a class="proto-card" href="prototypes.html" style="background: #f7d599;">
+        <span class="proto-card__name">Slumber the Sea</span>
+        <span class="proto-card__art"><img src="https://placehold.co/480x350" alt="Slumber the Sea art" /></span>
+        <span class="proto-card__text">
+          <strong>Role:</strong> Combat Designer, Engineer<br />
+          <strong>Genre:</strong> Turn-based Combat RPG
+        </span>
+      </a>
+      <a class="proto-card" href="prototypes.html" style="background: #fbc8c2;">
+        <span class="proto-card__name">Aimless Escape</span>
+        <span class="proto-card__art"><img src="https://placehold.co/480x350" alt="Aimless Escape art" /></span>
+        <span class="proto-card__text">
+          <strong>Role:</strong> Level Designer, Engineer, Producer<br />
+          <strong>Genre:</strong> Non-Euclidean Horror
+        </span>
+      </a>
+      <a class="proto-card" href="prototypes.html" style="background: #bfd9ec;">
+        <span class="proto-card__name">Color Beats</span>
+        <span class="proto-card__art"><img src="https://placehold.co/480x350" alt="Color Beats art" /></span>
+        <span class="proto-card__text">
+          <strong>Role:</strong> Lead Designer, Lead Engineer<br />
+          <strong>Genre:</strong> HTML Puzzle
+        </span>
+      </a>
+    </div>
+
+    <div class="proto-row" style="margin-top: 30px;">
+      <a class="proto-card" href="prototypes.html" style="background: #f5c0db;">
+        <span class="proto-card__name">Ocean Odyssey</span>
+        <span class="proto-card__art"><img src="https://placehold.co/480x350" alt="Ocean Odyssey art" /></span>
+        <span class="proto-card__text">
+          <strong>Role:</strong> Lead Designer, Engineer, Lead Producer<br />
+          <strong>Genre:</strong> Roguelite Hack-n-Slash
+        </span>
+      </a>
+      <a class="proto-card" href="prototypes.html" style="background: #bfd9ec;">
+        <span class="proto-card__name">Tower Ascension</span>
+        <span class="proto-card__art"><img src="https://placehold.co/480x350" alt="Tower Ascension art" /></span>
+        <span class="proto-card__text">
+          <strong>Role:</strong> Lead Designer, Lead Engineer<br />
+          <strong>Genre:</strong> Puzzle Platformer
+        </span>
+      </a>
+      <a class="proto-card" href="prototypes.html" style="background: #f7d599;">
+        <span class="proto-card__name">Amazing Goob</span>
+        <span class="proto-card__art"><img src="https://placehold.co/480x350" alt="Amazing Goob art" /></span>
+        <span class="proto-card__text">
+          <strong>Role:</strong> System Designer, Engineer<br />
+          <strong>Genre:</strong> Auto-Runner Platformer
+        </span>
+      </a>
     </div>
 
   </div>
@@ -653,6 +995,38 @@
     });
   })();
 
+  // Character-card easter egg: 5% of visits swap in the alternate portrait.
+  // Same element and CSS, so the crop/centering rules apply unchanged.
+  (() => {
+    const img = document.querySelector('.char-card__photo');
+    if (img && Math.random() < 0.05) img.src = 'WebsiteAssets/About/ProfilePicture_002.jpg';
+  })();
+
+  // Nav scroll-spy: highlight the nav link for the section currently under the
+  // header as the page scrolls (HOME -> #intro, ABOUT -> #about, WORK -> #work).
+  (() => {
+    const links = Array.from(document.querySelectorAll('.nav-desktop .nav-link'));
+    const map = [];
+    links.forEach(a => {
+      const id = (a.getAttribute('href') || '').split('#')[1];
+      const el = id && document.getElementById(id);
+      if (el) map.push({ a, el });
+    });
+    if (!map.length) return;
+    let ticking = false;
+    function update() {
+      ticking = false;
+      let current = map[0].a;
+      map.forEach(({ a, el }) => { if (el.getBoundingClientRect().top <= 60) current = a; });
+      map.forEach(({ a }) => a.classList.toggle('is-current', a === current));
+    }
+    window.addEventListener('scroll', () => {
+      if (!ticking) { requestAnimationFrame(update); ticking = true; }
+    }, { passive: true });
+    window.addEventListener('resize', update);
+    update();
+  })();
+
   // Below the design width (1000) the whole page scales down uniformly (CSS zoom):
   // everything shrinks together with the window, smoothly, with no reflow jumps.
   // (The md: breakpoint is forced always-on so the desktop layout never re-flows.)
@@ -676,6 +1050,64 @@
     }
     window.addEventListener('resize', schedule);
     applyScale();
+  })();
+</script>
+
+
+<!-- ============================ PAGE TRANSITION ============================ -->
+<div class="curtain" id="page-curtain" aria-hidden="true">
+  <div class="curtain__loader">
+    <div class="curtain__orbit">
+      <span class="curtain__dot" style="--dot: #9BD3AE;"></span>
+      <span class="curtain__dot" style="--dot: #F9AA8F;"></span>
+      <span class="curtain__dot" style="--dot: #FFFBD5;"></span>
+      <span class="curtain__dot" style="--dot: #AAE0FA;"></span>
+      <span class="curtain__dot" style="--dot: #CBC2BF;"></span>
+    </div>
+  </div>
+</div>
+<script>
+  /* The curtain only ever moves left -> right: it sweeps IN over the outgoing page,
+     holds while the next document loads, then sweeps OUT past the right edge.
+     Covering is applied inline (before first paint) so the incoming page is hidden
+     until its reveal runs; with JS off the element is never shown at all. */
+  (() => {
+    const curtain = document.getElementById('page-curtain');
+    if (!curtain) return;
+    const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const COVER = 500, LOAD_IN = 280, HOLD = 420, SHRINK = 260, UNCOVER = 500;
+
+    // --- entrance: this page arrived under the curtain, so uncover it ---
+    curtain.classList.add('is-covering', 'is-loading');
+    function reveal() {
+      if (reduced) { curtain.classList.remove('is-covering', 'is-loading'); return; }
+      setTimeout(() => {
+        curtain.classList.remove('is-loading');                 // dots shrink away
+        setTimeout(() => {
+          curtain.classList.replace('is-covering', 'is-leaving'); // panel exits right
+          setTimeout(() => curtain.classList.remove('is-leaving'), UNCOVER);
+        }, SHRINK);
+      }, HOLD);
+    }
+    if (document.readyState === 'complete') reveal();
+    else window.addEventListener('load', reveal, { once: true });
+    // returning via the back/forward cache: replay the reveal instead of staying covered
+    window.addEventListener('pageshow', (e) => { if (e.persisted) { curtain.classList.add('is-covering', 'is-loading'); reveal(); } });
+
+    // --- exit: intercept same-tab navigations to another page ---
+    document.addEventListener('click', (e) => {
+      if (e.defaultPrevented || e.button !== 0 || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
+      const a = e.target.closest && e.target.closest('a[href]');
+      if (!a || a.target === '_blank' || a.hasAttribute('download')) return;
+      const url = new URL(a.getAttribute('href'), location.href);
+      if (url.origin !== location.origin) return;
+      if (url.pathname === location.pathname) return;            // same page (incl. #anchors)
+      e.preventDefault();
+      if (reduced) { location.href = url.href; return; }
+      curtain.classList.add('is-covering');                      // panel sweeps in from the left
+      setTimeout(() => curtain.classList.add('is-loading'), COVER);
+      setTimeout(() => { location.href = url.href; }, COVER + LOAD_IN + HOLD);
+    });
   })();
 </script>
 
