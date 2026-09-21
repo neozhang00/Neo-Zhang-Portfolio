@@ -954,13 +954,37 @@
 </style>
 </head>
 <body class="bg-paper text-ink">
+<!-- ============================ PAGE TRANSITION ============================ -->
+<div class="curtain" id="page-curtain" aria-hidden="true">
+  <div class="curtain__loader">
+    <div class="curtain__orbit">
+      <span class="curtain__dot" style="--dot: #9BD3AE;"></span>
+      <span class="curtain__dot" style="--dot: #F9AA8F;"></span>
+      <span class="curtain__dot" style="--dot: #FFFBD5;"></span>
+      <span class="curtain__dot" style="--dot: #AAE0FA;"></span>
+      <span class="curtain__dot" style="--dot: #CBC2BF;"></span>
+    </div>
+  </div>
+</div>
+<script>
+  /* cover the page before anything below is parsed or painted; the curtain
+     script at the end of the body lifts it once the DOM is ready */
+  document.getElementById('page-curtain').classList.add('is-covering', 'is-loading');
+  /* arriving with a #fragment (e.g. index.html#work from a project page): jump there
+     instantly under the curtain instead of smooth-scrolling from the top */
+  if (location.hash) {
+    document.documentElement.style.scrollBehavior = 'auto';
+    window.addEventListener('load', () => { document.documentElement.style.scrollBehavior = ''; }, { once: true });
+  }
+</script>
+
 
 <!-- ============================ TOP NAV ============================ -->
 <header class="sticky top-0 z-50 bg-white pb-[5px]">
   <div class="absolute inset-0 bg-[#324158]" style="bottom: 5px;"></div>
   <div class="container-x flex items-center justify-center h-[50px] relative">
     <nav class="nav-desktop hidden md:flex items-center">
-      <a href="index.html" class="nav-link nav-back">
+      <a href="index.html#work" class="nav-link nav-back">
         <svg width="17" height="12" viewBox="0 0 17 12" fill="none" aria-hidden="true">
           <path d="M6.4 1 1.5 6l4.9 5M1.5 6H15.5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
         </svg>
@@ -1128,7 +1152,7 @@
         <div class="portrait-clip">
           <img src="WebsiteAssets/Sunderfolk_2025/Sunderfolk_Images/Sunderfolk_Vanguard_Profile_02.png" alt="Vanguard hero art"
                class="absolute"
-               style="left: 155px; bottom: -25px; height: 200px; width: auto; object-fit: contain; clip-path: inset(30px 0 0 0);" />
+               style="left: 155px; bottom: -25px; height: 200px; width: auto; object-fit: contain; clip-path: inset(30px 0 0 0);" loading="lazy" />
         </div>
 
         <!-- Title: 8px from bottom-left of container -->
@@ -1154,7 +1178,7 @@
 
           <!-- Fighting Spirit image at the left of the group -->
           <img src="WebsiteAssets/Sunderfolk_2025/Sunderfolk_Images/Character Design/Sunderfolk_Vanguard_PassiveAbility_Desc.png" alt="Fighting Spirit — passive ability description"
-               class="absolute" style="left: 0; top: 19px; width: 307px; height: auto; max-width: none; z-index: 6; border: 3px solid #EDE9E1; border-radius: 6px; box-shadow: none;" />
+               class="absolute" style="left: 0; top: 19px; width: 307px; height: auto; max-width: none; z-index: 6; border: 3px solid #EDE9E1; border-radius: 6px; box-shadow: none;" loading="lazy" />
 
           <!-- Caption: text positioned with 9px left + 0 right + 10px top + 10px bottom inner gaps to match SpellCard_Template_A. -->
           <p class="fs-caption absolute text-cream/85 leading-relaxed" style="top: 115px; left: 12px; width: 220px; font-size: 11.5px; font-weight: 400; text-align: left;">
@@ -1166,7 +1190,7 @@
       <!-- SpellCard_Template_A: Into the Fray (image top sits 15px below Video 1) -->
       <div class="spellcard-a-wrap" style="margin-top: 15px;">
         <div class="spellcard-a">
-          <img class="spellcard-a__image" src="WebsiteAssets/Sunderfolk_2025/Sunderfolk_Images/Character Design/Sunderfolk_Vanguard_SpellCard_IntoTheFray.png" alt="Into the Fray spell card" />
+          <img class="spellcard-a__image" src="WebsiteAssets/Sunderfolk_2025/Sunderfolk_Images/Character Design/Sunderfolk_Vanguard_SpellCard_IntoTheFray.png" alt="Into the Fray spell card" loading="lazy" />
           <div class="spellcard-a__video" style="padding: 0;">
             <video src="WebsiteAssets/Sunderfolk_2025/Sundefolk_Videos/Vanguard_Spell_IntoTheFray_001.mp4" autoplay loop muted playsinline style="width: 100%; height: 100%; object-fit: cover; display: block;"></video>
           </div>
@@ -1182,7 +1206,7 @@
       <!-- SpellCard_Template_A: Bladefall -->
       <div class="spellcard-a-wrap" style="margin-top: 15px;">
         <div class="spellcard-a">
-          <img class="spellcard-a__image" src="WebsiteAssets/Sunderfolk_2025/Sunderfolk_Images/Character Design/Sunderfolk_Vanguard_SpellCard_Bladefall.png" alt="Bladefall spell card" />
+          <img class="spellcard-a__image" src="WebsiteAssets/Sunderfolk_2025/Sunderfolk_Images/Character Design/Sunderfolk_Vanguard_SpellCard_Bladefall.png" alt="Bladefall spell card" loading="lazy" />
           <div class="spellcard-a__video" style="padding: 0;">
             <video src="WebsiteAssets/Sunderfolk_2025/Sundefolk_Videos/Vanguard_Spell_Bladefall_001.mp4" autoplay loop muted playsinline style="width: 100%; height: 100%; object-fit: cover; display: block;"></video>
           </div>
@@ -1210,7 +1234,7 @@
         </div>
         <img class="process-tb__image expandable-image"
              src="WebsiteAssets/Sunderfolk_2025/Sunderfolk_Images/Character Design/Sunderfolk_Vanguard_Ideation_01.jpg"
-             alt="Vanguard ideation reference" />
+             alt="Vanguard ideation reference" loading="lazy" />
       </div>
 
       <!-- Passive Ability block — uses Process_Template_Right. -->
@@ -1221,14 +1245,14 @@
         </div>
         <img class="process-tr__image expandable-image"
              src="WebsiteAssets/Sunderfolk_2025/Sunderfolk_Images/Character Design/Sunderfolk_Vanguard_PassiveAbility_01.jpg"
-             alt="Passive ability ideation reference" />
+             alt="Passive ability ideation reference" loading="lazy" />
       </div>
 
       <!-- Spell Cards block — uses Process_Template_Left. -->
       <div class="process-tl">
         <img class="process-tl__image expandable-image"
              src="WebsiteAssets/Sunderfolk_2025/Sunderfolk_Images/Character Design/Sunderfolk_Vanguard_SpellCard_01.jpg"
-             alt="Spell cards reference" />
+             alt="Spell cards reference" loading="lazy" />
         <div class="process-tl__caption">
           <p class="spellcard-a__caption-title">Spell Cards</p>
           <p class="spellcard-a__caption-body">Designed 10 distinct ability cards to support flexible deck building:</p>
@@ -1252,7 +1276,7 @@
         </div>
         <img class="process-tb__image expandable-image"
              src="WebsiteAssets/Sunderfolk_2025/Sunderfolk_Images/Character Design/Sunderfolk_Vanguard_Implementation_001.png"
-             alt="Vanguard implementation reference" />
+             alt="Vanguard implementation reference" loading="lazy" />
       </div>
 
       <!-- Playtest feedback image beneath the Implementation block — full width, 10px below,
@@ -1260,7 +1284,7 @@
       <img class="expandable-image"
            src="WebsiteAssets/Sunderfolk_2025/Sunderfolk_Images/Character Design/Sunderfolk_Vanguard_PlaytestFeedback_001.png"
            alt="Vanguard playtest feedback reference"
-           style="width: 730px; margin: 10px auto 0; height: auto; display: block; border: 3px solid #EDE9E1; border-radius: 6px; box-sizing: border-box;" />
+           style="width: 730px; margin: 10px auto 0; height: auto; display: block; border: 3px solid #EDE9E1; border-radius: 6px; box-sizing: border-box;" loading="lazy" />
 
       <!-- Two reference images beneath Implementation — side by side, 10px below the block,
            10px apart, 730px total (fills the section width). Each flex-grow equals the
@@ -1269,11 +1293,11 @@
         <img class="expandable-image"
              src="WebsiteAssets/Sunderfolk_2025/Sunderfolk_Images/Character Design/Sunderfolk_Vanguard_Iteration_002.jpg"
              alt="Vanguard iteration reference"
-             style="flex: 1.5119 1 0; min-width: 0; height: auto; display: block; border: 3px solid #EDE9E1; border-radius: 6px; box-sizing: border-box;" />
+             style="flex: 1.5119 1 0; min-width: 0; height: auto; display: block; border: 3px solid #EDE9E1; border-radius: 6px; box-sizing: border-box;" loading="lazy" />
         <img class="expandable-image"
              src="WebsiteAssets/Sunderfolk_2025/Sunderfolk_Images/Character Design/Sunderfolk_Vanguard_Iteration_001.jpg"
              alt="Vanguard iteration reference"
-             style="flex: 2.2459 1 0; min-width: 0; height: auto; display: block; border: 3px solid #EDE9E1; border-radius: 6px; box-sizing: border-box;" />
+             style="flex: 2.2459 1 0; min-width: 0; height: auto; display: block; border: 3px solid #EDE9E1; border-radius: 6px; box-sizing: border-box;" loading="lazy" />
       </div>
 
       <!-- carousel arrows -->
@@ -1284,10 +1308,10 @@
             <span class="small">Enemy</span>
             <span class="role-tag__name">TUNNEL WURM</span>
           </span>
-          <span class="role-tag__avatar" style="width:133px;"><span class="role-tag__avatar-clip"><img src="WebsiteAssets/Sunderfolk_2025/Sunderfolk_Images/Sunderfolk_TunnelWurm_Profile_01.png" alt="" style="height:133px; margin-top:-24.5px;" /></span></span>
+          <span class="role-tag__avatar" style="width:133px;"><span class="role-tag__avatar-clip"><img src="WebsiteAssets/Sunderfolk_2025/Sunderfolk_Images/Sunderfolk_TunnelWurm_Profile_01.png" alt="" style="height:133px; margin-top:-24.5px;" loading="lazy" /></span></span>
         </button>
         <button class="role-tag purple role-tag--next" data-carousel-go="1" aria-label="Next: Champion">
-          <span class="role-tag__avatar" style="width:136px;"><span class="role-tag__avatar-clip"><img src="WebsiteAssets/Sunderfolk_2025/Sunderfolk_Images/Sunderfolk_Champion_Profile_02.png" alt="" /></span></span>
+          <span class="role-tag__avatar" style="width:136px;"><span class="role-tag__avatar-clip"><img src="WebsiteAssets/Sunderfolk_2025/Sunderfolk_Images/Sunderfolk_Champion_Profile_02.png" alt="" loading="lazy" /></span></span>
           <span class="role-tag__text">
             <span class="small">Boss</span>
             <span class="role-tag__name">CHAMPION</span>
@@ -1307,7 +1331,7 @@
         <div class="portrait-clip">
           <img src="WebsiteAssets/Sunderfolk_2025/Sunderfolk_Images/Sunderfolk_Champion_Profile_02.png" alt="Champion boss art"
                class="absolute"
-               style="left: 155px; bottom: -95px; height: 232px; width: auto; object-fit: contain;" />
+               style="left: 155px; bottom: -95px; height: 232px; width: auto; object-fit: contain;" loading="lazy" />
         </div>
 
         <!-- Title: 8px from bottom-left of container -->
@@ -1333,7 +1357,7 @@
 
           <!-- Absolute Muscle image at the left of the group -->
           <img src="WebsiteAssets/Sunderfolk_2025/Sunderfolk_Images/Screenshot 2025-11-26 225607.png" alt="Absolute Muscle — passive ability description"
-               class="absolute" style="left: 0; top: 19px; width: 307px; height: auto; max-width: none; z-index: 6; border: 3px solid #EDE9E1; border-radius: 6px; box-shadow: none;" />
+               class="absolute" style="left: 0; top: 19px; width: 307px; height: auto; max-width: none; z-index: 6; border: 3px solid #EDE9E1; border-radius: 6px; box-shadow: none;" loading="lazy" />
 
           <!-- Caption: same tucked-tab treatment as Fighting Spirit -->
           <p class="fs-caption absolute text-cream/85 leading-relaxed" style="top: 90px; left: 12px; width: 220px; font-size: 11.5px; font-weight: 400; text-align: left;">
@@ -1345,7 +1369,7 @@
       <!-- SpellCard_Template_A: Bombs Away -->
       <div class="spellcard-a-wrap" style="margin-top: 15px;">
         <div class="spellcard-a">
-          <img class="spellcard-a__image" src="WebsiteAssets/Sunderfolk_2025/Sunderfolk_Images/Sunderfolk_Champion_SpellCard_BombsAway.png" alt="Bombs Away spell card" />
+          <img class="spellcard-a__image" src="WebsiteAssets/Sunderfolk_2025/Sunderfolk_Images/Sunderfolk_Champion_SpellCard_BombsAway.png" alt="Bombs Away spell card" loading="lazy" />
           <div class="spellcard-a__video" style="padding: 0;">
             <video src="WebsiteAssets/Sunderfolk_2025/Sundefolk_Videos/Champion_SpellCard_BombsAway_001.mp4" autoplay loop muted playsinline style="width: 100%; height: 100%; object-fit: cover; display: block;"></video>
           </div>
@@ -1360,7 +1384,7 @@
       <!-- SpellCard_Template_A: Galvanize -->
       <div class="spellcard-a-wrap" style="margin-top: 15px;">
         <div class="spellcard-a">
-          <img class="spellcard-a__image" src="WebsiteAssets/Sunderfolk_2025/Sunderfolk_Images/Sunderfolk_Champion_SpellCard_Galvanize.png" alt="Galvanize spell card" />
+          <img class="spellcard-a__image" src="WebsiteAssets/Sunderfolk_2025/Sunderfolk_Images/Sunderfolk_Champion_SpellCard_Galvanize.png" alt="Galvanize spell card" loading="lazy" />
           <div class="spellcard-a__video" style="padding: 0;">
             <video src="WebsiteAssets/Sunderfolk_2025/Sundefolk_Videos/Champion_SpellCard_Galvanize_001.mp4" autoplay loop muted playsinline style="width: 100%; height: 100%; object-fit: cover; display: block;"></video>
           </div>
@@ -1390,14 +1414,14 @@
         </div>
         <img class="process-tr__image expandable-image"
              src="WebsiteAssets/Sunderfolk_2025/Sunderfolk_Images/Sunderfolk_Champion_Ideation_001.jpg"
-             alt="Champion research reference" />
+             alt="Champion research reference" loading="lazy" />
       </div>
 
       <!-- Ideation & Goal block — uses Process_Template_Left (custom 50:50 image:text ratio for the longer caption). -->
       <div class="process-tl">
         <img class="process-tl__image expandable-image" style="flex: 1 1 0;"
              src="WebsiteAssets/Sunderfolk_2025/Sunderfolk_Images/Sunderfolk_Champion_Inspiration_001.jpg"
-             alt="Champion inspiration reference" />
+             alt="Champion inspiration reference" loading="lazy" />
         <div class="process-tl__caption" style="flex: 1 1 0;">
           <p class="spellcard-a__caption-title">Ideation</p>
           <p class="spellcard-a__caption-body">Find inspiration that aligns with the goals of designing this boss. Draw references from other media and games as a starting point for its mechanics, personality, and presentation.</p>
@@ -1415,7 +1439,7 @@
         </div>
         <img class="process-tb__image expandable-image"
              src="WebsiteAssets/Sunderfolk_2025/Sunderfolk_Images/Sunderfolk_Champion_FirstPass_001.jpg"
-             alt="Champion first pass design reference" />
+             alt="Champion first pass design reference" loading="lazy" />
       </div>
 
       <!-- Playtest & Iteration + Narrative — two Process_Template_Below blocks side by side
@@ -1428,7 +1452,7 @@
           </div>
           <img class="process-tb__image expandable-image"
                src="WebsiteAssets/Sunderfolk_2025/Sunderfolk_Images/Sunderfolk_Champion_Iteration_001.jpg"
-               alt="Champion playtest iteration reference" />
+               alt="Champion playtest iteration reference" loading="lazy" />
         </div>
         <div class="process-tb" style="width: auto; flex: 3 1 0; min-width: 0; margin: 0;">
           <div class="process-tb__caption">
@@ -1437,7 +1461,7 @@
           </div>
           <img class="process-tb__image expandable-image"
                src="WebsiteAssets/Sunderfolk_2025/Sunderfolk_Images/Sunderfolk_Champion_Narrative_001.png"
-               alt="Champion narrative reference" />
+               alt="Champion narrative reference" loading="lazy" />
         </div>
       </div>
 
@@ -1453,34 +1477,34 @@
       <div style="width: 730px; margin: 24px auto 0; display: flex; justify-content: center;">
         <div style="width: 360px; display: flex; gap: 10px; align-items: flex-start;">
           <div class="w-[88px] h-[88px] flex-none">
-            <img src="WebsiteAssets/Sunderfolk_2025/Sunderfolk_Images/Sunderfolk_Boss_UnstableRedcap.png" alt="Unstable Redcap" class="w-full h-full object-cover" />
+            <img src="WebsiteAssets/Sunderfolk_2025/Sunderfolk_Images/Sunderfolk_Boss_UnstableRedcap.png" alt="Unstable Redcap" class="w-full h-full object-cover" loading="lazy" />
           </div>
           <div class="flex-1 min-w-0">
             <p class="font-bold underline underline-offset-4" style="font-size:13.22px;">Unstable Redcap</p>
             <img class="expandable-image" src="WebsiteAssets/Sunderfolk_2025/Sunderfolk_Images/Screenshot 2025-11-26 233526.png" alt="Unstable Redcap passive ability"
-                 style="width: 100%; height: auto; display: block; margin-top: 8px; border: 2px solid #EDE9E1; border-radius: 6px;" />
+                 style="width: 100%; height: auto; display: block; margin-top: 8px; border: 2px solid #EDE9E1; border-radius: 6px;" loading="lazy" />
           </div>
         </div>
       </div>
       <div style="display: flex; gap: 10px; width: 730px; margin: 16px auto 0; align-items: flex-start;">
         <div style="flex: 1 1 0; min-width: 0; display: flex; gap: 10px; align-items: flex-start;">
           <div class="w-[88px] h-[88px] flex-none">
-            <img src="WebsiteAssets/Sunderfolk_2025/Sunderfolk_Images/Sunderfolk_Boss_ArcherWarrior.png" alt="Archer Warrior" class="w-full h-full object-cover" />
+            <img src="WebsiteAssets/Sunderfolk_2025/Sunderfolk_Images/Sunderfolk_Boss_ArcherWarrior.png" alt="Archer Warrior" class="w-full h-full object-cover" loading="lazy" />
           </div>
           <div class="flex-1 min-w-0">
             <p class="font-bold underline underline-offset-4" style="font-size:13.22px;">Archer Warrior</p>
             <img class="expandable-image" src="WebsiteAssets/Sunderfolk_2025/Sunderfolk_Images/Screenshot 2025-11-26 233654.png" alt="Archer Warrior passive ability"
-                 style="width: 100%; height: auto; display: block; margin-top: 8px; border: 2px solid #EDE9E1; border-radius: 6px;" />
+                 style="width: 100%; height: auto; display: block; margin-top: 8px; border: 2px solid #EDE9E1; border-radius: 6px;" loading="lazy" />
           </div>
         </div>
         <div style="flex: 1 1 0; min-width: 0; display: flex; gap: 10px; align-items: flex-start;">
           <div class="w-[88px] h-[88px] flex-none">
-            <img src="WebsiteAssets/Sunderfolk_2025/Sunderfolk_Images/Sunderfolk_Boss_SpearWarrior.png" alt="Spear Warrior" class="w-full h-full object-cover" />
+            <img src="WebsiteAssets/Sunderfolk_2025/Sunderfolk_Images/Sunderfolk_Boss_SpearWarrior.png" alt="Spear Warrior" class="w-full h-full object-cover" loading="lazy" />
           </div>
           <div class="flex-1 min-w-0">
             <p class="font-bold underline underline-offset-4" style="font-size:13.22px;">Spear Warrior</p>
             <img class="expandable-image" src="WebsiteAssets/Sunderfolk_2025/Sunderfolk_Images/Screenshot 2025-11-26 233718.png" alt="Spear Warrior passive ability"
-                 style="width: 100%; height: auto; display: block; margin-top: 8px; border: 2px solid #EDE9E1; border-radius: 6px;" />
+                 style="width: 100%; height: auto; display: block; margin-top: 8px; border: 2px solid #EDE9E1; border-radius: 6px;" loading="lazy" />
           </div>
         </div>
       </div>
@@ -1492,10 +1516,10 @@
             <span class="small">Hero</span>
             <span class="role-tag__name">VANGUARD</span>
           </span>
-          <span class="role-tag__avatar" style="width:132px;"><span class="role-tag__avatar-clip"><img src="WebsiteAssets/Sunderfolk_2025/Sunderfolk_Images/Sunderfolk_Vanguard_Profile_02.png" alt="" style="height:110px; margin-top:-16.5px;" /></span></span>
+          <span class="role-tag__avatar" style="width:132px;"><span class="role-tag__avatar-clip"><img src="WebsiteAssets/Sunderfolk_2025/Sunderfolk_Images/Sunderfolk_Vanguard_Profile_02.png" alt="" style="height:110px; margin-top:-16.5px;" loading="lazy" /></span></span>
         </button>
         <button class="role-tag pink role-tag--next" data-carousel-go="2" aria-label="Next: Tunnel Wurm">
-          <span class="role-tag__avatar" style="width:133px;"><span class="role-tag__avatar-clip"><img src="WebsiteAssets/Sunderfolk_2025/Sunderfolk_Images/Sunderfolk_TunnelWurm_Profile_01.png" alt="" style="height:133px; margin-top:-24.5px;" /></span></span>
+          <span class="role-tag__avatar" style="width:133px;"><span class="role-tag__avatar-clip"><img src="WebsiteAssets/Sunderfolk_2025/Sunderfolk_Images/Sunderfolk_TunnelWurm_Profile_01.png" alt="" style="height:133px; margin-top:-24.5px;" loading="lazy" /></span></span>
           <span class="role-tag__text">
             <span class="small">Enemy</span>
             <span class="role-tag__name">TUNNEL WURM</span>
@@ -1515,7 +1539,7 @@
         <div class="portrait-clip">
           <img src="WebsiteAssets/Sunderfolk_2025/Sunderfolk_Images/Sunderfolk_TunnelWurm_Profile_01.png" alt="Wurm monster art"
                class="absolute"
-               style="left: 135px; bottom: -50px; height: 231px; width: auto; object-fit: contain;" />
+               style="left: 135px; bottom: -50px; height: 231px; width: auto; object-fit: contain;" loading="lazy" />
         </div>
 
         <!-- Title: 8px from bottom-left of container -->
@@ -1534,7 +1558,7 @@
       <!-- SpellCard_Template_A: Swallow the World -->
       <div class="spellcard-a-wrap" style="margin-top: 40px;">
         <div class="spellcard-a">
-          <img class="spellcard-a__image" src="WebsiteAssets/Sunderfolk_2025/Sunderfolk_Images/Sunderfolk_TunnelWurm_DoubleBite_Card.PNG" alt="Swallow the World spell card" />
+          <img class="spellcard-a__image" src="WebsiteAssets/Sunderfolk_2025/Sunderfolk_Images/Sunderfolk_TunnelWurm_DoubleBite_Card.PNG" alt="Swallow the World spell card" loading="lazy" />
           <div class="spellcard-a__video" style="padding: 0;">
             <video src="WebsiteAssets/Sunderfolk_2025/Sundefolk_Videos/Sunderfolk_TunnelWurm_Frenzy_Clip_A.mp4" autoplay loop muted playsinline style="width: 100%; height: 100%; object-fit: cover; display: block;"></video>
           </div>
@@ -1548,7 +1572,7 @@
       <!-- SpellCard_Template_A: Devour -->
       <div class="spellcard-a-wrap" style="margin-top: 15px;">
         <div class="spellcard-a">
-          <img class="spellcard-a__image" src="WebsiteAssets/Sunderfolk_2025/Sunderfolk_Images/Sunderfolk_TunnelWurm_Frenzy_Card.PNG" alt="Devour spell card" />
+          <img class="spellcard-a__image" src="WebsiteAssets/Sunderfolk_2025/Sunderfolk_Images/Sunderfolk_TunnelWurm_Frenzy_Card.PNG" alt="Devour spell card" loading="lazy" />
           <div class="spellcard-a__video" style="padding: 0;">
             <video src="WebsiteAssets/Sunderfolk_2025/Sundefolk_Videos/Sunderfolk_TunnelWurm_DoubleBite_Clip_A.mp4" autoplay loop muted playsinline style="width: 100%; height: 100%; object-fit: cover; display: block;"></video>
           </div>
@@ -1574,14 +1598,14 @@
         </div>
         <img class="process-tb__image expandable-image"
              src="WebsiteAssets/Sunderfolk_2025/Sunderfolk_Images/Sunderfolk_Wurm_Concept.jpg"
-             alt="Wurm concept reference" />
+             alt="Wurm concept reference" loading="lazy" />
       </div>
 
       <!-- Ideation row — passive brainstorm image (left) + Ideation Below block (right), split 40:60. -->
       <div style="display: flex; gap: 10px; width: 730px; margin: 29px auto 0; align-items: flex-start;">
         <img class="expandable-image" style="flex: 2 1 0; min-width: 0; height: auto; display: block; margin-top: -5px; border: 3px solid #EDE9E1; border-radius: 6px;"
              src="WebsiteAssets/Sunderfolk_2025/Sunderfolk_Images/Sunderfolk_Wurm_PassiveBrainstorm.jpg"
-             alt="Wurm passive brainstorm reference" />
+             alt="Wurm passive brainstorm reference" loading="lazy" />
         <div class="process-tb" style="width: auto; flex: 3 1 0; min-width: 0; margin: 0;">
           <div class="process-tb__caption">
             <p class="spellcard-a__caption-title">Ideation</p>
@@ -1589,7 +1613,7 @@
           </div>
           <img class="process-tb__image expandable-image"
                src="WebsiteAssets/Sunderfolk_2025/Sunderfolk_Images/Sunderfolk_TunnelWurm_Spell_001.jpg"
-               alt="Wurm spell design reference" />
+               alt="Wurm spell design reference" loading="lazy" />
         </div>
       </div>
 
@@ -1602,13 +1626,13 @@
         </div>
         <img class="process-tr__image expandable-image" style="flex: 75 1 0;"
              src="WebsiteAssets/Sunderfolk_2025/Sunderfolk_Images/Sunderfolk_Wurm_Playtest.jpg"
-             alt="Wurm playtest reference" />
+             alt="Wurm playtest reference" loading="lazy" />
       </div>
 
       <!-- Iteration notes image beneath the Prototype block. -->
       <img class="expandable-image" style="display: block; width: 730px; height: auto; margin: 10px auto 0; border: 3px solid #EDE9E1; border-radius: 6px;"
            src="WebsiteAssets/Sunderfolk_2025/Sunderfolk_Images/Sunderfolk_Wurm_IterationNotes-60c446bfa459493f81792fcbe4f624ed.jpg"
-           alt="Wurm iteration notes reference" />
+           alt="Wurm iteration notes reference" loading="lazy" />
 
       <div class="flex items-center justify-between mt-14">
         <button class="role-tag purple role-tag--prev" data-carousel-go="1" aria-label="Previous: Champion">
@@ -1617,10 +1641,10 @@
             <span class="small">Boss</span>
             <span class="role-tag__name">CHAMPION</span>
           </span>
-          <span class="role-tag__avatar" style="width:136px;"><span class="role-tag__avatar-clip"><img src="WebsiteAssets/Sunderfolk_2025/Sunderfolk_Images/Sunderfolk_Champion_Profile_02.png" alt="" /></span></span>
+          <span class="role-tag__avatar" style="width:136px;"><span class="role-tag__avatar-clip"><img src="WebsiteAssets/Sunderfolk_2025/Sunderfolk_Images/Sunderfolk_Champion_Profile_02.png" alt="" loading="lazy" /></span></span>
         </button>
         <button class="role-tag yellow role-tag--next" data-carousel-go="0" aria-label="Next: Vanguard">
-          <span class="role-tag__avatar" style="width:132px;"><span class="role-tag__avatar-clip"><img src="WebsiteAssets/Sunderfolk_2025/Sunderfolk_Images/Sunderfolk_Vanguard_Profile_02.png" alt="" style="height:110px; margin-top:-16.5px;" /></span></span>
+          <span class="role-tag__avatar" style="width:132px;"><span class="role-tag__avatar-clip"><img src="WebsiteAssets/Sunderfolk_2025/Sunderfolk_Images/Sunderfolk_Vanguard_Profile_02.png" alt="" style="height:110px; margin-top:-16.5px;" loading="lazy" /></span></span>
           <span class="role-tag__text">
             <span class="small">Hero</span>
             <span class="role-tag__name">VANGUARD</span>
@@ -1689,15 +1713,15 @@
           <div class="slideshow__stage" style="aspect-ratio: 3 / 1.9;">
             <img class="slideshow__main" id="encounter-slideshow-main"
                  src="WebsiteAssets/Sunderfolk_2025/Sunderfolk_Images/Mission_Design/Sunderfolk_Screenshot_A_edited.jpg"
-                 alt="Tavern Trouble screenshot" style="object-fit: cover; object-position: center;" />
+                 alt="Tavern Trouble screenshot" style="object-fit: cover; object-position: center;" loading="lazy" />
           </div>
         </div>
         <!-- thumbnails: horizontal row underneath the stage, centered -->
         <div class="slideshow__thumbs" style="flex: 0 0 auto; flex-direction: row; justify-content: center; align-self: center;">
-          <button type="button" class="slideshow__thumb is-active" style="width: 150px;" data-src="WebsiteAssets/Sunderfolk_2025/Sunderfolk_Images/Mission_Design/Sunderfolk_Screenshot_A_edited.jpg" aria-label="Show Tavern Trouble"><img src="WebsiteAssets/Sunderfolk_2025/Sunderfolk_Images/Mission_Design/Sunderfolk_Screenshot_A_edited.jpg" alt="" /></button>
-          <button type="button" class="slideshow__thumb" style="width: 150px;" data-src="WebsiteAssets/Sunderfolk_2025/Sunderfolk_Images/Screenshot 2025-12-04 174947.png" aria-label="Show Sacred Throne"><img src="WebsiteAssets/Sunderfolk_2025/Sunderfolk_Images/Screenshot 2025-12-04 174947.png" alt="" /></button>
-          <button type="button" class="slideshow__thumb" style="width: 150px;" data-src="WebsiteAssets/Sunderfolk_2025/Sunderfolk_Images/Mission_Design/Sunderfolk_Screenshot_C_edited.jpg" aria-label="Show Rubble Maze"><img src="WebsiteAssets/Sunderfolk_2025/Sunderfolk_Images/Mission_Design/Sunderfolk_Screenshot_C_edited.jpg" alt="" /></button>
-          <button type="button" class="slideshow__thumb" style="width: 150px;" data-src="WebsiteAssets/Sunderfolk_2025/Sunderfolk_Images/Mission_Design/Sunderfolk_Screenshot_B_edited.jpg" aria-label="Show Bright Cleanup"><img src="WebsiteAssets/Sunderfolk_2025/Sunderfolk_Images/Mission_Design/Sunderfolk_Screenshot_B_edited.jpg" alt="" /></button>
+          <button type="button" class="slideshow__thumb is-active" style="width: 150px;" data-src="WebsiteAssets/Sunderfolk_2025/Sunderfolk_Images/Mission_Design/Sunderfolk_Screenshot_A_edited.jpg" aria-label="Show Tavern Trouble"><img src="WebsiteAssets/Sunderfolk_2025/Sunderfolk_Images/Mission_Design/Sunderfolk_Screenshot_A_edited.jpg" alt="" loading="lazy" /></button>
+          <button type="button" class="slideshow__thumb" style="width: 150px;" data-src="WebsiteAssets/Sunderfolk_2025/Sunderfolk_Images/Screenshot 2025-12-04 174947.png" aria-label="Show Sacred Throne"><img src="WebsiteAssets/Sunderfolk_2025/Sunderfolk_Images/Screenshot 2025-12-04 174947.png" alt="" loading="lazy" /></button>
+          <button type="button" class="slideshow__thumb" style="width: 150px;" data-src="WebsiteAssets/Sunderfolk_2025/Sunderfolk_Images/Mission_Design/Sunderfolk_Screenshot_C_edited.jpg" aria-label="Show Rubble Maze"><img src="WebsiteAssets/Sunderfolk_2025/Sunderfolk_Images/Mission_Design/Sunderfolk_Screenshot_C_edited.jpg" alt="" loading="lazy" /></button>
+          <button type="button" class="slideshow__thumb" style="width: 150px;" data-src="WebsiteAssets/Sunderfolk_2025/Sunderfolk_Images/Mission_Design/Sunderfolk_Screenshot_B_edited.jpg" aria-label="Show Bright Cleanup"><img src="WebsiteAssets/Sunderfolk_2025/Sunderfolk_Images/Mission_Design/Sunderfolk_Screenshot_B_edited.jpg" alt="" loading="lazy" /></button>
         </div>
       </div>
     </div>
@@ -1738,7 +1762,7 @@
       <div class="process-tl">
         <img class="process-tl__image expandable-image"
              src="WebsiteAssets/Sunderfolk_2025/Sunderfolk_Images/Mission_Design/Sunderfolk_Encounter_SacredRescue_Ideation.jpg"
-             alt="Ideation reference" />
+             alt="Ideation reference" loading="lazy" />
         <div class="process-tl__caption">
           <p class="spellcard-a__caption-title">Ideation</p>
           <p class="spellcard-a__caption-body">Design goals:</p>
@@ -1760,7 +1784,7 @@
         </div>
         <img class="process-tb__image expandable-image"
              src="WebsiteAssets/Sunderfolk_2025/Sunderfolk_Images/Mission_Design/Sunderfolk_Encounter_SacredRescue_PaperPlaytest.jpg"
-             alt="Paper playtest reference" />
+             alt="Paper playtest reference" loading="lazy" />
       </div>
 
       <!-- Implementation image beneath the Paper Prototype block — same 35px side margins,
@@ -1768,7 +1792,7 @@
       <img class="expandable-image"
            src="WebsiteAssets/Sunderfolk_2025/Sunderfolk_Images/Mission_Design/Sunderfolk_SacredRescue_Implementation_001.png"
            alt="Sacred Rescue implementation reference"
-           style="display: block; margin: 10px 35px 0; width: calc(100% - 70px); height: auto; border: 3px solid #EDE9E1; border-radius: 6px; box-sizing: border-box;" />
+           style="display: block; margin: 10px 35px 0; width: calc(100% - 70px); height: auto; border: 3px solid #EDE9E1; border-radius: 6px; box-sizing: border-box;" loading="lazy" />
 
       <!-- Iteration and Polish — Process_Template_Below -->
       <div class="process-tb">
@@ -1778,7 +1802,7 @@
         </div>
         <img class="process-tb__image expandable-image"
              src="WebsiteAssets/Sunderfolk_2025/Sunderfolk_Images/Mission_Design/Sunderfolk_Encounter_SacredRescue_Iteration.jpg"
-             alt="Iteration reference" />
+             alt="Iteration reference" loading="lazy" />
       </div>
 
       <!-- PRODUCT RESULT divider (copy of DESIGN PROCESS) -->
@@ -1797,7 +1821,7 @@
         </div>
         <img class="process-tb__image expandable-image"
              src="WebsiteAssets/Sunderfolk_2025/Sunderfolk_Images/Screenshot 2025-12-04 174653.png"
-             alt="Visitor From Afar screenshot" />
+             alt="Visitor From Afar screenshot" loading="lazy" />
       </div>
 
       <!-- Two video components: Encounter_Template_A without the title tab, video instead of image -->
@@ -1845,7 +1869,7 @@
       <img class="encounter-a__image expandable-image"
            style="aspect-ratio:auto; height:auto; object-fit:fill;"
            src="WebsiteAssets/Sunderfolk_2025/Sunderfolk_Images/Sunderfolk_Cinematic_Production.jpg"
-           alt="Cinematic Production screenshot" />
+           alt="Cinematic Production screenshot" loading="lazy" />
       <div class="encounter-a__caption">
         <p class="spellcard-a__caption-body" style="font-size:14px; margin-top:0;">In Sunderfolk, tight budgets and a demanding schedule shaped how every cinematic was produced. The majority are built by repurposing existing gameplay animation and finding creative ways to tell a compelling story — reserving costly, custom one-off animation only for the key narrative moments.</p>
       </div>
@@ -1896,7 +1920,7 @@
           <div class="slideshow__stage">
             <img class="slideshow__main" id="cinematic-slideshow-main"
                  src="WebsiteAssets/Sunderfolk_2025/Sunderfolk_Images/Cinematic_Storyboard/Sunderfolk_Cinematic_Storyboard_001.jpg"
-                 alt="Cinematic storyboard preview" />
+                 alt="Cinematic storyboard preview" loading="lazy" />
           </div>
           <div class="encounter-a__caption">
             <p class="spellcard-a__caption-body" style="font-size:14px; margin-top:0;">After identifying the key narrative beats of each cinematic cutscene, I head into the game space to scout potential locations, then draw storyboards — complete with notes and iterations — before executing the full development of the cinematic.</p>
@@ -1904,12 +1928,12 @@
         </div>
         <!-- thumbnails: vertical filmstrip on the right, centered on the display -->
         <div class="slideshow__thumbs">
-          <button type="button" class="slideshow__thumb is-active" data-src="WebsiteAssets/Sunderfolk_2025/Sunderfolk_Images/Cinematic_Storyboard/Sunderfolk_Cinematic_Storyboard_001.jpg" aria-label="Show storyboard image 1"><img src="WebsiteAssets/Sunderfolk_2025/Sunderfolk_Images/Cinematic_Storyboard/Sunderfolk_Cinematic_Storyboard_001.jpg" alt="" /></button>
-          <button type="button" class="slideshow__thumb" data-src="WebsiteAssets/Sunderfolk_2025/Sunderfolk_Images/Cinematic_Storyboard/Sunderfolk_Cinematic_Storyboard_002.jpg" aria-label="Show storyboard image 2"><img src="WebsiteAssets/Sunderfolk_2025/Sunderfolk_Images/Cinematic_Storyboard/Sunderfolk_Cinematic_Storyboard_002.jpg" alt="" /></button>
-          <button type="button" class="slideshow__thumb" data-src="WebsiteAssets/Sunderfolk_2025/Sunderfolk_Images/Cinematic_Storyboard/Sunderfolk_Cinematic_Storyboard_004.jpg" aria-label="Show storyboard image 4"><img src="WebsiteAssets/Sunderfolk_2025/Sunderfolk_Images/Cinematic_Storyboard/Sunderfolk_Cinematic_Storyboard_004.jpg" alt="" /></button>
-          <button type="button" class="slideshow__thumb" data-src="WebsiteAssets/Sunderfolk_2025/Sunderfolk_Images/Cinematic_Storyboard/Sunderfolk_Cinematic_Storyboard_005.jpg" aria-label="Show storyboard image 5"><img src="WebsiteAssets/Sunderfolk_2025/Sunderfolk_Images/Cinematic_Storyboard/Sunderfolk_Cinematic_Storyboard_005.jpg" alt="" /></button>
-          <button type="button" class="slideshow__thumb" data-src="WebsiteAssets/Sunderfolk_2025/Sunderfolk_Images/Cinematic_Storyboard/Sunderfolk_Cinematic_Storyboard_006.jpg" aria-label="Show storyboard image 6"><img src="WebsiteAssets/Sunderfolk_2025/Sunderfolk_Images/Cinematic_Storyboard/Sunderfolk_Cinematic_Storyboard_006.jpg" alt="" /></button>
-          <button type="button" class="slideshow__thumb" data-src="WebsiteAssets/Sunderfolk_2025/Sunderfolk_Images/Cinematic_Storyboard/Sunderfolk_Cinematic_Storyboard_007.jpg" aria-label="Show storyboard image 7"><img src="WebsiteAssets/Sunderfolk_2025/Sunderfolk_Images/Cinematic_Storyboard/Sunderfolk_Cinematic_Storyboard_007.jpg" alt="" /></button>
+          <button type="button" class="slideshow__thumb is-active" data-src="WebsiteAssets/Sunderfolk_2025/Sunderfolk_Images/Cinematic_Storyboard/Sunderfolk_Cinematic_Storyboard_001.jpg" aria-label="Show storyboard image 1"><img src="WebsiteAssets/Sunderfolk_2025/Sunderfolk_Images/Cinematic_Storyboard/Sunderfolk_Cinematic_Storyboard_001.jpg" alt="" loading="lazy" /></button>
+          <button type="button" class="slideshow__thumb" data-src="WebsiteAssets/Sunderfolk_2025/Sunderfolk_Images/Cinematic_Storyboard/Sunderfolk_Cinematic_Storyboard_002.jpg" aria-label="Show storyboard image 2"><img src="WebsiteAssets/Sunderfolk_2025/Sunderfolk_Images/Cinematic_Storyboard/Sunderfolk_Cinematic_Storyboard_002.jpg" alt="" loading="lazy" /></button>
+          <button type="button" class="slideshow__thumb" data-src="WebsiteAssets/Sunderfolk_2025/Sunderfolk_Images/Cinematic_Storyboard/Sunderfolk_Cinematic_Storyboard_004.jpg" aria-label="Show storyboard image 4"><img src="WebsiteAssets/Sunderfolk_2025/Sunderfolk_Images/Cinematic_Storyboard/Sunderfolk_Cinematic_Storyboard_004.jpg" alt="" loading="lazy" /></button>
+          <button type="button" class="slideshow__thumb" data-src="WebsiteAssets/Sunderfolk_2025/Sunderfolk_Images/Cinematic_Storyboard/Sunderfolk_Cinematic_Storyboard_005.jpg" aria-label="Show storyboard image 5"><img src="WebsiteAssets/Sunderfolk_2025/Sunderfolk_Images/Cinematic_Storyboard/Sunderfolk_Cinematic_Storyboard_005.jpg" alt="" loading="lazy" /></button>
+          <button type="button" class="slideshow__thumb" data-src="WebsiteAssets/Sunderfolk_2025/Sunderfolk_Images/Cinematic_Storyboard/Sunderfolk_Cinematic_Storyboard_006.jpg" aria-label="Show storyboard image 6"><img src="WebsiteAssets/Sunderfolk_2025/Sunderfolk_Images/Cinematic_Storyboard/Sunderfolk_Cinematic_Storyboard_006.jpg" alt="" loading="lazy" /></button>
+          <button type="button" class="slideshow__thumb" data-src="WebsiteAssets/Sunderfolk_2025/Sunderfolk_Images/Cinematic_Storyboard/Sunderfolk_Cinematic_Storyboard_007.jpg" aria-label="Show storyboard image 7"><img src="WebsiteAssets/Sunderfolk_2025/Sunderfolk_Images/Cinematic_Storyboard/Sunderfolk_Cinematic_Storyboard_007.jpg" alt="" loading="lazy" /></button>
         </div>
       </div>
     </div>
@@ -1947,7 +1971,7 @@
         </div>
         <img class="process-tb__image expandable-image"
              src="WebsiteAssets/Sunderfolk_2025/Sunderfolk_Images/Sunderfolk_Cinematic_Story.jpg"
-             alt="Pre-production and planning reference" />
+             alt="Pre-production and planning reference" loading="lazy" />
       </div>
 
       <!-- Research & Storyboarding — Process_Template_Below without image (bottom edge mirrors the top) -->
@@ -1979,7 +2003,7 @@
         <img class="expandable-image"
              src="WebsiteAssets/Sunderfolk_2025/Sunderfolk_Images/Cinematic_Storyboard/Sunderfolk_BugRollOut_Storyboard.jpg"
              alt="Bug Roll Out storyboard"
-             style="display:block; width:85%; height:auto; margin-left:auto; margin-right:auto; border:3px solid #EDE9E1; border-radius:6px;" />
+             style="display:block; width:85%; height:auto; margin-left:auto; margin-right:auto; border:3px solid #EDE9E1; border-radius:6px;" loading="lazy" />
       </div>
 
       <!-- Kitbashing & First Draft — Process_Template_Left with a video instead of the image (video enlarged 10%: flex 2→2.75) -->
@@ -2373,23 +2397,12 @@
 </script>
 
 
-<!-- ============================ PAGE TRANSITION ============================ -->
-<div class="curtain" id="page-curtain" aria-hidden="true">
-  <div class="curtain__loader">
-    <div class="curtain__orbit">
-      <span class="curtain__dot" style="--dot: #9BD3AE;"></span>
-      <span class="curtain__dot" style="--dot: #F9AA8F;"></span>
-      <span class="curtain__dot" style="--dot: #FFFBD5;"></span>
-      <span class="curtain__dot" style="--dot: #AAE0FA;"></span>
-      <span class="curtain__dot" style="--dot: #CBC2BF;"></span>
-    </div>
-  </div>
-</div>
 <script>
   /* The curtain only ever moves left -> right: it sweeps IN over the outgoing page,
      holds while the next document loads, then sweeps OUT past the right edge.
-     Covering is applied inline (before first paint) so the incoming page is hidden
-     until its reveal runs; with JS off the element is never shown at all. */
+     The curtain markup sits at the top of <body> and an inline script there applies
+     the covering classes before any content is parsed, so the incoming page can't
+     flash before its reveal runs; with JS off the element is never shown at all. */
   (() => {
     const curtain = document.getElementById('page-curtain');
     if (!curtain) return;
@@ -2399,6 +2412,13 @@
     // --- entrance: this page arrived under the curtain, so uncover it ---
     curtain.classList.add('is-covering', 'is-loading');
     function reveal() {
+      // the browser may leave the #fragment jump until 'load'; do it here at DOM-ready
+      // (scroll-behavior is 'auto' at this point, see the inline script at the top of
+      // <body>) so the page is already in place when the curtain lifts
+      if (location.hash) {
+        const target = document.getElementById(decodeURIComponent(location.hash.slice(1)));
+        if (target) target.scrollIntoView({ block: 'start', behavior: 'auto' });
+      }
       if (reduced) { curtain.classList.remove('is-covering', 'is-loading'); return; }
       setTimeout(() => {
         curtain.classList.remove('is-loading');                 // dots shrink away
@@ -2408,10 +2428,21 @@
         }, SHRINK);
       }, HOLD);
     }
-    if (document.readyState === 'complete') reveal();
-    else window.addEventListener('load', reveal, { once: true });
-    // returning via the back/forward cache: replay the reveal instead of staying covered
-    window.addEventListener('pageshow', (e) => { if (e.persisted) { curtain.classList.add('is-covering', 'is-loading'); reveal(); } });
+    // reveal once the DOM is parsed rather than after the window 'load' event:
+    // the project pages carry dozens of large images and the curtain would
+    // otherwise sit on screen until every one of them had downloaded
+    if (document.readyState !== 'loading') reveal();
+    else document.addEventListener('DOMContentLoaded', reveal, { once: true });
+    // returning via the back/forward cache: the page is already on screen, so only
+    // lift the curtain if it was left covering (mid-exit); never sweep it in again
+    window.addEventListener('pageshow', (e) => {
+      if (!e.persisted) return;
+      curtain.classList.remove('is-loading');
+      if (curtain.classList.contains('is-covering')) {
+        curtain.classList.replace('is-covering', 'is-leaving');
+        setTimeout(() => curtain.classList.remove('is-leaving'), UNCOVER);
+      }
+    });
 
     // --- exit: intercept same-tab navigations to another page ---
     document.addEventListener('click', (e) => {

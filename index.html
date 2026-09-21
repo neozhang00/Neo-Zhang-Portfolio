@@ -219,6 +219,23 @@
   }
   .about-seg + .about-seg { margin-top: 14px; }
   .seg-nochip::before { display: none; }   /* segment variant without the left color tab */
+  /* About section: every chip is as wide as the two-line name segment is tall
+     (2 x 29.75px lines + 28px padding = 87.5px inside the border), which makes the
+     name segment's chip a square; the text keeps the usual 18px gap after it. */
+  #about .about-seg { --seg-chip: 87.5px; padding-left: calc(var(--seg-chip) + 18px); }
+  #about .about-seg::before { width: var(--seg-chip); }
+  /* one flat navy glyph per segment, centred on its chip; the "cut" parts take the
+     chip colour so each icon reads as a single silhouette */
+  #about .about-seg__icon {
+    position: absolute; top: 50%; left: calc(var(--seg-chip) / 2);
+    width: 46px; height: 46px;
+    transform: translate(-50%, -50%);
+    fill: #324158;
+  }
+  #about .about-seg__icon .cut { fill: var(--chip, #ffffff); }
+  #about .about-seg__icon .cut-stroke { fill: none; stroke: var(--chip, #ffffff); stroke-linecap: round; stroke-linejoin: round; }
+  #about .about-seg__icon .gap { stroke: var(--chip, #ffffff); stroke-width: 3; stroke-linejoin: round; paint-order: stroke; }
+  #about .about-seg__icon .gap .cut { stroke: none; }
 
   /* the character card holding the portrait */
   .char-card {
@@ -261,6 +278,92 @@
   .about-btn:hover, .about-btn:focus-visible { background: #C4693B; border-color: #C4693B; color: #EDE9E1; }
   .about-btn:active { background: #A85830; border-color: #A85830; }
   .about-btn svg { flex: 0 0 auto; }
+  button.about-btn { appearance: none; -webkit-appearance: none; margin: 0; padding: 0; cursor: pointer; line-height: 1; }
+
+  /* Email button: copies the address; a speech bubble (same look as the pack
+     tutorial caption) rises in above the button, then drifts up and fades out */
+  .copy-wrap { position: relative; display: inline-flex; }
+  .char-card .copy-wrap { flex: 1 1 0; display: flex; margin-left: 10px; }
+  .copy-wrap .about-btn { flex: 1 1 0; }
+  .copy-wrap--inline { display: inline-block; }              /* wraps a word inside a sentence */
+  .copy-toast {
+    position: absolute;
+    left: 50%; bottom: calc(100% + 14px);
+    z-index: 3;
+    white-space: nowrap;
+    background: #ffffff;
+    border: 3px solid #324158;
+    border-radius: 8px;
+    padding: 9.5px 15px;
+    box-shadow: 3px 3px 0 0 #324158;
+    font-family: Arial, 'Helvetica Neue', Helvetica, sans-serif;
+    font-weight: 700; font-size: 11.5px; letter-spacing: 0.14em;
+    color: #324158; line-height: 1.2;
+    pointer-events: none;
+    opacity: 0;
+    transform: translate(-50%, 8px);          /* resting spot: slightly low, hidden */
+  }
+  .copy-toast::after {                        /* tail pointing down at the button */
+    content: '';
+    position: absolute;
+    left: 50%; bottom: -8px;
+    width: 11px; height: 11px;
+    transform: translateX(-50%) rotate(45deg);
+    background: #ffffff;
+    border-right: 3px solid #324158;
+    border-bottom: 3px solid #324158;
+  }
+  /* entry: rises in, overshoots with a cheerful bop, then settles */
+  .copy-toast.is-in {
+    opacity: 1; transform: translate(-50%, 0);
+    animation: toast-bop 460ms cubic-bezier(.2,.8,.2,1) both;
+  }
+  @keyframes toast-bop {
+    0%   { opacity: 0; transform: translate(-50%, 8px) scale(0.86); }
+    50%  { opacity: 1; transform: translate(-50%, -3px) scale(1.09); }
+    74%  {             transform: translate(-50%, 0)    scale(0.97); }
+    100% { opacity: 1; transform: translate(-50%, 0)    scale(1); }
+  }
+  /* exit: drifts up a little while fading (a keyframe, not a transition, so it
+     still plays after the bop animation has been controlling these props) */
+  .copy-toast.is-out {
+    opacity: 0; transform: translate(-50%, -8px);
+    animation: toast-out 225ms ease-in both;
+  }
+  @keyframes toast-out {
+    from { opacity: 1; transform: translate(-50%, 0); }
+    to   { opacity: 0; transform: translate(-50%, -8px); }
+  }
+  /* surprise lines: three short strokes fan out from each side as the bubble lands */
+  .copy-toast__burst { position: absolute; top: 50%; width: 0; height: 0; }
+  .copy-toast__burst--l { left: -7px; }
+  .copy-toast__burst--r { right: -7px; }
+  .copy-toast__burst i {
+    position: absolute; left: 0; top: -1.5px;
+    width: 12px; height: 3px; border-radius: 2px;
+    background: var(--burst, #C4693B);        /* picked at random per click (see script) */
+    transform-origin: 0 50%;
+    opacity: 0;
+    transform: rotate(var(--a)) translateX(4px) scaleX(0.4);
+  }
+  .copy-toast.is-in .copy-toast__burst i {
+    animation: burst-line 560ms cubic-bezier(.2,.7,.3,1) 120ms both;
+  }
+  .copy-toast__burst i:nth-child(2) { animation-delay: 160ms !important; width: 14px; }
+  .copy-toast__burst i:nth-child(3) { animation-delay: 200ms !important; }
+  @keyframes burst-line {
+    0%   { opacity: 0; transform: rotate(var(--a)) translateX(4px)  scaleX(0.4); }
+    30%  { opacity: 1; }
+    100% { opacity: 0; transform: rotate(var(--a)) translateX(26px) scaleX(1); }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .copy-toast, .copy-toast.is-in, .copy-toast.is-out { transform: translate(-50%, 0); }
+    .copy-toast.is-in  { animation: toast-fade-in 200ms ease both; }
+    .copy-toast.is-out { animation: toast-fade-out 200ms ease both; }
+    .copy-toast.is-in .copy-toast__burst i { animation: none; }
+    @keyframes toast-fade-in  { from { opacity: 0; } to { opacity: 1; } }
+    @keyframes toast-fade-out { from { opacity: 1; } to { opacity: 0; } }
+  }
 
   /* Contact: a single segment card on the About section's grid paper */
   /* five sparkles (the rare-pull star) idle around the card in the loader's mana
@@ -300,11 +403,13 @@
   .contact-card__lede { margin: 0; }
   .contact-card__note { margin: 24px 0 0; }   /* same size as the lede (inherited) */
   .contact-link {
-    font-weight: 700; color: #C4693B;
+    color: #C4693B;
     text-decoration: underline; text-underline-offset: 3px; text-decoration-thickness: 2px;
     transition: color 180ms ease;
   }
   .contact-link:hover, .contact-link:focus-visible { color: #A85830; }
+  .contact-link:active { color: #8F4A28; }
+  button.contact-link { appearance: none; -webkit-appearance: none; background: none; border: 0; padding: 0; margin: 0; font: inherit; cursor: pointer; }
   .contact-card__actions { display: flex; width: 100%; max-width: 420px; margin-top: 33px; }
   /* resume button filled in the Secondary color (hover still goes terracotta) */
   .about-btn--solid { background: #324158; color: #EDE9E1; }
@@ -320,6 +425,7 @@
   }
   .contact-social:hover, .contact-social:focus-visible { transform: translateY(-3px); box-shadow: 5px 6px 0 0 #1f2b3c; }
   .contact-social:active { transform: translateY(0); box-shadow: 3px 3px 0 0 #1f2b3c; }
+  button.contact-social { appearance: none; -webkit-appearance: none; border: 0; padding: 0; margin: 0; font: inherit; cursor: pointer; }
 
   /* back-to-top tile: parks in the bottom-right corner once the page is scrolled */
   .to-top {
@@ -380,7 +486,7 @@
     color: #324158; letter-spacing: 0.03em;
   }
   .work-card__pop {                  /* comic bubble pops off the art on hover */
-    position: absolute; right: 53px; top: 5px; z-index: 4;
+    position: absolute; right: -22px; top: 5px; z-index: 4;   /* tracks the art, which sits 75px right of its original spot */
     transform: scale(0); opacity: 0;
     transform-origin: 25% 115%;
     transition: transform 260ms cubic-bezier(.2,.8,.3,1.35), opacity 160ms ease;
@@ -388,6 +494,21 @@
   }
   .work-card:hover .work-card__pop,
   .work-card:focus-visible .work-card__pop { transform: scale(1); opacity: 1; }
+  /* NYX award laurels stacked in a column on the left of the art window, just right
+     of the slant; a hard, unblurred drop shadow traces the laurels' exact silhouette
+     (same offset style as the card shadows) and keeps the white art readable */
+  .work-card__award {
+    position: absolute;
+    width: 198px; height: auto;
+    z-index: 3;
+    pointer-events: none;
+    filter: drop-shadow(1.25px 1.25px 0 #1f2b3c);
+  }
+  /* the pair (2 x 73px of laurels, 12px apart) is centred on the card's 300px height,
+     and the lower one steps 11px left so their edges run parallel to the slant
+     (which leans 40px over the card's 300px) */
+  .work-card__award--top    { left: 474px; top: 59px; }
+  .work-card__award--bottom { left: 463px; top: 144px; }
   /* prototype entries = the trading card drawn from the packs, blown up.
      Geometry mirrors the pack art's 120x168 card viewBox at 2.5x: 116x164 units
      -> 290x410px, stroke 4 -> 6.5px (the same 10%-growth rule the draw uses). */
@@ -424,6 +545,8 @@
     font-family: Arial, 'Helvetica Neue', Helvetica, sans-serif;
     font-size: 15px; line-height: 1.5; color: #324158;
   }
+  .proto-card__line { display: block; }
+  .proto-card__line + .proto-card__line { margin-top: 7px; }   /* breathing room between Role and Genre */
   .work-card__panel {
     flex: 0 0 350px;
     background: #bfd9ec;
@@ -450,6 +573,13 @@
     font-size: 16px; line-height: 1.6; color: #324158;
   }
   .work-card__role strong { color: #C4693B; }
+  .work-card__review {         /* Steam rating line right under Platform, styled the same */
+    margin: 2px 0 0 4px;
+    width: 350px;
+    font-family: Arial, 'Helvetica Neue', Helvetica, sans-serif;
+    font-size: 16px;
+    color: #324158;
+  }
   .work-card__img { display: block; flex: 1 1 0; min-width: 0; height: 100%; object-fit: cover; }
   /* the whole row is the drawn card — art framed in an outlined window */
   .work-card--frame { background: #bfd9ec; }
@@ -465,7 +595,7 @@
   .work-card--frame .work-card__img {
     width: 100%; height: 100%;
     object-fit: cover;
-    transform: translate(35px, -15px) scale(1.4);   /* centered to the slanted window */
+    transform: translate(110px, -15px) scale(1.4);   /* pushed right to leave the awards a column on the left */
   }
 
 
@@ -709,6 +839,30 @@
 </style>
 </head>
 <body class="bg-paper text-ink">
+<!-- ============================ PAGE TRANSITION ============================ -->
+<div class="curtain" id="page-curtain" aria-hidden="true">
+  <div class="curtain__loader">
+    <div class="curtain__orbit">
+      <span class="curtain__dot" style="--dot: #9BD3AE;"></span>
+      <span class="curtain__dot" style="--dot: #F9AA8F;"></span>
+      <span class="curtain__dot" style="--dot: #FFFBD5;"></span>
+      <span class="curtain__dot" style="--dot: #AAE0FA;"></span>
+      <span class="curtain__dot" style="--dot: #CBC2BF;"></span>
+    </div>
+  </div>
+</div>
+<script>
+  /* cover the page before anything below is parsed or painted; the curtain
+     script at the end of the body lifts it once the DOM is ready */
+  document.getElementById('page-curtain').classList.add('is-covering', 'is-loading');
+  /* arriving with a #fragment (e.g. index.html#work from a project page): jump there
+     instantly under the curtain instead of smooth-scrolling from the top */
+  if (location.hash) {
+    document.documentElement.style.scrollBehavior = 'auto';
+    window.addEventListener('load', () => { document.documentElement.style.scrollBehavior = ''; }, { once: true });
+  }
+</script>
+
 
 <!-- ============================ TOP NAV ============================ -->
 <header class="sticky top-0 z-50 bg-white pb-[5px]">
@@ -767,17 +921,25 @@
         <img src="WebsiteAssets/About/ProfilePicture_001.jpg?v=2" alt="Neo Zhang portrait" class="char-card__photo" />
         <div style="display: flex; margin-top: 12px;">
           <a href="https://www.linkedin.com/in/ne0zhang/" target="_blank" rel="noopener" class="about-btn">LINKEDIN</a>
-          <a href="mailto:neo.zhang.00@gmail.com" class="about-btn">EMAIL</a>
+          <div class="copy-wrap">
+            <button type="button" class="about-btn" data-copy="neo.zhang.00@gmail.com" aria-label="Copy email address to clipboard">EMAIL</button>
+            <!-- confirmation bubble: rises in on copy, drifts up and fades after 2s -->
+            <span class="copy-toast" role="status" aria-live="polite">
+              <span class="copy-toast__burst copy-toast__burst--l" aria-hidden="true"><i style="--a: 150deg;"></i><i style="--a: 180deg;"></i><i style="--a: 210deg;"></i></span>
+              Copied to Clipboard!
+              <span class="copy-toast__burst copy-toast__burst--r" aria-hidden="true"><i style="--a: -30deg;"></i><i style="--a: 0deg;"></i><i style="--a: 30deg;"></i></span>
+            </span>
+          </div>
         </div>
       </div>
 
       <!-- ability lines -->
       <div style="flex: 1 1 0; max-width: 660px;">
-        <div class="about-seg" style="--chip: #C4693B;"><p style="margin: 0;">Hi, I'm <strong style="color: #C4693B;">Neo Zhang (張凱翔)</strong>, a Game Designer based in the <strong style="color: #C4693B;">Bay Area and open to relocation</strong>.</p></div>
-        <div class="about-seg" style="--chip: #bfd9ec;"><p style="margin: 0;">I've worked across a <strong style="color: #C4693B;">wide range of design areas</strong>, including combat, systems, level and mission, character, cinematic, narrative, and technical design, often <strong style="color: #C4693B;">juggling three or more at once</strong>.</p></div>
-        <div class="about-seg" style="--chip: #f7d599;"><p style="margin: 0;">With a background in Computer Science, I can script in <strong style="color: #C4693B;">C#</strong>, <strong style="color: #C4693B;">C++</strong>, and <strong style="color: #C4693B;">Python</strong> and handle in-engine implementation independently in <strong style="color: #C4693B;">Unity</strong>, <strong style="color: #C4693B;">Unreal</strong>, and <strong style="color: #C4693B;">Godot</strong>.</p></div>
-        <div class="about-seg" style="--chip: #fbc8c2;"><p style="margin: 0;">What drives me most is <strong style="color: #C4693B;">problem-solving</strong>: finding <strong style="color: #C4693B;">creative solutions</strong> to tough design challenges, especially alongside a <strong style="color: #C4693B;">collaborative team</strong>.</p></div>
-        <div class="about-seg" style="--chip: #f5c0db;"><p style="margin: 0;"><strong style="color: #C4693B;">Outside of work</strong>, I enjoy playing video games, watching movies and anime, discussing cinematography, and photography.</p></div>
+        <div class="about-seg" style="--chip: #C4693B;"><svg class="about-seg__icon" viewBox="0 0 48 48" aria-hidden="true"><circle cx="24" cy="15" r="10"/><path d="M6 44c0-10 8-17 18-17s18 7 18 17c0 1.1-.9 2-2 2H8c-1.1 0-2-.9-2-2z"/></svg><p style="margin: 0;">Hi, I'm <strong style="color: #C4693B;">Neo Zhang (張凱翔)</strong>, a Game Designer based in the <strong style="color: #C4693B;">Bay Area and open to relocation</strong>.</p></div>
+        <div class="about-seg" style="--chip: #bfd9ec;"><svg class="about-seg__icon" viewBox="0 0 48 48" aria-hidden="true"><g transform="rotate(45 24 24)" fill="none" stroke="#324158" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"><rect x="0" y="17" width="48" height="14" rx="2"/><path d="M6 17v5M11 17v5M37 17v5M42 17v5"/></g><g transform="rotate(-45 24 24)" class="gap"><path d="M11 17.5h32.5a6.5 6.5 0 0 1 0 13H11z"/><path d="M11 17.5L-2 24l13 6.5z"/><path d="M9.5 19.6L2 24l7.5 4.4z" class="cut"/></g></svg><p style="margin: 0;">I've worked across a <strong style="color: #C4693B;">wide range of design areas</strong>, including combat, systems, level and mission, character, cinematic, narrative, and technical design, often <strong style="color: #C4693B;">juggling three or more at once</strong>.</p></div>
+        <div class="about-seg" style="--chip: #f7d599;"><svg class="about-seg__icon" viewBox="0 0 48 48" aria-hidden="true"><rect x="2" y="7" width="44" height="34" rx="5"/><path d="M11 17l8 7-8 7" class="cut-stroke" stroke-width="4"/><rect x="23" y="29" width="13" height="4" rx="1.5" class="cut"/></svg><p style="margin: 0;">With a background in Computer Science, I can script in <strong style="color: #C4693B;">C#</strong>, <strong style="color: #C4693B;">C++</strong>, and <strong style="color: #C4693B;">Python</strong> and handle in-engine implementation independently in <strong style="color: #C4693B;">Unity</strong>, <strong style="color: #C4693B;">Unreal</strong>, and <strong style="color: #C4693B;">Godot</strong>.</p></div>
+        <div class="about-seg" style="--chip: #fbc8c2;"><svg class="about-seg__icon" viewBox="0 0 48 48" aria-hidden="true"><path d="M7 3c2.5-1.2 8-2 13.5-2 2 0 2.6 1.8 2.2 3.8L21.5 9c-.2 1-1.2 1.6-2.3 1.9 .6 2.8-3.6 4-6.3 1.9H13v5.5l5 8C21 23 27 19.5 33 19.5c6.5 0 11.5 4.5 12.5 10.5 .5 6-1.5 11-4.5 13-6 1.5-16 1.5-23 1.5-6 0-10-.5-12-1.5C2.5 41 1 35 1.5 28 2.5 20 5 8 7 3z"/><path d="M29.5 13l-2.5-4M36 11V5.5M42.5 13l2.5-4" fill="none" stroke="#324158" stroke-width="3" stroke-linecap="round"/></svg><p style="margin: 0;">What drives me most is <strong style="color: #C4693B;">problem-solving</strong>: finding <strong style="color: #C4693B;">creative solutions</strong> to tough design challenges, especially alongside a <strong style="color: #C4693B;">collaborative team</strong>.</p></div>
+        <div class="about-seg" style="--chip: #f5c0db;"><svg class="about-seg__icon" viewBox="0 0 48 48" aria-hidden="true"><circle cx="24" cy="24" r="21"/><path d="M12.5 17.5a3.5 3.5 0 0 1 7 0M28.5 17.5a3.5 3.5 0 0 1 7 0" class="cut-stroke" stroke-width="2.5"/><path d="M13.5 23h21c0 10-4.5 17-10.5 17S13.5 33 13.5 23z" class="cut"/></svg><p style="margin: 0;"><strong style="color: #C4693B;">Outside of work</strong>, I enjoy playing video games, watching movies and anime, discussing cinematography, and photography.</p></div>
       </div>
     </div>
 
@@ -802,17 +964,20 @@
     <!-- project rows -->
     <a class="about-seg seg-nochip work-card work-card--frame" href="sunderfolk.html">
       <div class="work-card__panel">
-        <img class="work-card__name-img" src="WebsiteAssets/Sunderfolk_2025/Sunderfolk_Images/PrimaryArt_Logo/Sunderfolk_Logo_Black.png" alt="Sunderfolk" />
+        <img class="work-card__name-img" src="WebsiteAssets/Sunderfolk_2025/Sunderfolk_Images/PrimaryArt_Logo/Sunderfolk_Logo_Black.png" alt="Sunderfolk" loading="lazy" />
         <p class="work-card__platform"><strong>Platform:</strong> Console, PC, and Mobile Game</p>
+        <p class="work-card__review"><strong>Steam Review:</strong> Very Positive</p>
         <p class="work-card__role">Designed heroes, enemies, levels, encounters, cinematics, and narrative for Sunderfolk, a couch co-op tactical RPG where players control their heroes with their phones.</p>
       </div>
+      <img class="work-card__award work-card__award--top" src="WebsiteAssets/Sunderfolk_2025/Sunderfolk_NYXAward_BestInnovation.png" alt="NYX Award 2025 Grand Winner: Best Innovation" loading="lazy" />
+      <img class="work-card__award work-card__award--bottom" src="WebsiteAssets/Sunderfolk_2025/Sunderfolk_NYXAward_PCGameFamily.png" alt="NYX Award 2025 Grand Winner: PC Game, Family" loading="lazy" />
       <div class="work-card__pop" aria-hidden="true">
         <div class="pop-balloon">
           <svg viewBox="0 0 187 150" aria-hidden="true"><path d="M46 97 A87 50 0 1 1 59.5 101 C58 107 51 112 41.5 115 C45 108 45 102 46 97 Z" fill="#ffffff" stroke="#324158" stroke-width="3.5" stroke-linejoin="round"/></svg>
           <span class="pop-balloon__text">Click to<br />Learn More</span>
         </div>
       </div>
-      <div class="work-card__imgbox"><img src="WebsiteAssets/Sunderfolk_2025/Sunderfolk_Images/PrimaryArt_Logo/Sunderfolk_PrimaryArt_withTitle_16x9.png" alt="Sunderfolk cover art" class="work-card__img" /></div>
+      <div class="work-card__imgbox"><img src="WebsiteAssets/Sunderfolk_2025/Sunderfolk_Images/PrimaryArt_Logo/Sunderfolk_PrimaryArt_withTitle_16x9.png" alt="Sunderfolk cover art" class="work-card__img" loading="lazy" /></div>
     </a>
 
     <!-- second title strip — prototype projects live below this -->
@@ -825,26 +990,26 @@
     <div class="proto-row">
       <a class="proto-card" href="slumber_the_sea.html" style="background: #f7d599;">
         <span class="proto-card__name">Slumber the Sea</span>
-        <span class="proto-card__art"><img src="WebsiteAssets/SlumberTheSea/SlumberTheSea_Screenshot_001.png" alt="Slumber the Sea art" /></span>
+        <span class="proto-card__art"><img src="WebsiteAssets/SlumberTheSea/SlumberTheSea_Screenshot_001.png" alt="Slumber the Sea art" loading="lazy" /></span>
         <span class="proto-card__text">
-          <strong>Role:</strong> Combat Designer, Engineer<br />
-          <strong>Genre:</strong> Turn-based Combat RPG
+          <span class="proto-card__line"><strong>Role:</strong> Combat Designer, Engineer</span>
+          <span class="proto-card__line"><strong>Genre:</strong> Turn-based Combat RPG</span>
         </span>
       </a>
       <a class="proto-card" href="aimless_escape.html" style="background: #fbc8c2;">
         <span class="proto-card__name">Aimless Escape</span>
-        <span class="proto-card__art"><img src="WebsiteAssets/AimlessEscape/AimlessEscape_Screenshot_001_BrightnessUp.png" alt="Aimless Escape art" /></span>
+        <span class="proto-card__art"><img src="WebsiteAssets/AimlessEscape/AimlessEscape_Screenshot_001_BrightnessUp.png" alt="Aimless Escape art" loading="lazy" /></span>
         <span class="proto-card__text">
-          <strong>Role:</strong> Level Designer, Engineer, Producer<br />
-          <strong>Genre:</strong> Non-Euclidean Horror
+          <span class="proto-card__line"><strong>Role:</strong> Level Designer, Engineer, Producer</span>
+          <span class="proto-card__line"><strong>Genre:</strong> Non-Euclidean Horror</span>
         </span>
       </a>
       <a class="proto-card" href="oceasn_odyssey.html" style="background: #bfd9ec;">
         <span class="proto-card__name">Ocean Odyssey</span>
-        <span class="proto-card__art"><img src="WebsiteAssets/OceanOdyssey/Patch1.1ScreenShot4.png" alt="Ocean Odyssey art" /></span>
+        <span class="proto-card__art"><img src="WebsiteAssets/OceanOdyssey/Patch1.1ScreenShot4.png" alt="Ocean Odyssey art" loading="lazy" /></span>
         <span class="proto-card__text">
-          <strong>Role:</strong> Lead Designer, Engineer, Lead Producer<br />
-          <strong>Genre:</strong> Roguelite Hack-n-Slash
+          <span class="proto-card__line"><strong>Role:</strong> Lead Designer, Engineer, Lead Producer</span>
+          <span class="proto-card__line"><strong>Genre:</strong> Roguelite Hack-n-Slash</span>
         </span>
       </a>
     </div>
@@ -852,26 +1017,26 @@
     <div class="proto-row" style="margin-top: 30px;">
       <a class="proto-card" href="color_beats.html" style="background: #f5c0db;">
         <span class="proto-card__name">Color Beats</span>
-        <span class="proto-card__art"><img src="WebsiteAssets/ColorBeat/ColorBeat_Screenshot_001.jpg" alt="Color Beats art" /></span>
+        <span class="proto-card__art"><img src="WebsiteAssets/ColorBeat/ColorBeat_Screenshot_001.jpg" alt="Color Beats art" loading="lazy" /></span>
         <span class="proto-card__text">
-          <strong>Role:</strong> Lead Designer, Lead Engineer<br />
-          <strong>Genre:</strong> HTML Puzzle
+          <span class="proto-card__line"><strong>Role:</strong> Lead Designer, Lead Engineer</span>
+          <span class="proto-card__line"><strong>Genre:</strong> HTML Puzzle</span>
         </span>
       </a>
       <a class="proto-card" href="tower_ascenscion.html" style="background: #bfd9ec;">
         <span class="proto-card__name">Tower Ascension</span>
-        <span class="proto-card__art"><img src="WebsiteAssets/TowerAscension/TowerAscension_Level_002.png" alt="Tower Ascension art" style="object-position: 50% 100%;" /></span>
+        <span class="proto-card__art"><img src="WebsiteAssets/TowerAscension/TowerAscension_Level_002.png" alt="Tower Ascension art" style="object-position: 50% 100%;" loading="lazy" /></span>
         <span class="proto-card__text">
-          <strong>Role:</strong> Lead Designer, Lead Engineer<br />
-          <strong>Genre:</strong> Puzzle Platformer
+          <span class="proto-card__line"><strong>Role:</strong> Lead Designer, Lead Engineer</span>
+          <span class="proto-card__line"><strong>Genre:</strong> Puzzle Platformer</span>
         </span>
       </a>
       <a class="proto-card" href="amazing_goob.html" style="background: #f7d599;">
         <span class="proto-card__name">Amazing Goob</span>
-        <span class="proto-card__art"><img src="WebsiteAssets/AmazingGoob/AmazingGoob_Screenshot_001.png" alt="Amazing Goob art" /></span>
+        <span class="proto-card__art"><img src="WebsiteAssets/AmazingGoob/AmazingGoob_Screenshot_001.png" alt="Amazing Goob art" loading="lazy" /></span>
         <span class="proto-card__text">
-          <strong>Role:</strong> System Designer, Engineer<br />
-          <strong>Genre:</strong> Auto-Runner Platformer
+          <span class="proto-card__line"><strong>Role:</strong> System Designer, Engineer</span>
+          <span class="proto-card__line"><strong>Genre:</strong> Auto-Runner Platformer</span>
         </span>
       </a>
     </div>
@@ -901,7 +1066,12 @@
     <div class="about-seg seg-nochip contact-card">
       <p class="contact-card__lede">I'm a versatile designer who picks things up fast, and I'd love to make games across every genre. If my work and what I can bring to a team interest you, let's get in touch and <strong style="color: #C4693B;">build something amazing together!</strong></p>
       <p class="contact-card__note">You can reach me directly via
-        <a class="contact-link" href="mailto:neo.zhang.00@gmail.com">email</a> or
+        <span class="copy-wrap copy-wrap--inline"><button type="button" class="contact-link" data-copy="neo.zhang.00@gmail.com" aria-label="Copy email address to clipboard">email</button>
+          <span class="copy-toast" role="status" aria-live="polite">
+            <span class="copy-toast__burst copy-toast__burst--l" aria-hidden="true"><i style="--a: 150deg;"></i><i style="--a: 180deg;"></i><i style="--a: 210deg;"></i></span>
+            Copied to Clipboard!
+            <span class="copy-toast__burst copy-toast__burst--r" aria-hidden="true"><i style="--a: -30deg;"></i><i style="--a: 0deg;"></i><i style="--a: 30deg;"></i></span>
+          </span></span> or
         <a class="contact-link" href="https://www.linkedin.com/in/ne0zhang/" target="_blank" rel="noopener">LinkedIn</a>.</p>
       <div class="contact-card__actions">
         <a href="WebsiteAssets/KaiXiangZhang_GameDesigner_Sep_Resume.pdf" download class="about-btn about-btn--solid">
@@ -909,9 +1079,16 @@
           DOWNLOAD CV/RESUME</a>
       </div>
       <div class="contact-socials">
-        <a class="contact-social" style="--tile: #4CA64C;" href="mailto:neo.zhang.00@gmail.com" aria-label="Email Neo">
-          <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2" y="5" width="20" height="14" rx="2"/><path d="M2 7l10 7 10-7"/></svg>
-        </a>
+        <div class="copy-wrap">
+          <button type="button" class="contact-social" style="--tile: #4CA64C;" data-copy="neo.zhang.00@gmail.com" aria-label="Copy email address to clipboard">
+            <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2" y="5" width="20" height="14" rx="2"/><path d="M2 7l10 7 10-7"/></svg>
+          </button>
+          <span class="copy-toast" role="status" aria-live="polite">
+            <span class="copy-toast__burst copy-toast__burst--l" aria-hidden="true"><i style="--a: 150deg;"></i><i style="--a: 180deg;"></i><i style="--a: 210deg;"></i></span>
+            Copied to Clipboard!
+            <span class="copy-toast__burst copy-toast__burst--r" aria-hidden="true"><i style="--a: -30deg;"></i><i style="--a: 0deg;"></i><i style="--a: 30deg;"></i></span>
+          </span>
+        </div>
         <a class="contact-social" style="--tile: #0A66C2;" href="https://www.linkedin.com/in/ne0zhang/" target="_blank" rel="noopener" aria-label="Neo on LinkedIn">
           <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M4.98 3.5C4.98 4.88 3.87 6 2.5 6S0 4.88 0 3.5 1.12 1 2.5 1s2.48 1.12 2.48 2.5zM.5 8h4v16h-4V8zm7.5 0h3.8v2.2h.05c.53-1 1.83-2.2 3.77-2.2 4.03 0 4.78 2.65 4.78 6.1V24h-4v-8.5c0-2.03-.04-4.64-2.83-4.64-2.83 0-3.27 2.2-3.27 4.48V24h-4V8z"/></svg>
         </a>
@@ -1286,23 +1463,88 @@
   })();
 </script>
 
-<!-- ============================ PAGE TRANSITION ============================ -->
-<div class="curtain" id="page-curtain" aria-hidden="true">
-  <div class="curtain__loader">
-    <div class="curtain__orbit">
-      <span class="curtain__dot" style="--dot: #9BD3AE;"></span>
-      <span class="curtain__dot" style="--dot: #F9AA8F;"></span>
-      <span class="curtain__dot" style="--dot: #FFFBD5;"></span>
-      <span class="curtain__dot" style="--dot: #AAE0FA;"></span>
-      <span class="curtain__dot" style="--dot: #CBC2BF;"></span>
-    </div>
-  </div>
-</div>
+<script>
+  /* Email buttons (character card, contact text link, contact tile): copy the
+     address, then play the "Copied" bubble:
+     rise in with a bop -> hold 0.5s (timed from the moment the bop finishes landing) ->
+     drift up and fade out. Re-clicks restart the cycle. The surprise lines take a
+     random colour each click: the accent or one of the five MTG-inspired tints. */
+  (() => {
+    const HOLD = 500, OUT = 225, BOP = 460;    // OUT/BOP match the toast-out/toast-bop durations in CSS
+    // accent + MTG tints (light green, rose, light yellow, light blue, light grey)
+    const BURST_COLORS = ['#C4693B', '#9BD3AE', '#F9AA8F', '#FFFBD5', '#AAE0FA', '#CBC2BF'];
+    let lastBurst = -1;                        // shared, so any two clicks in a row differ
+
+    function copyText(text) {
+      if (navigator.clipboard && window.isSecureContext) return navigator.clipboard.writeText(text);
+      // fallback for non-secure contexts: select a temporary field and execCommand
+      return new Promise((resolve, reject) => {
+        const ta = document.createElement('textarea');
+        ta.value = text; ta.setAttribute('readonly', '');
+        ta.style.cssText = 'position:fixed;top:0;left:0;opacity:0;pointer-events:none;';
+        document.body.appendChild(ta); ta.select();
+        const ok = document.execCommand && document.execCommand('copy');
+        ta.remove(); ok ? resolve() : reject(new Error('copy failed'));
+      });
+    }
+
+    function nextBurstColor() {                // never the same one twice in a row
+      let pick = Math.floor(Math.random() * (BURST_COLORS.length - 1));
+      if (pick >= lastBurst) pick++;
+      lastBurst = pick;
+      return BURST_COLORS[pick];
+    }
+
+    function setupCopy(btn) {
+      const toast = btn.parentElement.querySelector('.copy-toast');
+      if (!toast) return;
+      let holdTimer = 0, outTimer = 0, landTimer = 0;
+
+      function startHold() {
+        clearTimeout(landTimer); clearTimeout(holdTimer);
+        holdTimer = setTimeout(() => {
+          toast.classList.replace('is-in', 'is-out');
+          outTimer = setTimeout(() => toast.classList.remove('is-out'), OUT);
+        }, HOLD);
+      }
+
+      function showToast() {
+        clearTimeout(landTimer); clearTimeout(holdTimer); clearTimeout(outTimer);
+        toast.classList.remove('is-in', 'is-out');
+        void toast.offsetWidth;                        // restart from the resting spot
+        toast.style.setProperty('--burst', nextBurstColor());
+        toast.classList.add('is-in');
+        // the hold is timed from the end of the bop (animationend below); if there
+        // is no bop (reduced motion) it starts right away, and a fallback timer
+        // covers the case where the event never arrives (e.g. a background tab)
+        if (getComputedStyle(toast).animationName !== 'toast-bop') startHold();
+        else landTimer = setTimeout(startHold, BOP + 100);
+      }
+
+      // the burst lines fire their own animationend events, so only the
+      // bubble's bop counts as "entry complete"
+      toast.addEventListener('animationend', (e) => {
+        if (e.target !== toast || e.animationName !== 'toast-bop') return;
+        if (toast.classList.contains('is-in')) startHold();
+      });
+
+      btn.addEventListener('click', () => {
+        copyText(btn.dataset.copy).then(showToast).catch(() => {
+          // clipboard blocked: fall back to the mail client so the click still does something
+          location.href = 'mailto:' + btn.dataset.copy;
+        });
+      });
+    }
+
+    document.querySelectorAll('.copy-wrap [data-copy]').forEach(setupCopy);
+  })();
+</script>
 <script>
   /* The curtain only ever moves left -> right: it sweeps IN over the outgoing page,
      holds while the next document loads, then sweeps OUT past the right edge.
-     Covering is applied inline (before first paint) so the incoming page is hidden
-     until its reveal runs; with JS off the element is never shown at all. */
+     The curtain markup sits at the top of <body> and an inline script there applies
+     the covering classes before any content is parsed, so the incoming page can't
+     flash before its reveal runs; with JS off the element is never shown at all. */
   (() => {
     const curtain = document.getElementById('page-curtain');
     if (!curtain) return;
@@ -1312,6 +1554,13 @@
     // --- entrance: this page arrived under the curtain, so uncover it ---
     curtain.classList.add('is-covering', 'is-loading');
     function reveal() {
+      // the browser may leave the #fragment jump until 'load'; do it here at DOM-ready
+      // (scroll-behavior is 'auto' at this point, see the inline script at the top of
+      // <body>) so the page is already in place when the curtain lifts
+      if (location.hash) {
+        const target = document.getElementById(decodeURIComponent(location.hash.slice(1)));
+        if (target) target.scrollIntoView({ block: 'start', behavior: 'auto' });
+      }
       if (reduced) { curtain.classList.remove('is-covering', 'is-loading'); return; }
       setTimeout(() => {
         curtain.classList.remove('is-loading');                 // dots shrink away
@@ -1321,10 +1570,21 @@
         }, SHRINK);
       }, HOLD);
     }
-    if (document.readyState === 'complete') reveal();
-    else window.addEventListener('load', reveal, { once: true });
-    // returning via the back/forward cache: replay the reveal instead of staying covered
-    window.addEventListener('pageshow', (e) => { if (e.persisted) { curtain.classList.add('is-covering', 'is-loading'); reveal(); } });
+    // reveal once the DOM is parsed rather than after the window 'load' event:
+    // the project pages carry dozens of large images and the curtain would
+    // otherwise sit on screen until every one of them had downloaded
+    if (document.readyState !== 'loading') reveal();
+    else document.addEventListener('DOMContentLoaded', reveal, { once: true });
+    // returning via the back/forward cache: the page is already on screen, so only
+    // lift the curtain if it was left covering (mid-exit); never sweep it in again
+    window.addEventListener('pageshow', (e) => {
+      if (!e.persisted) return;
+      curtain.classList.remove('is-loading');
+      if (curtain.classList.contains('is-covering')) {
+        curtain.classList.replace('is-covering', 'is-leaving');
+        setTimeout(() => curtain.classList.remove('is-leaving'), UNCOVER);
+      }
+    });
 
     // --- exit: intercept same-tab navigations to another page ---
     document.addEventListener('click', (e) => {

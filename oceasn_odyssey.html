@@ -406,13 +406,37 @@
 </style>
 </head>
 <body class="bg-paper text-ink">
+<!-- ============================ PAGE TRANSITION ============================ -->
+<div class="curtain" id="page-curtain" aria-hidden="true">
+  <div class="curtain__loader">
+    <div class="curtain__orbit">
+      <span class="curtain__dot" style="--dot: #9BD3AE;"></span>
+      <span class="curtain__dot" style="--dot: #F9AA8F;"></span>
+      <span class="curtain__dot" style="--dot: #FFFBD5;"></span>
+      <span class="curtain__dot" style="--dot: #AAE0FA;"></span>
+      <span class="curtain__dot" style="--dot: #CBC2BF;"></span>
+    </div>
+  </div>
+</div>
+<script>
+  /* cover the page before anything below is parsed or painted; the curtain
+     script at the end of the body lifts it once the DOM is ready */
+  document.getElementById('page-curtain').classList.add('is-covering', 'is-loading');
+  /* arriving with a #fragment (e.g. index.html#work from a project page): jump there
+     instantly under the curtain instead of smooth-scrolling from the top */
+  if (location.hash) {
+    document.documentElement.style.scrollBehavior = 'auto';
+    window.addEventListener('load', () => { document.documentElement.style.scrollBehavior = ''; }, { once: true });
+  }
+</script>
+
 
 <!-- ============================ TOP NAV ============================ -->
 <header class="sticky top-0 z-50 bg-white pb-[5px]">
   <div class="absolute inset-0 bg-[#324158]" style="bottom: 5px;"></div>
   <div class="container-x flex items-center justify-center h-[50px] relative">
     <nav class="nav-desktop hidden md:flex items-center">
-      <a href="index.html" class="nav-link nav-back">
+      <a href="index.html#work" class="nav-link nav-back">
         <svg width="17" height="12" viewBox="0 0 17 12" fill="none" aria-hidden="true">
           <path d="M6.4 1 1.5 6l4.9 5M1.5 6H15.5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
         </svg>
@@ -492,18 +516,18 @@
         <p class="process-tl__caption-title">Implementation Documentation</p>
         <p class="process-tl__caption-body">Created flowcharts mapping out the boss's abilities, AI behavior, and environmental interactions, giving the engineers and I a shared blueprint when prototyping and building the encounter.</p>
       </div>
-      <img class="process-tb__image expandable-image" src="WebsiteAssets/OceanOdyssey/Dr._Crab_Boss_Fight_Flowchart.png" alt="Boss fight flowchart" />
+      <img class="process-tb__image expandable-image" src="WebsiteAssets/OceanOdyssey/Dr._Crab_Boss_Fight_Flowchart.png" alt="Boss fight flowchart" loading="lazy" />
     </div>
 
     <!-- left column stacks two shots, right column is a Template_Left block; the row
          stretches so the stack's combined height matches the storyboard beside it -->
     <div class="flex" style="margin-top: 26px; gap: 5px; align-items: stretch;">
       <div style="flex: 2 1 0; min-width: 0; display: flex; flex-direction: column; gap: 5px;">
-        <img class="process-tb__image expandable-image" style="flex: 1 1 0; min-height: 0; object-fit: cover;" src="WebsiteAssets/OceanOdyssey/Boss_Room_Concept.png" alt="Boss room concept" />
-        <img class="process-tb__image expandable-image" style="flex: 1 1 0; min-height: 0; object-fit: cover;" src="WebsiteAssets/OceanOdyssey/Speaker.jpg" alt="Boss fight mockup" />
+        <img class="process-tb__image expandable-image" style="flex: 1 1 0; min-height: 0; object-fit: cover;" src="WebsiteAssets/OceanOdyssey/Boss_Room_Concept.png" alt="Boss room concept" loading="lazy" />
+        <img class="process-tb__image expandable-image" style="flex: 1 1 0; min-height: 0; object-fit: cover;" src="WebsiteAssets/OceanOdyssey/Speaker.jpg" alt="Boss fight mockup" loading="lazy" />
       </div>
       <div class="process-tl" style="flex: 3 1 0; min-width: 0; margin: 0; align-items: stretch;">
-        <img class="process-tl__image expandable-image" style="align-self: stretch; height: auto; object-fit: cover;" src="WebsiteAssets/OceanOdyssey/Dr._Krab_Stun_Storyboard.jpg" alt="Boss stun storyboard" />
+        <img class="process-tl__image expandable-image" style="align-self: stretch; height: auto; object-fit: cover;" src="WebsiteAssets/OceanOdyssey/Dr._Krab_Stun_Storyboard.jpg" alt="Boss stun storyboard" loading="lazy" />
         <div class="process-tl__caption" style="align-self: flex-start;">
           <p class="process-tl__caption-title">Mockups &amp; Storyboards</p>
           <p class="process-tl__caption-body">Designed mockups and storyboards to show the team how the boss fight should look and play before tasks were handed out. The mockups set the visual direction, and the storyboards walked through the fight moment to moment, from the boss's attacks to how players should respond. With a shared picture of the prototype from the start, team members could work in parallel with fewer questions and less rework.</p>
@@ -514,9 +538,9 @@
     <!-- ability wireframe progression; flex weights = each image's aspect ratio, so
          all three share one height with nothing cropped -->
     <div class="flex" style="margin-top: 26px; gap: 5px; align-items: stretch;">
-      <img class="process-tb__image expandable-image" style="flex: 1707 1 0; min-width: 0; object-fit: cover;" src="WebsiteAssets/OceanOdyssey/OO%20Ability%20Wireframe%201.png" alt="Ability screen wireframe, first pass" />
-      <img class="process-tb__image expandable-image" style="flex: 1679 1 0; min-width: 0; object-fit: cover;" src="WebsiteAssets/OceanOdyssey/OO%20Ability%20Wireframe%202.png" alt="Ability screen wireframe, second pass" />
-      <img class="process-tb__image expandable-image" style="flex: 1786 1 0; min-width: 0; object-fit: cover;" src="WebsiteAssets/OceanOdyssey/OO%20Ability%20Wireframe%20Final.png" alt="Ability screen, final" />
+      <img class="process-tb__image expandable-image" style="flex: 1707 1 0; min-width: 0; object-fit: cover;" src="WebsiteAssets/OceanOdyssey/OO%20Ability%20Wireframe%201.png" alt="Ability screen wireframe, first pass" loading="lazy" />
+      <img class="process-tb__image expandable-image" style="flex: 1679 1 0; min-width: 0; object-fit: cover;" src="WebsiteAssets/OceanOdyssey/OO%20Ability%20Wireframe%202.png" alt="Ability screen wireframe, second pass" loading="lazy" />
+      <img class="process-tb__image expandable-image" style="flex: 1786 1 0; min-width: 0; object-fit: cover;" src="WebsiteAssets/OceanOdyssey/OO%20Ability%20Wireframe%20Final.png" alt="Ability screen, final" loading="lazy" />
     </div>
     </div>
   </div>
@@ -772,23 +796,12 @@
   })();
 </script>
 
-<!-- ============================ PAGE TRANSITION ============================ -->
-<div class="curtain" id="page-curtain" aria-hidden="true">
-  <div class="curtain__loader">
-    <div class="curtain__orbit">
-      <span class="curtain__dot" style="--dot: #9BD3AE;"></span>
-      <span class="curtain__dot" style="--dot: #F9AA8F;"></span>
-      <span class="curtain__dot" style="--dot: #FFFBD5;"></span>
-      <span class="curtain__dot" style="--dot: #AAE0FA;"></span>
-      <span class="curtain__dot" style="--dot: #CBC2BF;"></span>
-    </div>
-  </div>
-</div>
 <script>
   /* The curtain only ever moves left -> right: it sweeps IN over the outgoing page,
      holds while the next document loads, then sweeps OUT past the right edge.
-     Covering is applied inline (before first paint) so the incoming page is hidden
-     until its reveal runs; with JS off the element is never shown at all. */
+     The curtain markup sits at the top of <body> and an inline script there applies
+     the covering classes before any content is parsed, so the incoming page can't
+     flash before its reveal runs; with JS off the element is never shown at all. */
   (() => {
     const curtain = document.getElementById('page-curtain');
     if (!curtain) return;
@@ -798,6 +811,13 @@
     // --- entrance: this page arrived under the curtain, so uncover it ---
     curtain.classList.add('is-covering', 'is-loading');
     function reveal() {
+      // the browser may leave the #fragment jump until 'load'; do it here at DOM-ready
+      // (scroll-behavior is 'auto' at this point, see the inline script at the top of
+      // <body>) so the page is already in place when the curtain lifts
+      if (location.hash) {
+        const target = document.getElementById(decodeURIComponent(location.hash.slice(1)));
+        if (target) target.scrollIntoView({ block: 'start', behavior: 'auto' });
+      }
       if (reduced) { curtain.classList.remove('is-covering', 'is-loading'); return; }
       setTimeout(() => {
         curtain.classList.remove('is-loading');                 // dots shrink away
@@ -807,10 +827,21 @@
         }, SHRINK);
       }, HOLD);
     }
-    if (document.readyState === 'complete') reveal();
-    else window.addEventListener('load', reveal, { once: true });
-    // returning via the back/forward cache: replay the reveal instead of staying covered
-    window.addEventListener('pageshow', (e) => { if (e.persisted) { curtain.classList.add('is-covering', 'is-loading'); reveal(); } });
+    // reveal once the DOM is parsed rather than after the window 'load' event:
+    // the project pages carry dozens of large images and the curtain would
+    // otherwise sit on screen until every one of them had downloaded
+    if (document.readyState !== 'loading') reveal();
+    else document.addEventListener('DOMContentLoaded', reveal, { once: true });
+    // returning via the back/forward cache: the page is already on screen, so only
+    // lift the curtain if it was left covering (mid-exit); never sweep it in again
+    window.addEventListener('pageshow', (e) => {
+      if (!e.persisted) return;
+      curtain.classList.remove('is-loading');
+      if (curtain.classList.contains('is-covering')) {
+        curtain.classList.replace('is-covering', 'is-leaving');
+        setTimeout(() => curtain.classList.remove('is-leaving'), UNCOVER);
+      }
+    });
 
     // --- exit: intercept same-tab navigations to another page ---
     document.addEventListener('click', (e) => {

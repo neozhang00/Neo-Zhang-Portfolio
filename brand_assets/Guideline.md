@@ -9,3 +9,10 @@ Accent Color: #C4693B
 Vanguard: #FFEF90
 Champion: #B797FF
 Wurm: #FF8888
+
+MTG Color Palatte
+Forests: #9BD3AE
+Mountains: #F9AA8F
+Plains: #FFFBD5
+Islands: #AAE0FA
+Swamps: #CBC2BF
