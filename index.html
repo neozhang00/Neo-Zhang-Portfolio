@@ -360,6 +360,9 @@
     box-shadow: 3px 3px 0 0 #EDE9E1;
     text-decoration: none;
     cursor: pointer;
+    /* .about-seg clips to its rounded corners for the chip strip; this card has no
+       chip, and the balloon is meant to break the frame, so let it overflow */
+    overflow: visible;
     transition: transform 220ms cubic-bezier(.2,.8,.2,1), box-shadow 220ms ease;
   }
   .work-card:hover, .work-card:focus-visible { transform: translateY(-16px); box-shadow: 8px 12px 0 0 #C4693B; }
