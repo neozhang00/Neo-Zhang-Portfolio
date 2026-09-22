@@ -13,3 +13,7 @@ package-lock.json
 
 # Local screenshot output
 temporary screenshots/
+
+# Wrangler (Cloudflare Workers) local state
+.wrangler/
+.dev.vars
