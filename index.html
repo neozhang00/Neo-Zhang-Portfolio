@@ -239,6 +239,7 @@
 
   /* the character card holding the portrait */
   .char-card {
+    position: relative;               /* the greeting bubbles are positioned against the card */
     flex: 0 0 360px;
     display: flex;
     flex-direction: column;
@@ -593,9 +594,13 @@
     clip-path: polygon(70px 0, 100% 0, 100% 100%, 30px 100%);
   }
   .work-card--frame .work-card__img {
-    width: 100%; height: 100%;
+    /* the image is drawn 30% taller than its window so the art's bottom strip (the
+       title) is always clipped, however narrow the window gets; the zoom is anchored
+       on the window's centre (38.5% of the taller box) so the framing holds */
+    width: 100%; height: 130%;
     object-fit: cover;
-    transform: translate(110px, -15px) scale(1.4);   /* pushed right to leave the awards a column on the left */
+    transform-origin: 50% 38.5%;
+    transform: translate(110px, -55px) scale(1.4);   /* pushed right to leave the awards a column on the left */
   }
 
 
@@ -760,6 +765,11 @@
     position: absolute; left: 15px; top: 28.5px;
     width: 145px; height: 105.5px;
     background: #ffffff; border-radius: 3px;
+    /* placeholder until the card art is ready */
+    display: flex; align-items: center; justify-content: center;
+    text-align: center;
+    font-size: 15px; font-weight: 700; line-height: 1.2;
+    color: rgba(50, 65, 88, 0.45);
   }
   .fact-card__text {
     position: absolute; left: 15px; top: 148px;
@@ -919,6 +929,10 @@
       <div class="char-card">
         <div class="char-card__name">Ghost <span style="font-size: 32px;">#7875</span></div>
         <img src="WebsiteAssets/About/ProfilePicture_001.jpg?v=2" alt="Neo Zhang portrait" class="char-card__photo" />
+        <!-- greeting bubbles floating over the picture; anchored to the card so they
+             keep their spot on the photo whatever the window width -->
+        <div class="about-bubble about-bubble--flag" style="left: 2.5px; top: 75px; font-size: 51px; --tail-x: 65%; border-radius: 50% 50% 48% 52% / 58% 62% 55% 60%;">你好!</div>
+        <div class="about-bubble about-bubble--flag-r" style="left: 182px; top: 100.5px; font-size: 51px; --tail-x: 30%; border-radius: 48% 52% 50% 50% / 62% 56% 60% 58%;">HELLO!</div>
         <div style="display: flex; margin-top: 12px;">
           <a href="https://www.linkedin.com/in/ne0zhang/" target="_blank" rel="noopener" class="about-btn">LINKEDIN</a>
           <div class="copy-wrap">
@@ -936,16 +950,12 @@
       <!-- ability lines -->
       <div style="flex: 1 1 0; max-width: 660px;">
         <div class="about-seg" style="--chip: #C4693B;"><svg class="about-seg__icon" viewBox="0 0 48 48" aria-hidden="true"><circle cx="24" cy="15" r="10"/><path d="M6 44c0-10 8-17 18-17s18 7 18 17c0 1.1-.9 2-2 2H8c-1.1 0-2-.9-2-2z"/></svg><p style="margin: 0;">Hi, I'm <strong style="color: #C4693B;">Neo Zhang (張凱翔)</strong>, a Game Designer based in the <strong style="color: #C4693B;">Bay Area and open to relocation</strong>.</p></div>
-        <div class="about-seg" style="--chip: #bfd9ec;"><svg class="about-seg__icon" viewBox="0 0 48 48" aria-hidden="true"><g transform="rotate(45 24 24)" fill="none" stroke="#324158" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"><rect x="0" y="17" width="48" height="14" rx="2"/><path d="M6 17v5M11 17v5M37 17v5M42 17v5"/></g><g transform="rotate(-45 24 24)" class="gap"><path d="M11 17.5h32.5a6.5 6.5 0 0 1 0 13H11z"/><path d="M11 17.5L-2 24l13 6.5z"/><path d="M9.5 19.6L2 24l7.5 4.4z" class="cut"/></g></svg><p style="margin: 0;">I've worked across a <strong style="color: #C4693B;">wide range of design areas</strong>, including combat, systems, level and mission, character, cinematic, narrative, and technical design, often <strong style="color: #C4693B;">juggling three or more at once</strong>.</p></div>
+        <div class="about-seg" style="--chip: #bfd9ec;"><svg class="about-seg__icon" viewBox="0 0 48 48" aria-hidden="true"><g transform="rotate(45 24 24)" fill="none" stroke="#324158" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"><rect x="0" y="17" width="48" height="14" rx="2"/><path d="M6 17v5M11 17v5M37 17v5M42 17v5"/></g><g transform="rotate(-45 24 24)" class="gap"><path d="M11 17.5h32.5a6.5 6.5 0 0 1 0 13H11z"/><path d="M11 17.5L-2 24l13 6.5z"/><path d="M9.5 19.6L2 24l7.5 4.4z" class="cut"/></g></svg><p style="margin: 0;">I specialize in <strong style="color: #C4693B;">combat, level, and cinematic design</strong>, but I also have experience in systems, character, narrative, and technical design, often <strong style="color: #C4693B;">juggling three or more at once</strong>.</p></div>
         <div class="about-seg" style="--chip: #f7d599;"><svg class="about-seg__icon" viewBox="0 0 48 48" aria-hidden="true"><rect x="2" y="7" width="44" height="34" rx="5"/><path d="M11 17l8 7-8 7" class="cut-stroke" stroke-width="4"/><rect x="23" y="29" width="13" height="4" rx="1.5" class="cut"/></svg><p style="margin: 0;">With a background in Computer Science, I can script in <strong style="color: #C4693B;">C#</strong>, <strong style="color: #C4693B;">C++</strong>, and <strong style="color: #C4693B;">Python</strong> and handle in-engine implementation independently in <strong style="color: #C4693B;">Unity</strong>, <strong style="color: #C4693B;">Unreal</strong>, and <strong style="color: #C4693B;">Godot</strong>.</p></div>
         <div class="about-seg" style="--chip: #fbc8c2;"><svg class="about-seg__icon" viewBox="0 0 48 48" aria-hidden="true"><path d="M7 3c2.5-1.2 8-2 13.5-2 2 0 2.6 1.8 2.2 3.8L21.5 9c-.2 1-1.2 1.6-2.3 1.9 .6 2.8-3.6 4-6.3 1.9H13v5.5l5 8C21 23 27 19.5 33 19.5c6.5 0 11.5 4.5 12.5 10.5 .5 6-1.5 11-4.5 13-6 1.5-16 1.5-23 1.5-6 0-10-.5-12-1.5C2.5 41 1 35 1.5 28 2.5 20 5 8 7 3z"/><path d="M29.5 13l-2.5-4M36 11V5.5M42.5 13l2.5-4" fill="none" stroke="#324158" stroke-width="3" stroke-linecap="round"/></svg><p style="margin: 0;">What drives me most is <strong style="color: #C4693B;">problem-solving</strong>: finding <strong style="color: #C4693B;">creative solutions</strong> to tough design challenges, especially alongside a <strong style="color: #C4693B;">collaborative team</strong>.</p></div>
         <div class="about-seg" style="--chip: #f5c0db;"><svg class="about-seg__icon" viewBox="0 0 48 48" aria-hidden="true"><circle cx="24" cy="24" r="21"/><path d="M12.5 17.5a3.5 3.5 0 0 1 7 0M28.5 17.5a3.5 3.5 0 0 1 7 0" class="cut-stroke" stroke-width="2.5"/><path d="M13.5 23h21c0 10-4.5 17-10.5 17S13.5 33 13.5 23z" class="cut"/></svg><p style="margin: 0;"><strong style="color: #C4693B;">Outside of work</strong>, I enjoy playing video games, watching movies and anime, discussing cinematography, and photography.</p></div>
       </div>
     </div>
-
-    <!-- greeting bubbles floating over the character card -->
-    <div class="about-bubble about-bubble--flag" style="left: 65px; top: 230px; font-size: 51px; --tail-x: 65%; border-radius: 50% 50% 48% 52% / 58% 62% 55% 60%;">你好!</div>
-    <div class="about-bubble about-bubble--flag-r" style="left: 245px; top: 255px; font-size: 51px; --tail-x: 30%; border-radius: 48% 52% 50% 50% / 62% 56% 60% 58%;">HELLO!</div>
 
   </div>
 </section>
@@ -1199,7 +1209,7 @@
       const bg = RARITY_COLOR[fact.rarity.toLowerCase()] || RARITY_COLOR.common;
       return '<div class="fact-card" style="--card-bg: ' + bg + ';">' +
         '<span class="fact-card__name">' + esc(fact.name) + '</span>' +
-        '<span class="fact-card__art"></span>' +
+        '<span class="fact-card__art">Coming<br />Soon</span>' +
         '<span class="fact-card__text">' + esc(fact.fact) + '</span>' +
         '</div>';
     }
