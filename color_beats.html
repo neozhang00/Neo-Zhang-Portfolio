@@ -828,7 +828,15 @@
       if (!a || a.target === '_blank' || a.hasAttribute('download')) return;
       const url = new URL(a.getAttribute('href'), location.href);
       if (url.origin !== location.origin) return;
-      if (url.pathname === location.pathname) return;            // same page (incl. #anchors)
+      // same page (incl. #anchors): a folder URL and its index.html are one document,
+      // so a fresh open at "/" must not treat "index.html#about" as another page
+      const doc = (path) => path.replace(/\/index\.html$/, '/');
+      if (doc(url.pathname) === doc(location.pathname)) {
+        // same document but a different spelling of the path: jump to the anchor
+        // in place rather than letting the browser reload the page
+        if (url.hash && url.pathname !== location.pathname) { e.preventDefault(); location.hash = url.hash; }
+        return;
+      }
       e.preventDefault();
       if (reduced) { location.href = url.href; return; }
       curtain.classList.add('is-covering');                      // panel sweeps in from the left

@@ -879,10 +879,10 @@
   <div class="absolute inset-0 bg-[#324158]" style="bottom: 5px;"></div>
   <div class="container-x flex items-center justify-center h-[50px] relative">
     <nav class="nav-desktop hidden md:flex items-center">
-      <a href="index.html#intro" class="nav-link is-current">HOME</a>
-      <a href="index.html#about" class="nav-link">ABOUT</a>
-      <a href="index.html#work" class="nav-link">WORK</a>
-      <a href="index.html#contact" class="nav-link">CONTACT</a>
+      <a href="#intro" class="nav-link is-current">HOME</a>
+      <a href="#about" class="nav-link">ABOUT</a>
+      <a href="#work" class="nav-link">WORK</a>
+      <a href="#contact" class="nav-link">CONTACT</a>
     </nav>
 
   </div>
@@ -1603,7 +1603,15 @@
       if (!a || a.target === '_blank' || a.hasAttribute('download')) return;
       const url = new URL(a.getAttribute('href'), location.href);
       if (url.origin !== location.origin) return;
-      if (url.pathname === location.pathname) return;            // same page (incl. #anchors)
+      // same page (incl. #anchors): a folder URL and its index.html are one document,
+      // so a fresh open at "/" must not treat "index.html#about" as another page
+      const doc = (path) => path.replace(/\/index\.html$/, '/');
+      if (doc(url.pathname) === doc(location.pathname)) {
+        // same document but a different spelling of the path: jump to the anchor
+        // in place rather than letting the browser reload the page
+        if (url.hash && url.pathname !== location.pathname) { e.preventDefault(); location.hash = url.hash; }
+        return;
+      }
       e.preventDefault();
       if (reduced) { location.href = url.href; return; }
       curtain.classList.add('is-covering');                      // panel sweeps in from the left
