@@ -15,11 +15,13 @@
 - If the server is already running, do not start a second instance.
 
 ## Screenshot Workflow
-- Puppeteer is installed at `C:/Users/bubbletea/AppData/Local/Temp/puppeteer-test/`. Chrome cache is at `C:/Users/bubbletea/.cache/puppeteer/`.
+- Puppeteer is installed at `%LOCALAPPDATA%/Temp/puppeteer-test/` (i.e. `C:/Users/<user>/AppData/Local/Temp/puppeteer-test/`). Chrome cache is at `%USERPROFILE%/.cache/puppeteer/`. `screenshot.mjs` resolves it from there automatically (or from `./node_modules` if present).
+- If Puppeteer is missing (`node screenshot.mjs` will say so), reinstall: `mkdir "%LOCALAPPDATA%\Temp\puppeteer-test" && cd /d "%LOCALAPPDATA%\Temp\puppeteer-test" && npm init -y && npm install puppeteer`
 - **Always screenshot from localhost:** `node screenshot.mjs http://localhost:3000`
 - Screenshots are saved automatically to `./temporary screenshots/screenshot-N.png` (auto-incremented, never overwritten).
 - Optional label suffix: `node screenshot.mjs http://localhost:3000 label` → saves as `screenshot-N-label.png`
 - `screenshot.mjs` lives in the project root. Use it as-is.
+- Default capture is 1440×900 full-page. Optional flags: `--mobile` (390×844 @2x), `--width=N --height=N --scale=N`, `--no-full` (viewport only).
 - After screenshotting, read the PNG from `temporary screenshots/` with the Read tool — Claude can see and analyze the image directly.
 - When comparing, be specific: "heading is 32px but reference shows ~24px", "card gap is 16px but should be 24px"
 - Check: spacing/padding, font size/weight/line-height, colors (exact hex), alignment, border-radius, shadows, image sizing
