@@ -414,12 +414,15 @@
   .contact-card__actions { display: flex; width: 100%; max-width: 420px; margin-top: 33px; }
   /* resume button filled in the Secondary color (hover still goes terracotta) */
   .about-btn--solid { background: #324158; color: #EDE9E1; }
+    --grid-line: rgba(50, 65, 88, 0.10);
   /* square social tiles under the resume button */
   .contact-socials { display: flex; gap: 12px; margin-top: 14px; }
   .contact-social {
     width: 54px; height: 54px;
     display: inline-flex; align-items: center; justify-content: center;
     border-radius: 6px;
+  /* About: grid lines 10 points more visible than the shared default */
+  #about.grid-paper { --grid-line: rgba(50, 65, 88, 0.20); }
     color: #ffffff; background: var(--tile, #324158);
     box-shadow: 3px 3px 0 0 #1f2b3c;
     transition: transform 180ms cubic-bezier(.2, .8, .2, 1), box-shadow 180ms ease;
@@ -449,8 +452,8 @@
   .grid-paper {
     background-color: #EDE9E1;
     background-image:
-      linear-gradient(rgba(50, 65, 88, 0.10) 1px, transparent 1px),
-      linear-gradient(90deg, rgba(50, 65, 88, 0.10) 1px, transparent 1px);
+      linear-gradient(var(--grid-line) 1px, transparent 1px),
+      linear-gradient(90deg, var(--grid-line) 1px, transparent 1px);
     background-size: 28px 28px;
   }
 
@@ -600,7 +603,7 @@
     width: 100%; height: 130%;
     object-fit: cover;
     transform-origin: 50% 38.5%;
-    transform: translate(110px, -55px) scale(1.4);   /* pushed right to leave the awards a column on the left */
+    transform: translate(110px, -75px) scale(1.4);   /* pushed right to leave the awards a column on the left, nudged 20px up */
   }
 
 
@@ -1074,7 +1077,7 @@
     <span class="contact-star" style="right: -34px; top: 128px; width: 22px; animation-delay: 1.15s;" aria-hidden="true"><svg viewBox="0 0 48 48" fill="none"><path d="M24 2 C26.5 17.5 30.5 21.5 46 24 C30.5 26.5 26.5 30.5 24 46 C21.5 30.5 17.5 26.5 2 24 C17.5 21.5 21.5 17.5 24 2 Z" fill="#CBC2BF" stroke="#324158" stroke-width="3.5" stroke-linejoin="round"/></svg></span>
 
     <div class="about-seg seg-nochip contact-card">
-      <p class="contact-card__lede">I'm a versatile designer who picks things up fast, and I'd love to make games across every genre. If my work and what I can bring to a team interest you, let's get in touch and <strong style="color: #C4693B;">build something amazing together!</strong></p>
+      <p class="contact-card__lede">I'm a versatile designer who picks things up fast, and I'd love to make games across every genre. If my work and what I can bring to a team interest you, let's get in touch and <strong style="color: #C4693B;">build something awesome together!</strong></p>
       <p class="contact-card__note">You can reach me directly via
         <span class="copy-wrap copy-wrap--inline"><button type="button" class="contact-link" data-copy="neo.zhang.00@gmail.com" aria-label="Copy email address to clipboard">email</button>
           <span class="copy-toast" role="status" aria-live="polite">
