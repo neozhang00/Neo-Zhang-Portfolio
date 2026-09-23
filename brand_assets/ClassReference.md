@@ -53,14 +53,8 @@ Brand colors per `Guideline.md`: Main `#EDE9E1`, Secondary `#324158`, Vanguard `
 ### Header / nav
 | Class | Purpose |
 |---|---|
-| `.nav-pill` | Header nav link pill (white outline + 4×4 hard shadow) on `#324158` band. |
 | `.nav-mobile-trigger` | Hamburger button shown ≤950px. |
 | `.nav-mobile-panel` | Mobile nav dropdown container. Add `.is-open` to show. |
-
-### Body
-| Class | Purpose |
-|---|---|
-| `.pill` | Light button on cream sections — white fill, `#324158` outline, 5×5 hard shadow. |
 
 ### Combat Design carousel toggles
 | Class | Color |
@@ -89,7 +83,6 @@ Brand colors per `Guideline.md`: Main `#EDE9E1`, Secondary `#324158`, Vanguard `
 | `.lav-card` | Champion banner — lavender fill. |
 | `.wurm-card` | Wurm banner — coral fill. |
 | `.stat-card` | Dark passive-ability card (`#1a1820` fill, cream border + ring). |
-| `.proc-box` | Design-process box (black outline, ~13.5px text). Pair with `<h5>` for caption. |
 | `.frame` | Image/video frame — thin cream border, soft outer shadow, rounded 14px. |
 
 ---
@@ -211,7 +204,6 @@ See full spec: `Template/Process_Template_Right.md`.
 
 | Class | Purpose |
 |---|---|
-| `.grain` | SVG noise overlay (mix-blend overlay, 32% opacity). Add to a `position:relative` element. |
 | `.img-treat` | `::after` gradient overlay (black 35% → transparent 55%, top-up). Adds depth to images. |
 | `.portrait-clip` | Container for character portraits — top can escape the parent, bottom clips inside the border. |
 | `.video-slot` | Placeholder text styling for empty video frames. |
@@ -270,7 +262,6 @@ Inside `.stat-card` text, wrap keywords in `<span class="kw …">`:
 | Class | Purpose |
 |---|---|
 | `.resp-list` | Responsibilities `<ul>` — 10px row spacing, line-height 1.3. |
-| `.tier-strip` | Color-band gradient strip (8 segments). |
 
 ---
 

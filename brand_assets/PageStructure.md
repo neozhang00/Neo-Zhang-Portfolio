@@ -10,14 +10,14 @@ Two parts:
 
 | Template name | What it is | CSS class root | Used by |
 |---|---|---|---|
-| **ButtonFormat_Header** | Nav-style button: transparent fill, white outline + 4×4 hard white shadow, on the dark `#324158` header band. | `.nav-pill` | Top-nav links (FEATURE / PROTOTYPES / BLOGS / ABOUT + BONUS) |
-| **ButtonFormat_Default** | Mirror of header button for cream sections: white fill, `#324158` outline, 5×5 hard navy shadow. | `.pill` | Section_Summary link row (OFFICIAL SITE / STEAM PAGE / FEATURED ARTICLE) |
+| **ButtonFormat_Header** | Nav-style button: transparent fill, white outline + 4×4 hard white shadow, on the dark `#324158` header band. | `.nav-pill` | Not placed on any page (page CSS removed 2026-09-22; spec kept in Template/ButtonFormat.md) |
+| **ButtonFormat_Default** | Mirror of header button for cream sections: white fill, `#324158` outline, 5×5 hard navy shadow. | `.pill` | Not placed on any page (page CSS removed 2026-09-22; spec kept in Template/ButtonFormat.md) |
 | **SpellCard_Template_A** | Three-piece spell-card layout — spell image (left, no border) overlaps a video frame (center), with a caption block (title + body) on the right. Group is 730×271 and centers itself on the page. | `.spellcard-a-wrap` → `.spellcard-a` → `.spellcard-a__image` / `.spellcard-a__video` / `.spellcard-a__caption` (with `__caption-title` / `__caption-body`) | Vanguard slide → Into the Fray + Bladefall |
 | **Process_Template_Below** | Vertical two-piece layout: Secondary-color caption tab (rounded top corners, Primary top border) stacked above a Primary-bordered image. Caption tucks under the image's top edge. Image scales by width to match the rectangle (730px). | `.process-tb` → `.process-tb__caption` (+ ::before tab) / `.process-tb__image` | Vanguard slide → Design Process → Ideation block |
 | **Process_Template_Right** | Horizontal counterpart of Process_Template_Below: Secondary-color caption tab on the LEFT (rounded top-left + bottom-left corners, Primary left border) with an image on the RIGHT. Caption's right edge sits flush against the image. Width ratio caption : image = 1 : 3 within the 730px wrap (182.5 + 547.5). Text is top-aligned; rectangle bottom auto-follows the text. | `.process-tr` → `.process-tr__caption` (+ ::before tab) / `.process-tr__image` | Vanguard slide → Design Process → Passive Ability |
 | **Process_Template_Left** | Mirror of Process_Template_Right: image on the LEFT with a Secondary-color caption tab on the RIGHT (rounded top-right + bottom-right corners, Primary right border). Caption's left edge sits flush against the image. Default ratio image : caption = 2 : 1 within the 730px wrap (486.7 + 243.3). Text top-aligned; rectangle bottom auto-follows the text. | `.process-tl` → `.process-tl__image` / `.process-tl__caption` (+ ::before tab) | Vanguard slide → Design Process → Spell Cards |
 
-> Other reusable patterns exist (banner cards `.yellow-card` / `.lav-card` / `.wurm-card`, design-process boxes `.proc-box`, role-tag prev/next buttons, More-Bosses mini-card) but they are not formally named templates. See `ClassReference.md` for those classes.
+> Other reusable patterns exist (banner cards `.yellow-card` / `.lav-card` / `.wurm-card`, role-tag prev/next buttons, More-Bosses mini-card) but they are not formally named templates. See `ClassReference.md` for those classes.
 >
 > Callable JS: `window.ImageViewNav(target?)` enables the click-to-fullscreen lightbox on any image (cursor-anchored zoom, drag pan, hint tracks image bottom). See `Functions/ImageViewNav.md`.
 

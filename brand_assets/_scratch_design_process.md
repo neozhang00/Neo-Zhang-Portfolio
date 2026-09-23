@@ -23,3 +23,21 @@ These were originally in the 2×2 design-process grid in the Vanguard slide, aft
 - Implement the first pass of the design in-engine and create a playable prototype.
 - Conduct multiple playtests, gather feedback, and iterate on the Vanguard's passive and spell cards.
 - Debug code, support animation/VFX hookups, and write description while ensuring all implementation is bug-free.
+
+---
+
+## `.proc-box` CSS  *(removed from `sunderfolk.html` on 2026-09-22 — no page used it; re-add with the blocks above)*
+
+```css
+/* design process boxes */
+.proc-box {
+  border: 2px solid #0c0c0d;
+  border-radius: 10px;
+  padding: 16px 18px;
+  line-height: 1.55;
+  font-size: 13.5px;
+}
+.proc-box h5 {
+  font-weight: 800; font-size: 14px; letter-spacing: 0.04em; margin-bottom: 8px;
+}
+```

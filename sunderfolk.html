@@ -58,39 +58,12 @@
   }
 
   html { scroll-behavior: smooth; }
-  body { font-family: 'Inter', system-ui, sans-serif; color: #0c0c0d; background: #ece6df; -webkit-font-smoothing: antialiased; min-width: 1000px; }
+  body { font-family: 'Inter', system-ui, sans-serif; color: #0c0c0d; background: #ece6df; -webkit-font-smoothing: antialiased; min-width: 1000px; scroll-padding-top: 55px; }
 
   /* Below the design width (1000), JS sets --page-scale and adds .page-scaled.
      We use CSS zoom which scales both layout and visuals (so scrollbars/heights
      reflow to the scaled size, no horizontal scrollbar). */
   body.page-scaled { zoom: var(--page-scale, 1); }
-
-  /* SVG noise overlay */
-  .grain::before {
-    content: '';
-    position: absolute; inset: 0;
-    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='220' height='220'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 1  0 0 0 0 1  0 0 0 0 1  0 0 0 0.18 0'/></filter><rect width='100%25' height='100%25' filter='url(%23n)' opacity='0.55'/></svg>");
-    mix-blend-mode: overlay;
-    opacity: 0.32;
-    pointer-events: none;
-  }
-  /* ButtonFormat_Header — nav buttons in the page header (#324158 bg) */
-  .nav-pill {
-    display:inline-flex; align-items:center; justify-content:center;
-    height: 32px; padding: 0 22px;
-    border: 1.5px solid #ffffff;
-    border-radius: 8px;
-    color: #ffffff; background: transparent;
-    font-family: Arial, 'Helvetica Neue', Helvetica, sans-serif; font-weight: 700;
-    letter-spacing: 0.16em; font-size: 11px;
-    /* shadow cast at 135° (down-right), same color as border */
-    box-shadow: 4px 4px 0 0 #ffffff;
-    transition: background-color 180ms ease, color 180ms ease, border-color 180ms ease, box-shadow 180ms ease, transform 180ms cubic-bezier(.2,.8,.2,1);
-  }
-  .nav-pill:hover { background: #EDE9E1; border-color: #3a3a3a; color: #000000; transform: translateY(-1px); }
-  .nav-pill:active { transform: translateY(0); }
-  /* current page — filled pill (inverse of the outlined default) */
-  .nav-pill.is-current { background: #ffffff; border-color: #324158; color: #324158; }
 
   /* bottom "jump to" menu — a container-style box docked flush to the window's bottom edge.
      Hidden at the top of the page; emerges upward as the hero banner scrolls away (JS-driven). */
@@ -147,22 +120,6 @@
   /* sub-pages carry a single back button instead of the section nav */
   .nav-back { gap: 10px; }
   .nav-back svg { flex: 0 0 auto; }
-
-  /* ButtonFormat_Default — buttons in cream sections (mirror of ButtonFormat_Header) */
-  .pill {
-    display: inline-flex; align-items: center; justify-content: center;
-    height: 42px; padding: 0 26px;
-    border: 2px solid #0c0c0d;
-    border-radius: 8px;
-    color: #324158; background: #ffffff;
-    font-family: Arial, 'Helvetica Neue', Helvetica, sans-serif; font-weight: 700;
-    letter-spacing: 0.18em; font-size: 12px;
-    /* shadow cast at 135° (down-right), black */
-    box-shadow: 5px 5px 0 0 #0c0c0d;
-    transition: background-color 180ms ease, color 180ms ease, border-color 180ms ease, transform 180ms cubic-bezier(.2,.8,.2,1);
-  }
-  .pill:hover { background: #324158; border-color: #0c0c0d; color: #EDE9E1; transform: translateY(-1px); }
-  .pill:active { transform: translateY(0); }
 
   /* card framed in Secondary Color, white inner */
   .bordercard {
@@ -522,7 +479,6 @@
     font-weight: 700;
     letter-spacing: 0.16em;
     font-size: 12px;
-    color: #0c0c0d;
     cursor: pointer;
     transition: transform 180ms cubic-bezier(.2,.8,.2,1), box-shadow 180ms ease, background-color 300ms ease, color 300ms ease;
     box-shadow: 3px 3px 0 0 #0c0c0d;
@@ -578,29 +534,6 @@
   .role-tag.yellow  { background: #FFEF90; }  /* Vanguard brand color */
   .role-tag.pink    { background: #FF8888; }  /* Wurm brand color */
   .role-tag.purple  { background: #B797FF; }  /* Champion brand color */
-
-  /* design process boxes */
-  .proc-box {
-    border: 2px solid #0c0c0d;
-    border-radius: 10px;
-    padding: 16px 18px;
-    line-height: 1.55;
-    font-size: 13.5px;
-  }
-  .proc-box h5 {
-    font-weight: 800; font-size: 14px; letter-spacing: 0.04em; margin-bottom: 8px;
-  }
-
-  /* tier strip color band */
-  .tier-strip {
-    height: 26px; border-radius: 8px;
-    background: linear-gradient(90deg,
-      #c8423f 0 9%, #d18039 9% 22%, #d8b73a 22% 34%,
-      #80b04a 34% 47%, #4ea38a 47% 60%, #4d7fb4 60% 72%,
-      #6a4fa0 72% 84%, #9a3b85 84% 100%);
-    box-shadow: 0 1px 0 rgba(255,255,255,0.4) inset, 0 1px 0 rgba(0,0,0,0.4);
-  }
-
 
   /* anchor offset for sticky nav */
   .anchor { scroll-margin-top: 55px; }  /* land section top at the header's bottom edge (50px bar + 5px white line) */
@@ -740,9 +673,6 @@
     font-family: 'Inter', sans-serif;
     font-weight: 800; letter-spacing: -0.02em;
   }
-
-  /* scroll-padding on body so anchors land below sticky nav */
-  body { scroll-padding-top: 55px; }
 
   /* ===== Character carousel (Vanguard / Champion / Wurm) ===== */
   .char-carousel {
@@ -2290,32 +2220,26 @@
       pills.forEach(p => p.classList.toggle('is-active', parseInt(p.getAttribute('data-carousel-go'), 10) === real));
     }
     let busy = false;
-    function next() {
-      if (busy) return; busy = true;
-      const target = real === totalReal - 1 ? totalReal + 1 : virtual + 1; // last clone, else next real
-      setVirtual(target, true);
-      real = (real + 1) % totalReal;
-      syncHeight();
-      updatePills();
-      scrollToSection();
-    }
-    function prev() {
-      if (busy) return; busy = true;
-      const target = real === 0 ? 0 : virtual - 1; // first clone (before start), else prev real
-      setVirtual(target, true);
-      real = (real - 1 + totalReal) % totalReal;
-      syncHeight();
-      updatePills();
-      scrollToSection();
-    }
-    function jumpTo(targetReal) {
-      if (busy || targetReal === real) return;
+    // animate the track to a virtual index and make targetReal the current character
+    function go(targetVirtual, targetReal) {
       busy = true;
-      setVirtual(targetReal + 1, true);
+      setVirtual(targetVirtual, true);
       real = targetReal;
       syncHeight();
       updatePills();
       scrollToSection();
+    }
+    function next() {
+      if (busy) return;
+      go(real === totalReal - 1 ? totalReal + 1 : virtual + 1, (real + 1) % totalReal);   // last clone, else next real
+    }
+    function prev() {
+      if (busy) return;
+      go(real === 0 ? 0 : virtual - 1, (real - 1 + totalReal) % totalReal);   // first clone (before start), else prev real
+    }
+    function jumpTo(targetReal) {
+      if (busy || targetReal === real) return;
+      go(targetReal + 1, targetReal);
     }
 
     track.addEventListener('transitionend', () => {

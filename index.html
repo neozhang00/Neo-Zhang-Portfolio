@@ -58,32 +58,14 @@
   }
 
   html { scroll-behavior: smooth; }
-  body { font-family: 'Inter', system-ui, sans-serif; color: #0c0c0d; background: #ece6df; -webkit-font-smoothing: antialiased; min-width: 1000px; }
+  body { font-family: 'Inter', system-ui, sans-serif; color: #0c0c0d; background: #ece6df; -webkit-font-smoothing: antialiased; min-width: 1000px; scroll-padding-top: 55px; }
 
   /* Below the design width (1000), JS sets --page-scale and adds .page-scaled.
      We use CSS zoom which scales both layout and visuals (so scrollbars/heights
      reflow to the scaled size, no horizontal scrollbar). */
   body.page-scaled { zoom: var(--page-scale, 1); }
 
-  /* ButtonFormat_Header — nav buttons in the page header (#324158 bg) */
-  .nav-pill {
-    display:inline-flex; align-items:center; justify-content:center;
-    height: 32px; padding: 0 22px;
-    border: 1.5px solid #ffffff;
-    border-radius: 8px;
-    color: #ffffff; background: transparent;
-    font-family: Arial, 'Helvetica Neue', Helvetica, sans-serif; font-weight: 700;
-    letter-spacing: 0.16em; font-size: 11px;
-    /* shadow cast at 135° (down-right), same color as border */
-    box-shadow: 4px 4px 0 0 #ffffff;
-    transition: background-color 180ms ease, color 180ms ease, border-color 180ms ease, box-shadow 180ms ease, transform 180ms cubic-bezier(.2,.8,.2,1);
-  }
-  .nav-pill:hover { background: #EDE9E1; border-color: #3a3a3a; color: #000000; transform: translateY(-1px); }
-  .nav-pill:active { transform: translateY(0); }
-  /* current page — filled pill (inverse of the outlined default) */
-  .nav-pill.is-current { background: #ffffff; border-color: #324158; color: #324158; }
-
-  /* header nav — text links sectioned off by divider lines (replaces the pills) */
+  /* header nav — text links sectioned off by divider lines */
   .nav-link {
     display: inline-flex; align-items: center; justify-content: center;
     height: 32px; padding: 0 26px;
@@ -109,20 +91,13 @@
     color: #324158;
     line-height: 1;
     letter-spacing: 0.03em;
+    z-index: 6;                  /* floats above the picture */
   }
-  .about-bubble { z-index: 6; }   /* floats above the picture */
   .about-bubble::after {
     content: '';
     position: absolute;
     width: 14px; height: 14px;
     background: #ffffff;
-  }
-  /* tail pointing down; horizontal spot set per bubble via --tail-x */
-  .about-bubble--down::after {
-    left: var(--tail-x, 50%); bottom: -9px;
-    transform: translateX(-50%) rotate(45deg);
-    border-right: 3px solid #324158;
-    border-bottom: 3px solid #324158;
   }
   /* greeting bubbles drift gently in place, each on its own path/tempo */
   @keyframes bubble-float-a {
@@ -184,14 +159,6 @@
     width: 14px; height: 15px;
     background: #ffffff;
     border: 0; transform: none;
-  }
-
-  /* tail pointing left */
-  .about-bubble--left::after {
-    left: -9px; top: 80%;
-    transform: translateY(-50%) rotate(45deg);
-    border-left: 3px solid #324158;
-    border-bottom: 3px solid #324158;
   }
 
   /* About: ability-line cards beside the character card. Each row is its own
@@ -414,15 +381,12 @@
   .contact-card__actions { display: flex; width: 100%; max-width: 420px; margin-top: 33px; }
   /* resume button filled in the Secondary color (hover still goes terracotta) */
   .about-btn--solid { background: #324158; color: #EDE9E1; }
-    --grid-line: rgba(50, 65, 88, 0.10);
   /* square social tiles under the resume button */
   .contact-socials { display: flex; gap: 12px; margin-top: 14px; }
   .contact-social {
     width: 54px; height: 54px;
     display: inline-flex; align-items: center; justify-content: center;
     border-radius: 6px;
-  /* About: grid lines 10 points more visible than the shared default */
-  #about.grid-paper { --grid-line: rgba(50, 65, 88, 0.20); }
     color: #ffffff; background: var(--tile, #324158);
     box-shadow: 3px 3px 0 0 #1f2b3c;
     transition: transform 180ms cubic-bezier(.2, .8, .2, 1), box-shadow 180ms ease;
@@ -450,12 +414,15 @@
 
   /* grid-paper page background: main color with a very faint secondary grid */
   .grid-paper {
+    --grid-line: rgba(50, 65, 88, 0.10);
     background-color: #EDE9E1;
     background-image:
       linear-gradient(var(--grid-line) 1px, transparent 1px),
       linear-gradient(90deg, var(--grid-line) 1px, transparent 1px);
     background-size: 28px 28px;
   }
+  /* About: grid lines 10 points more visible than the shared default */
+  #about.grid-paper { --grid-line: rgba(50, 65, 88, 0.20); }
 
   /* Work: project rows presented as sealed packs. Hover perks the card up,
      tears the seal off, and slides in the terracotta OPEN strip. */
@@ -557,11 +524,6 @@
     padding: 44px 26px 24px;
     display: flex; flex-direction: column;
   }
-  .work-card__name {
-    font-family: 'Tungsten','Arial Black','Arial Bold',Arial,sans-serif;
-    font-weight: 700; font-size: 46px; letter-spacing: 0.04em;
-    color: #324158; line-height: 1;
-  }
   .work-card__name-img { display: block; width: 100%; height: auto; margin: -14px 0 0 4px; }  /* sits 30px off the card corner */
   .work-card__platform {
     margin: 5px 0 0 4px;       /* 5px under the logo, 30px from the left edge */
@@ -609,7 +571,6 @@
 
   .container-x { max-width: 1180px; margin-inline: auto; padding-inline: 24px; }
   .anchor { scroll-margin-top: 55px; }  /* land section top at the header's bottom edge (50px bar + 5px white line) */
-  body { scroll-padding-top: 55px; }
 
   /* Name section: on load the name (then the title, 0.75s later) fades in while
      rising from below into place */
@@ -642,6 +603,9 @@
     transition: transform 700ms cubic-bezier(.2,.8,.3,1.05);
     display: flex;
     align-items: flex-end;
+    padding-top: 70px;             /* near-hover zone above the packs (fades the caption early) */
+    z-index: 2;                    /* its transform makes it a stacking context; sit above the
+                                      emerging card (z 0) so the card truly pulls out from behind */
   }
   #intro.packs-in .card-packs { transform: translate(-50%, 0); }
   /* the name + title live section-anchored (like the card): centered at 50%,
@@ -721,9 +685,6 @@
     transition: transform 220ms cubic-bezier(.2,.8,.2,1);
   }
   .card-pack + .card-pack { margin-left: -64px; }
-  .card-packs { padding-top: 70px; }   /* near-hover zone above the packs (fades the caption early) */
-  .card-packs { z-index: 2; }          /* its transform makes it a stacking context; sit above the
-                                          emerging card (z 0) so the card truly pulls out from behind */
 
   /* while a draw sequence runs (until the slot is replenished), the other
      packs don't play their hover perk */
@@ -1115,6 +1076,11 @@
 </main>
 
 <script>
+  // visual px -> local px: with the page-scale zoom active (narrow windows) the rects
+  // the browser reports differ from the local units that left/top/transform use
+  const pageZoom = () => document.body.classList.contains('page-scaled')
+    ? (parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--page-scale')) || 1) : 1;
+
   // Card packs entrance: the name/title rise finishes at ~1050ms (250ms delay +
   // 800ms); ~1s later the packs rise from behind the next section while the
   // name + title shift up by the same distance. Reduced motion: settle instantly.
@@ -1161,7 +1127,6 @@
   (() => {
     const section = document.getElementById('intro');
     if (!section) return;
-    const caption = section.querySelector('.pack-caption');
     const packsRow = section.querySelector('.card-packs');
     const palette = ['#f7d599', '#fbc8c2', '#f5c0db', '#bfd9ec'];
     const CARD_W = 175, CARD_H = 247.5, CARD_SCALE = 1.66;
@@ -1293,10 +1258,7 @@
 
         const sr = section.getBoundingClientRect();
         const pr = pack.getBoundingClientRect();
-        // rects are visual px; with the page-scale zoom active they differ from
-        // the local px that left/top/transform use — convert to local units
-        const zoom = document.body.classList.contains('page-scaled')
-          ? (parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--page-scale')) || 1) : 1;
+        const zoom = pageZoom();   // convert the visual rects to local units
         const px = (pr.left - sr.left) / zoom, py = (pr.top - sr.top) / zoom;
         const pw = pr.width / zoom, ph = pr.height / zoom, sw = sr.width / zoom;
         // the card starts centered on its pack, layered BEHIND the whole row
@@ -1358,19 +1320,15 @@
         section._animBusyUntil = Date.now() + 260 + 520 + 500 + 520;
       });
     }
-    Array.from(section.querySelectorAll('.card-pack')).forEach(p => { p.dataset.z = p.style.zIndex; bind(p); });
-  })();
-
-  // Card packs: randomize pack colors each load from the pastel palette,
-  // never giving two neighbors the same color.
-  (() => {
-    const palette = ['#f7d599', '#fbc8c2', '#f5c0db', '#bfd9ec'];
+    // bind every pack and deal it a random pastel from the palette on each load,
+    // never giving two neighbors the same color
     let prev = null;
-    document.querySelectorAll('#intro .card-pack').forEach(pack => {
+    Array.from(section.querySelectorAll('.card-pack')).forEach(p => {
       const choices = palette.filter(c => c !== prev);
-      const col = choices[Math.floor(Math.random() * choices.length)];
-      prev = col;
-      pack.querySelectorAll('svg .pk-fill').forEach(el => el.setAttribute('fill', col));
+      prev = choices[Math.floor(Math.random() * choices.length)];
+      p.querySelectorAll('svg .pk-fill').forEach(el => el.setAttribute('fill', prev));
+      p.dataset.z = p.style.zIndex;
+      bind(p);
     });
   })();
 
@@ -1388,8 +1346,7 @@
     document.querySelectorAll('.contact-star').forEach(star => {
       star.addEventListener('click', () => {
         if (star.classList.contains('is-flying')) return;
-        const zoom = document.body.classList.contains('page-scaled')
-          ? (parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--page-scale')) || 1) : 1;
+        const zoom = pageZoom();
         const r = star.getBoundingClientRect();
         const left = (r.left + r.width / 2) < window.innerWidth / 2;
         const dist = (left ? r.right + 140 : window.innerWidth - r.left + 140) / zoom;
