@@ -412,17 +412,15 @@
   .to-top:hover, .to-top:focus-visible { background: #A85830; box-shadow: 5px 6px 0 0 #1f2b3c; transform: translateY(-3px); }
   .to-top:active { transform: translateY(0); box-shadow: 3px 3px 0 0 #1f2b3c; }
 
-  /* grid-paper page background: main color with a very faint secondary grid */
+  /* grid-paper page background: main color with a faint secondary grid */
   .grid-paper {
-    --grid-line: rgba(50, 65, 88, 0.10);
+    --grid-line: rgba(50, 65, 88, 0.20);
     background-color: #EDE9E1;
     background-image:
       linear-gradient(var(--grid-line) 1px, transparent 1px),
       linear-gradient(90deg, var(--grid-line) 1px, transparent 1px);
     background-size: 28px 28px;
   }
-  /* About: grid lines 10 points more visible than the shared default */
-  #about.grid-paper { --grid-line: rgba(50, 65, 88, 0.20); }
 
   /* Work: project rows presented as sealed packs. Hover perks the card up,
      tears the seal off, and slides in the terracotta OPEN strip. */
