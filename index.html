@@ -547,6 +547,14 @@
   .work-card__img { display: block; flex: 1 1 0; min-width: 0; height: 100%; object-fit: cover; }
   /* the whole row is the drawn card — art framed in an outlined window */
   .work-card--frame { background: #bfd9ec; }
+  .work-card--shadowstone { background: #D4C4F2; }   /* light tint of the brand's Champion purple #B797FF */
+  .work-card--shadowstone .work-card__name-img { width: 96%; margin-top: -34px; }   /* taller than the Sunderfolk wordmark: sized and lifted 20px so the text below still fits the card */
+  /* the key art has no title strip to hide and no award column to clear, so it fills
+     the window at its natural scale instead of the Sunderfolk zoom and offset */
+  /* shifted 110px right inside its window (object-position, not transform) so the art
+     still fills the slanted cut instead of leaving a gap on the left */
+  .work-card--frame.work-card--shadowstone .work-card__img { height: 100%; transform: none; object-position: calc(50% + 110px) 50%; }
+  .work-card--shadowstone .work-card__pop { right: -47px; top: -25px; }   /* 25px right of and 30px above the shared spot (right -22px, top 5px) */
   .work-card + .work-card { margin-top: 40px; }   /* stacked project rows keep the card spacing, not the About rows' 14px */
   .work-card--frame .work-card__panel { background: transparent; }
   .work-card--frame .work-card__imgbox {
@@ -935,22 +943,20 @@
     </h2>
 
     <!-- project rows -->
-    <a class="about-seg seg-nochip work-card work-card--frame" href="shadowstone.html">
+    <a class="about-seg seg-nochip work-card work-card--frame work-card--shadowstone" href="shadowstone.html">
       <div class="work-card__panel">
-        <img class="work-card__name-img" src="WebsiteAssets/Dreamhaven_Sunderfolk_2025/Sunderfolk_Images/PrimaryArt_Logo/Sunderfolk_Logo_Black.png" alt="Sunderfolk" loading="lazy" />
-        <p class="work-card__platform"><strong>Platform:</strong> Console, PC, and Mobile Game</p>
-        <p class="work-card__review"><strong>Steam Review:</strong> Very Positive</p>
-        <p class="work-card__role">Designed heroes, enemies, levels, encounters, cinematics, and narrative for Sunderfolk, a couch co-op tactical RPG where players control their heroes with their phones.</p>
+        <img class="work-card__name-img" src="WebsiteAssets/Dreamhaven_Shadowstone_2026/Shadowstone_Images/PrimaryArt_Logo/Shadowstone_Logo_Render.png" alt="Shadowstone" loading="lazy" />
+        <p class="work-card__platform"><strong>Platform:</strong> PC (Early Access)</p>
+        <p class="work-card__review"><strong>Steam Review:</strong> TBA</p>
+        <p class="work-card__role">Led combat, enemy, boss, and level design for Shadowstone, a co-op tactical roguelite, owning game balance and pacing and designing characters tailored to its Arcane Horror theme.</p>
       </div>
-      <img class="work-card__award work-card__award--top" src="WebsiteAssets/Dreamhaven_Sunderfolk_2025/Sunderfolk_NYXAward_BestInnovation.png" alt="NYX Award 2025 Grand Winner: Best Innovation" loading="lazy" />
-      <img class="work-card__award work-card__award--bottom" src="WebsiteAssets/Dreamhaven_Sunderfolk_2025/Sunderfolk_NYXAward_PCGameFamily.png" alt="NYX Award 2025 Grand Winner: PC Game, Family" loading="lazy" />
       <div class="work-card__pop" aria-hidden="true">
         <div class="pop-balloon">
           <svg viewBox="0 0 187 150" aria-hidden="true"><path d="M46 97 A87 50 0 1 1 59.5 101 C58 107 51 112 41.5 115 C45 108 45 102 46 97 Z" fill="#ffffff" stroke="#324158" stroke-width="3.5" stroke-linejoin="round"/></svg>
-          <span class="pop-balloon__text">Click to<br />Learn More</span>
+          <span class="pop-balloon__text">Coming<br />Soon!</span>
         </div>
       </div>
-      <div class="work-card__imgbox"><img src="WebsiteAssets/Dreamhaven_Sunderfolk_2025/Sunderfolk_Images/PrimaryArt_Logo/Sunderfolk_PrimaryArt_withTitle_16x9.png" alt="Sunderfolk cover art" class="work-card__img" loading="lazy" /></div>
+      <div class="work-card__imgbox"><img src="WebsiteAssets/Dreamhaven_Shadowstone_2026/Shadowstone_Images/PrimaryArt_Logo/Shadowstone_KeyArt_001.png" alt="Shadowstone key art" class="work-card__img" loading="lazy" /></div>
     </a>
 
     <a class="about-seg seg-nochip work-card work-card--frame" href="sunderfolk.html">

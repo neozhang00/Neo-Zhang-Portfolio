@@ -118,15 +118,15 @@
   .grid-paper {
     background-color: #EDE9E1;
     background-image:
-      linear-gradient(rgba(50, 65, 88, 0.10) 1px, transparent 1px),
-      linear-gradient(90deg, rgba(50, 65, 88, 0.10) 1px, transparent 1px);
+      linear-gradient(rgba(50, 65, 88, 0.20) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(50, 65, 88, 0.20) 1px, transparent 1px);
     background-size: 28px 28px;
   }
 
   /* responsibilities list */
   .resp-list li { margin-bottom: 10px; line-height: 1.3; }
 
-  /* trailer: same framing the slideshow stage used */
+  /* trailer / teaser video frame */
   .trailer__frame { position: relative; }
   .trailer__video {
     display: block; width: 100%; height: auto;
@@ -266,22 +266,6 @@
   .itch-btn:active { background: #A85830; border-color: #A85830; transform: translateY(0); }
   .itch-btn svg { flex: 0 0 auto; }
 
-  /* back-to-top tile: parks in the bottom-right corner once the page is scrolled */
-  .to-top {
-    position: fixed; right: 24px; bottom: 24px; z-index: 60;
-    width: 52px; height: 52px;
-    display: inline-flex; align-items: center; justify-content: center;
-    border: 0; padding: 0;
-    border-radius: 6px;
-    background: #C4693B; color: #EDE9E1;
-    box-shadow: 3px 3px 0 0 #1f2b3c;
-    cursor: pointer;
-    opacity: 0; visibility: hidden; transform: translateY(10px);
-    transition: opacity 220ms ease, transform 220ms cubic-bezier(.2, .8, .2, 1), background-color 180ms ease, box-shadow 180ms ease, visibility 0s linear 220ms;
-  }
-  .to-top.is-visible { opacity: 1; visibility: visible; transform: translateY(0); transition-delay: 0s; }
-  .to-top:hover, .to-top:focus-visible { background: #A85830; box-shadow: 5px 6px 0 0 #1f2b3c; transform: translateY(-3px); }
-  .to-top:active { transform: translateY(0); box-shadow: 3px 3px 0 0 #1f2b3c; }
 
   /* ===== Cinemascope hero with parallax (same treatment as the Sunderfolk page) ===== */
   .hero-cine {
@@ -296,11 +280,10 @@
     /* top flush with the hero (= header bottom); bottom overscan gives the
        downward parallax translation room */
     top: 0; left: 0; right: 0; bottom: -12%;
-    /* key art goes here once it lands in WebsiteAssets/Dreamhaven_Shadowstone_2026/:
-       background-image: url('WebsiteAssets/Dreamhaven_Shadowstone_2026/...'); */
+    background-image: url('WebsiteAssets/Dreamhaven_Shadowstone_2026/Shadowstone_Images/PrimaryArt_Logo/Shadowstone_KeyArt_001.png');
     background-repeat: no-repeat;
-    background-size: 100% auto;
-    background-position: 50% 0%;
+    background-size: cover;            /* the 3:1 strip is shorter than the banner at full width, so fill it instead */
+    background-position: 50% 50%;
     filter: brightness(0.70);
     will-change: transform;
     transform: translate3d(0, 0, 0);
@@ -405,6 +388,112 @@
     pointer-events: none;
     white-space: nowrap;
   }
+  /* bottom "jump to" menu — a container-style box docked flush to the window's bottom edge.
+     Hidden at the top of the page; emerges upward as the hero banner scrolls away (JS-driven). */
+  .jump-menu {
+    position: fixed; left: 0; right: 0; bottom: 0; z-index: 60;
+    transform: translateY(100%);                        /* hidden below the viewport; JS overrides on scroll */
+    display: flex; align-items: center; justify-content: center; gap: 13px;   /* +10% (was 12) */
+    padding: 14.5px 26.5px 17.5px;                      /* +10% (was 13 24 16) */
+    background: #EDE9E1;
+    border-top: 2.5px solid #0c0c0d;                    /* full-width bar, edge to edge; top divider line */
+    box-shadow: 0 -8px 26px rgba(12,12,13,0.22);
+    will-change: transform;
+  }
+  .jump-menu__label {
+    font-family: 'Tungsten','Arial Black','Arial Bold',Arial,sans-serif; font-weight: 700;
+    letter-spacing: 0.05em; font-size: 24px; line-height: 1; color: #324158;   /* +10% (was 22) */
+    padding-right: 4px; white-space: nowrap;
+  }
+  .jump-menu a {
+    display: inline-flex; align-items: center; justify-content: center;
+    height: 35px; padding: 0 17.5px;                    /* +10% (was 32 / 0 16) */
+    border: 2px solid #0c0c0d; border-radius: 9px;      /* +10% radius (was 8) */
+    background: #ffffff; color: #324158;
+    font-family: Arial, 'Helvetica Neue', Helvetica, sans-serif; font-weight: 700;
+    letter-spacing: 0.14em; font-size: 12px; white-space: nowrap;   /* +10% (was 11) */
+    box-shadow: 3px 3px 0 0 #0c0c0d;
+    transition: background-color 180ms ease, color 180ms ease, transform 180ms cubic-bezier(.2,.8,.2,1), box-shadow 180ms ease;
+  }
+  .jump-menu a:hover, .jump-menu a:focus-visible {
+    background: #324158; color: #EDE9E1; transform: translateY(-2px); box-shadow: 4px 5px 0 0 #0c0c0d;
+  }
+  .jump-menu a:active { transform: translateY(0); box-shadow: 2px 2px 0 0 #0c0c0d; }
+  /* the link for the section currently in view — filled in with the secondary color */
+  .jump-menu a.is-current { background: #324158; color: #EDE9E1; }
+  @media (max-width: 640px) {
+    .jump-menu { gap: 9px; padding: 11px 15.5px 13px; }   /* +10% (was 8 / 10 14 12) */
+    .jump-menu__label { display: none; }
+    .jump-menu a { padding: 0 11px; letter-spacing: 0.08em; }   /* +10% (was 0 10) */
+  }
+  /* ===== Let's Connect box (copied from index.html) ===== */
+  .about-seg {
+    position: relative;
+    overflow: hidden;                 /* clips the chip strip to the rounded corner */
+    display: flex; align-items: center;
+    text-align: left;
+    padding: 14px 18px 14px 38px;
+    background: #ffffff;
+    color: #324158;
+    border: 2.5px solid #324158;
+    border-radius: 10px;
+    box-shadow: 3px 3px 0 0 #1f2b3c;
+    font-family: Arial, 'Helvetica Neue', Helvetica, sans-serif;
+    font-size: 17.5px; line-height: 1.7;
+  }
+  .about-seg::before {                /* pastel chip drawn inside the border */
+    content: '';
+    position: absolute;
+    left: 0; top: 0; bottom: 0;
+    width: 20px;
+    background: var(--chip, #C4693B);
+  }
+  .seg-nochip::before { display: none; }   /* segment variant without the left color tab */
+  .about-btn {
+    flex: 1 1 0;
+    display: flex; align-items: center; justify-content: center; gap: 10px;
+    height: 48px;
+    border: 2.5px solid #324158;
+    border-radius: 8px;
+    color: #324158; background: #ffffff;
+    font-family: Arial, 'Helvetica Neue', Helvetica, sans-serif;
+    font-weight: 700; letter-spacing: 0.16em; font-size: 12px;
+    text-decoration: none;
+    transition: background-color 180ms ease, border-color 180ms ease, color 180ms ease;
+  }
+  .about-btn:hover, .about-btn:focus-visible { background: #C4693B; border-color: #C4693B; color: #EDE9E1; }
+  .about-btn:active { background: #A85830; border-color: #A85830; }
+  .about-btn svg { flex: 0 0 auto; }
+  button.about-btn { appearance: none; -webkit-appearance: none; margin: 0; padding: 0; cursor: pointer; line-height: 1; }
+  /* Coming Soon: the Let's Connect box from the home page, flanked by a hard hat
+     (left) and a hammer (right) that rock back and forth like a sign on a job site */
+  .contact-wrap { position: relative; max-width: 720px; margin: 44px auto 0; }
+  .contact-tool {
+    position: absolute; top: 50%; width: 84px; margin-top: -42px; z-index: 2;   /* in front of the card */
+    animation: tool-rock 1.6s cubic-bezier(.45, 0, .55, 1) infinite alternate;
+  }
+  .contact-tool svg { display: block; width: 100%; height: auto; }
+  .contact-tool--hat    { left: 28px; margin-top: -22px; transform-origin: 50% 85%; }   /* level with the hammer, 20px below center */
+  .contact-tool--hammer { right: 28px; margin-top: -22px; transform-origin: 70% 80%; animation-delay: -0.8s; }   /* 20px below center; half a beat off the hat */
+  .contact-tool--hammer svg { transform: scaleX(-1); }   /* mirrored: head on the left, handle toward the card */
+  @keyframes tool-rock {
+    from { transform: rotate(-16deg); }
+    to   { transform: rotate(16deg); }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .contact-tool { animation: none; }
+  }
+  .contact-card {
+    max-width: 720px;
+    margin: 0;
+    flex-direction: column;
+    text-align: center;
+    padding: 30px 34px 26px;
+  }
+  .contact-card__lede { margin: 0; }
+  .contact-card__actions { display: flex; width: 100%; max-width: 420px; margin-top: 33px; }
+  /* Steam button filled in the Secondary color (hover still goes terracotta) */
+  .about-btn--solid { background: #324158; color: #EDE9E1; }
 </style>
 </head>
 <body class="bg-paper text-ink">
@@ -457,25 +546,161 @@
 <section id="feature" class="hero-cine">
   <div class="hero-cine-bg" aria-hidden="true"></div>
   <div class="relative h-full w-full flex flex-col items-center justify-center text-center px-6">
-    <h1 class="relative flex items-center justify-center">
-      <!-- soft elliptical shadow blob behind the title -->
+    <h1 class="relative flex items-center justify-center" aria-label="Shadowstone">
+      <!-- soft elliptical shadow blob behind the logo -->
       <span aria-hidden="true" style="position: absolute; inset: -85% -8%; background: radial-gradient(ellipse at center, rgba(0,0,0,0.55) 0%, rgba(0,0,0,0.48) 30%, rgba(0,0,0,0.22) 58%, rgba(0,0,0,0) 78%); pointer-events: none;"></span>
-      <span class="hero-cine__title">Shadowstone</span>
+      <img src="WebsiteAssets/Dreamhaven_Shadowstone_2026/Shadowstone_Images/PrimaryArt_Logo/Shadowstone_Logo_Render_Vert.png" alt="Shadowstone logo"
+           class="relative object-contain drop-shadow-[0_4px_20px_rgba(0,0,0,0.6)]" style="height: clamp(132px, 16.5vw, 242px);" />
     </h1>
   </div>
 </section>
 
 <!-- ============================ Section_Summary ============================ -->
 <section id="summary" class="anchor grid-paper border-y-[5px] border-[#324158]">
-  <div class="container-x pt-[46px] pb-16 md:pb-20" style="zoom: 1.1; min-height: 600px;">
-    <div class="bordercard" style="--chip: #C4693B;">
-      <h2 class="text-[29px] md:text-[34px] leading-none" style="font-family:'Tungsten','Arial Black','Arial Bold',Arial,sans-serif; font-weight:700; letter-spacing:0.04em;">What is Shadowstone</h2>
-      <p class="mt-4 text-[16px] md:text-[17px] leading-[1.7]" style="font-family:Arial,'Helvetica Neue',Helvetica,sans-serif; color:#324158;">
-        This page is in progress. Project details are coming soon.
-      </p>
+  <div class="container-x pt-[46px] pb-16 md:pb-20" style="zoom: 1.1;">
+    <!-- What Is Shadowstone: blurb (top) + Steam Next Fest teaser (below) -->
+    <div class="relative flex flex-col gap-6">
+
+      <!-- Steam Next Fest teaser: muted loop that only plays while on screen; the
+           overlay (or the native volume control) turns the sound on -->
+      <div class="trailer" style="order: 2; width: 85%; align-self: center;">
+        <div class="trailer__frame">
+          <video class="trailer__video" id="shadowstone-teaser" src="WebsiteAssets/Dreamhaven_Shadowstone_2026/Shadowstone_Video/Shadowstone_SteamNextFest_Teaser.mp4"
+                 muted loop playsinline controls preload="metadata"></video>
+          <button type="button" class="trailer__unmute" id="shadowstone-unmute" aria-label="Turn on teaser sound">
+            <span>
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M11 5 6 9H2v6h4l5 4V5z"/><path d="m23 9-6 6"/><path d="m17 9 6 6"/></svg>
+              CLICK FOR SOUND
+            </span>
+          </button>
+        </div>
+      </div>
+      <script>
+        (function () {
+          var video = document.getElementById('shadowstone-teaser');
+          var btn = document.getElementById('shadowstone-unmute');
+          if (!video) return;
+          var play = function () { var p = video.play(); if (p && p.catch) p.catch(function () {}); };
+          // lazy playback: run only while the teaser is in view, pause as soon as it leaves
+          if ('IntersectionObserver' in window) {
+            new IntersectionObserver(function (entries) {
+              entries.forEach(function (e) { if (e.isIntersecting) play(); else video.pause(); });
+            }).observe(video);
+          } else {
+            play();
+          }
+          if (!btn) return;
+          btn.addEventListener('click', function () {
+            video.muted = false;
+            video.volume = 1;
+            play();
+            btn.hidden = true;
+          });
+          // unmuting from the native control also retires the overlay
+          video.addEventListener('volumechange', function () { if (!video.muted) btn.hidden = true; });
+        })();
+      </script>
+
+      <!-- What is Shadowstone blurb -->
+      <div class="bordercard" style="order: 1; --chip: #C4693B;">
+        <h2 class="text-[29px] md:text-[34px] leading-none" style="font-family:'Tungsten','Arial Black','Arial Bold',Arial,sans-serif; font-weight:700; letter-spacing:0.04em;">What is Shadowstone</h2>
+        <p class="mt-4 text-[16px] md:text-[17px] leading-[1.7]" style="font-family:Arial,'Helvetica Neue',Helvetica,sans-serif; color:#324158;">
+          Shadowstone is a <strong style="color:#C4693B; font-weight:900;">co-op tactical roguelite for 1–4 players</strong> that explores the darker side of the Sunderfolk universe. Master positioning, build hero synergies, and chain your skills to <strong style="color:#C4693B; font-weight:900;">survive the horrors of the Sunderlands</strong>.
+        </p>
+      </div>
+
+    </div>
+
+    <div class="flex items-stretch gap-6 mt-8">
+      <article class="bordercard" style="flex: 1 1 0; min-width: 0; margin: 0; --chip: #bfd9ec;">
+        <h2 class="text-[29px] md:text-[34px] leading-none" style="font-family:'Tungsten','Arial Black','Arial Bold',Arial,sans-serif; font-weight:700; letter-spacing:0.04em;">Summarized Contribution</h2>
+        <ul class="resp-list list-disc pl-6 mt-3 text-[16px]" style="font-family:Arial,'Helvetica Neue',Helvetica,sans-serif;">
+          <li>Proposed and built the combat system behind our enemy design, replacing self-contained kits with mechanics and characters designed to interact with each other and with biome mechanics, turning each encounter into unique tactical experiences.</li>
+          <li>Balanced 30+ enemies and 5 boss encounters across 4 archetypes so that no single enemy dominated, while deliberately leaving room for interactions that make players feel clever.</li>
+          <li>Designed encounter pacing and readability across combat, puzzle, and narrative sequences, restructuring guidance cues so players could parse objectives without UI or written tutorial prompts.</li>
+          <li>Shipped balance and content patches on a 3-week cadence, reading live telemetry and feedback to identify problems and tune them without flattening the strategies players had already built.</li>
+          <li>Held and communicated the design vision for every character across Engineering, Art, UX, and QA through documents, references, and flowcharts, cutting hand-off clarification requests by 80%.</li>
+          <li>Playtested weekly with the full team, translating playtest feedback into specific, actionable card or design changes.</li>
+        </ul>
+      </article>
+      <!-- Team / Role box — same treatment as the What is Sunderfolk card -->
+      <aside class="bordercard" style="flex: 0 0 300px; align-self: flex-start; margin: 0; --chip: #f7d599;">
+        <h2 class="text-[29px] md:text-[34px] leading-none" style="font-family:'Tungsten','Arial Black','Arial Bold',Arial,sans-serif; font-weight:700; letter-spacing:0.04em;">Team</h2>
+        <p class="mt-2 text-[16px] leading-[1.7]" style="font-family:Arial,'Helvetica Neue',Helvetica,sans-serif; color:#324158;">Dreamhaven, Secret Door</p>
+        <h2 class="mt-5 text-[29px] md:text-[34px] leading-none" style="font-family:'Tungsten','Arial Black','Arial Bold',Arial,sans-serif; font-weight:700; letter-spacing:0.04em;">Role</h2>
+        <p class="mt-2 text-[16px] leading-[1.7]" style="font-family:Arial,'Helvetica Neue',Helvetica,sans-serif; color:#324158;">Combat Design<br />System Design<br />Level Design<br />Enemy Design<br />Boss Design<br />Technical Design<br />Design Implementation<br />Balance and Tune</p>
+      </aside>
     </div>
   </div>
 </section>
+
+<!-- ============================ Section_ComingSoon (placeholder name) ============================ -->
+<section id="coming-soon" class="anchor text-cream" style="background: #324158;">
+  <!-- title strip -->
+  <div class="py-12 md:py-14" style="min-height: calc(100vh - 55px);">   <!-- at least a screen tall so the jump link can land it under the header -->
+    <div class="container-x text-center">
+      <h2 class="flex items-center gap-[18px] text-[45px] md:text-[63px] tracking-wide uppercase -mt-[20px]" style="font-family:'Tungsten','Arial Black','Arial Bold',Arial,sans-serif; font-weight:700;">
+        <span class="flex-1 h-[5px]" style="background:#EDE9E1;"></span>
+        <span>COMING SOON</span>
+        <span class="flex-1 h-[5px]" style="background:#EDE9E1;"></span>
+      </h2>
+
+      <div class="contact-wrap">
+      <span class="contact-tool contact-tool--hat" aria-hidden="true"><svg viewBox="0 0 512 512" fill="none" stroke="#262626" stroke-width="22" stroke-linejoin="round" stroke-linecap="round"><path d="M50 362 C56 252 112 160 190 120 L324 120 C402 160 456 252 462 362 Z" fill="#F2B54A"/><path d="M136 362 L181 120 C185 101 199 92 216 92 L296 92 C313 92 327 101 331 120 L376 362 Z" fill="#FCC955"/><path d="M220 156 H294 L273 210 H302 L242 308 L250 252 H216 Z" fill="#FFE680" stroke-width="18"/><rect x="16" y="360" width="480" height="62" rx="22" fill="#E0A445" stroke="none"/><path d="M94 422 H474 Q496 422 496 400 V382 Q496 360 474 360 H38 Q16 360 16 382 V400 Q16 422 38 422 H62"/></svg></span>
+      <span class="contact-tool contact-tool--hammer" aria-hidden="true"><svg viewBox="0 0 512 512" fill="none" stroke-linejoin="round" stroke-linecap="round"><path d="M52 440 L402 112" stroke="#262626" stroke-width="92"/><path d="M52 440 L402 112" stroke="#C8784A" stroke-width="56"/><rect x="160" y="90" width="332" height="192" rx="32" transform="rotate(45 326 186)" fill="#343C58" stroke="#262626" stroke-width="20"/></svg></span>
+  
+      <div class="about-seg seg-nochip contact-card">
+        <p class="contact-card__lede">This page is under construction. Behind-the-scenes work and design breakdowns are on the way. <strong style="color: #C4693B;">Check back soon!</strong></p>
+        <div class="contact-card__actions">
+          <a href="https://store.steampowered.com/app/4180840/Shadowstone/" target="_blank" rel="noopener" class="about-btn about-btn--solid">
+            <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 4h6v6M20 4l-9 9M18 14v5a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1h5"/></svg>
+            See Shadowstone on Steam</a>
+        </div>
+      </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- bottom "jump to" menu (from the Sunderfolk page) — emerges once the hero banner
+     scrolls out of view; add a link here for each new section -->
+<nav class="jump-menu" id="jump-menu" aria-hidden="true" aria-label="Jump to section">
+  <span class="jump-menu__label">JUMP&nbsp;TO</span>
+  <a href="#summary">OVERVIEW</a>
+  <a href="#coming-soon">COMING SOON</a>
+  <a href="#top" class="jump-menu__top" onclick="event.preventDefault(); window.scrollTo({ top: 0, behavior: 'smooth' });" aria-label="Back to top"><svg width="22" height="10" viewBox="0 0 22 10" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M1 9 L11 1 L21 9"/></svg></a>
+</nav>
+<script>
+  // Bottom jump menu: hidden while the hero is in view; emerges upward, tied to scroll,
+  // over ~220px once the hero's bottom edge passes the top of the viewport.
+  (() => {
+    const menu = document.getElementById('jump-menu');
+    const hero = document.getElementById('feature');
+    if (!menu || !hero) return;
+    const spy = Array.from(menu.querySelectorAll('a[href^="#"]:not(.jump-menu__top)'))
+      .map(a => ({ a, el: document.getElementById(a.getAttribute('href').slice(1)) }))
+      .filter(x => x.el);
+    let ticking = false;
+    function update() {
+      ticking = false;
+      const bottom = hero.getBoundingClientRect().bottom;   // hero bottom (= Summary top) relative to viewport
+      // Fully emerged by the time the Summary section reaches the top (bottom ≈ 90.5px — the jump-landing
+      // point), emerging over the preceding 176px. Below Summary it stays out; it only retracts when you
+      // scroll back UP into the hero (bottom climbs past ~110 → 286).
+      const t = Math.min(Math.max((286 - bottom) / 176, 0), 1);
+      menu.style.transform = `translateY(${(1 - t) * 100}%)`;
+      menu.setAttribute('aria-hidden', t <= 0.001 ? 'true' : 'false');
+      // scroll-spy: fill in the link for the section currently sitting under the header
+      let current = null;
+      spy.forEach(({ a, el }) => { if (el.getBoundingClientRect().top <= 140) current = a; });
+      spy.forEach(({ a }) => a.classList.toggle('is-current', a === current));
+    }
+    function onScroll() { if (!ticking) { ticking = true; requestAnimationFrame(update); } }
+    window.addEventListener('scroll', onScroll, { passive: true });
+    window.addEventListener('resize', onScroll);
+    update();
+  })();
+</script>
 
 </main>
 
@@ -705,27 +930,6 @@
   })();
 </script>
 
-<!-- ============================ BACK TO TOP ============================ -->
-<button type="button" class="to-top" id="to-top" aria-label="Back to top">
-  <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 15l6-6 6 6"/></svg>
-</button>
-<script>
-  // shows once the first screenful is behind you; returns to the very top
-  (() => {
-    const btn = document.getElementById('to-top');
-    if (!btn) return;
-    let ticking = false;
-    function update() {
-      ticking = false;
-      btn.classList.toggle('is-visible', window.scrollY > 400);
-    }
-    window.addEventListener('scroll', () => {
-      if (!ticking) { requestAnimationFrame(update); ticking = true; }
-    }, { passive: true });
-    btn.addEventListener('click', () => window.scrollTo({ top: 0, behavior: 'smooth' }));
-    update();
-  })();
-</script>
 
 <script>
   /* The curtain only ever moves left -> right: it sweeps IN over the outgoing page,
