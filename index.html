@@ -550,11 +550,12 @@
   .work-card--shadowstone { background: #D4C4F2; }   /* light tint of the brand's Champion purple #B797FF */
   .work-card--shadowstone .work-card__name-img { width: 96%; margin-top: -34px; }   /* taller than the Sunderfolk wordmark: sized and lifted 20px so the text below still fits the card */
   /* the key art has no title strip to hide and no award column to clear, so it fills
-     the window at its natural scale instead of the Sunderfolk zoom and offset */
-  /* shifted 110px right inside its window (object-position, not transform) so the art
-     still fills the slanted cut instead of leaving a gap on the left */
-  .work-card--frame.work-card--shadowstone .work-card__img { height: 100%; transform: none; object-position: calc(50% + 110px) 50%; }
-  .work-card--shadowstone .work-card__pop { right: -47px; top: -25px; }   /* 25px right of and 30px above the shared spot (right -22px, top 5px) */
+     the window with a light 15% zoom (anchored on the window's centre) instead of the
+     Sunderfolk zoom and offset */
+  /* shifted 50px right inside its window (object-position, not transform) so the portal
+     eye sits right of centre, clear of the slanted cut */
+  .work-card--frame.work-card--shadowstone .work-card__img { height: 100%; transform-origin: 50% 50%; transform: scale(1.15); object-position: calc(50% + 50px) 50%; }
+  .work-card--shadowstone .work-card__pop { right: 13px; top: -25px; }   /* 35px left of and 30px above the shared spot (right -22px, top 5px) */
   .work-card + .work-card { margin-top: 40px; }   /* stacked project rows keep the card spacing, not the About rows' 14px */
   .work-card--frame .work-card__panel { background: transparent; }
   .work-card--frame .work-card__imgbox {
@@ -956,7 +957,7 @@
           <span class="pop-balloon__text">Coming<br />Soon!</span>
         </div>
       </div>
-      <div class="work-card__imgbox"><img src="WebsiteAssets/Dreamhaven_Shadowstone_2026/Shadowstone_Images/PrimaryArt_Logo/Shadowstone_KeyArt_001.png" alt="Shadowstone key art" class="work-card__img" loading="lazy" /></div>
+      <div class="work-card__imgbox"><img src="WebsiteAssets/Dreamhaven_Shadowstone_2026/Shadowstone_Images/PrimaryArt_Logo/Shadowstone_KeyArt_002.png" alt="Shadowstone key art" class="work-card__img" loading="lazy" /></div>
     </a>
 
     <a class="about-seg seg-nochip work-card work-card--frame" href="sunderfolk.html">
