@@ -463,7 +463,8 @@
     border-radius: 10px;
     box-shadow: 3px 3px 0 0 #EDE9E1;
   }
-  .flow-img--50 { flex-basis: calc(50% - 12px); }   /* Combat Encounter Flow: 50/50 split */
+  .flow-img--65 { flex-basis: calc(65% - 15.6px); }   /* Combat Encounter Flow: 65/35 split */
+  .flow-img--70 { flex-basis: calc(70% - 16.8px); }   /* Concept and Iteration, Boss Encounter Flow: 70/30 split */
   /* enemy capture clips: two side by side, each with its caption card underneath; framed
      like the diagrams (Main-color rule and offset shadow) */
   .flow-videos { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; align-items: start; }
@@ -639,7 +640,7 @@
       <div class="flow-row mt-8 text-left">
         <img src="WebsiteAssets/Dreamhaven_Shadowstone_2026/Shadowstone_Images/DesignProcess/Shadowstone_CombatSystem_Flowchart.jpg"
              alt="Combat Encounter Flow flowchart: the room budget drives the spawn director, Minions, Mobs, and Bruisers act in a fixed order on a shared board state, then the player counterplays"
-             class="flow-img flow-img--50 expandable-image" loading="lazy" />
+             class="flow-img flow-img--65 expandable-image" loading="lazy" />
         <aside class="bordercard" style="flex: 1 1 0; min-width: 0; margin: 0; --chip: #9BD3AE;">
           <h2 class="text-[26px] leading-none" style="font-family:'Tungsten','Arial Black','Arial Bold',Arial,sans-serif; font-weight:700; letter-spacing:0.04em;">Combat Encounter Flow</h2>
           <div class="mt-2 text-[16px] leading-[1.7] space-y-3" style="font-family:Arial,'Helvetica Neue',Helvetica,sans-serif; color:#324158;">
@@ -670,12 +671,12 @@
       </div>
 
       <!-- Enemy captures: Sludge (left) and Sentinel (right), each with a caption card
-           underneath; tabs use their class colors from the diagram (Minion pink, Mob blue) -->
+           underneath; tabs use their class colors from the diagram (Minion salmon, Mob blue) -->
       <div class="flow-videos mt-8 text-left">
         <figure>
           <video class="flow-video" src="WebsiteAssets/Dreamhaven_Shadowstone_2026/Shadowstone_Video/Shadowstone_Sludge_Capture.mp4"
                  muted loop playsinline controls preload="metadata" aria-label="Gameplay capture of the Sludge"></video>
-          <figcaption class="bordercard mt-6" style="--chip: #f5c0db;">
+          <figcaption class="bordercard mt-6" style="--chip: #fbc8c2;">
             <h2 class="text-[26px] leading-none" style="font-family:'Tungsten','Arial Black','Arial Bold',Arial,sans-serif; font-weight:700; letter-spacing:0.04em;">Sludge</h2>
             <p class="mt-2 text-[16px] leading-[1.7]" style="font-family:Arial,'Helvetica Neue',Helvetica,sans-serif; color:#324158;">Its ranged attack pulls players off safe hexes and toward enemies that otherwise couldn't reach them.</p>
           </figcaption>
@@ -703,6 +704,26 @@
           vids.forEach(function (v) { io.observe(v); });
         })();
       </script>
+
+      <!-- Enemy Iteration: playtest board (left, 70%) + caption box (right, 30%) -->
+      <div class="flow-row mt-8 text-left">
+        <img src="WebsiteAssets/Dreamhaven_Shadowstone_2026/Shadowstone_Images/DesignProcess/Shadowstone_CombatSystem_EnemyIteration.jpg"
+             alt="Enemy iteration board: first-pass Spider, Sentinel, and Sludge cards beside their playtest-revised versions, each with the playtest notes behind the change"
+             class="flow-img flow-img--70 expandable-image" loading="lazy" />
+        <aside class="bordercard" style="flex: 1 1 0; min-width: 0; margin: 0; --chip: #f7d599;">
+          <h2 class="text-[26px] leading-none" style="font-family:'Tungsten','Arial Black','Arial Bold',Arial,sans-serif; font-weight:700; letter-spacing:0.04em;">Concept and Iteration</h2>
+          <div class="mt-2 text-[16px] leading-[1.7] space-y-3" style="font-family:Arial,'Helvetica Neue',Helvetica,sans-serif; color:#324158;">
+            <p>Weekly playtests drive iteration on enemy mechanics, with notes flagging the most important changes.</p>
+            <div>
+              <ul class="list-disc pl-6">
+                <li>Grey cards: past iterations</li>
+                <li>Blue cards: current iteration</li>
+              </ul>
+              <p>This keeps old ideas on hand for reuse and the latest design clear to everyone.</p>
+            </div>
+          </div>
+        </aside>
+      </div>
     </div>
   </div>
 </section>
@@ -724,6 +745,22 @@
         <p class="mt-4 text-[16px] md:text-[17px] leading-[1.7]" style="font-family:Arial,'Helvetica Neue',Helvetica,sans-serif; color:#324158;">
           Boss encounters should feel <strong style="color:#C4693B; font-weight:900;">impactful and challenging</strong>, pushing players to adapt as the fight escalates. Each boss's mechanics should <strong style="color:#C4693B; font-weight:900;">tell that character's story through play</strong> rather than exposition.
         </p>
+      </div>
+
+      <!-- Boss Encounter Flow: flowchart (left, 70%) + caption box (right, 30%); green tab to
+           pair it with the Combat Encounter Flow row -->
+      <div class="flow-row mt-8 text-left">
+        <img src="WebsiteAssets/Dreamhaven_Shadowstone_2026/Shadowstone_Images/DesignProcess/Shadowstone_CombatSystem_Boss_Flowchart.jpg"
+             alt="Boss Encounter Flow flowchart: three design pillars drive a boss turn in which utility AI picks the boss's action, it builds toward its Ultimate, and telegraphs its next intent before the player turn"
+             class="flow-img flow-img--70 expandable-image" loading="lazy" />
+        <aside class="bordercard" style="flex: 1 1 0; min-width: 0; margin: 0; --chip: #9BD3AE;">
+          <h2 class="text-[26px] leading-none" style="font-family:'Tungsten','Arial Black','Arial Bold',Arial,sans-serif; font-weight:700; letter-spacing:0.04em;">Boss Encounter Flow</h2>
+          <div class="mt-2 text-[16px] leading-[1.7] space-y-3" style="font-family:Arial,'Helvetica Neue',Helvetica,sans-serif; color:#324158;">
+            <p>A simplified view of a Shadowstone boss fight.</p>
+            <p>Each boss is built on three pillars: unique challenges drawn from its kit and theme, an Ultimate that punishes players who ignore it but can be delayed through teamwork, and intents that stay consistent so players learn them over multiple runs.</p>
+            <p>Every boss turn, utility AI scores the board to choose the boss's action, the Ultimate builds, and the boss telegraphs its next move, giving players a turn to read it and respond.</p>
+          </div>
+        </aside>
       </div>
     </div>
   </div>
