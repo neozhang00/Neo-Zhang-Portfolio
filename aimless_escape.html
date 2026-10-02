@@ -404,6 +404,8 @@
     pointer-events: none;
     white-space: nowrap;
   }
+  /* images: no drag-out or long-press save menu (right-click is blocked in the script at the end of the page) */
+  img { -webkit-user-drag: none; -webkit-touch-callout: none; user-select: none; }
 </style>
 </head>
 <body class="bg-paper text-ink">
@@ -905,6 +907,13 @@
       setTimeout(() => { location.href = url.href; }, COVER + LOAD_IN + HOLD);
     });
   })();
+</script>
+
+<script>
+  // Images: block the right-click menu (Open image in new tab / Save image as) and dragging
+  // them out of the page; delegated, so lightbox images added later are covered too
+  document.addEventListener('contextmenu', e => { if (e.target.closest('img')) e.preventDefault(); });
+  document.addEventListener('dragstart', e => { if (e.target.closest('img')) e.preventDefault(); });
 </script>
 
 </body>

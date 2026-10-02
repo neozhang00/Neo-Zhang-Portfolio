@@ -818,6 +818,8 @@
     .curtain { transition: none; }
     .curtain__orbit, .curtain__dot { animation: none; }
   }
+  /* images: no drag-out or long-press save menu (right-click is blocked in the script at the end of the page) */
+  img { -webkit-user-drag: none; -webkit-touch-callout: none; user-select: none; }
 </style>
 </head>
 <body class="bg-paper text-ink">
@@ -949,7 +951,7 @@
         <img class="work-card__name-img" src="WebsiteAssets/Dreamhaven_Shadowstone_2026/Shadowstone_Images/PrimaryArt_Logo/Shadowstone_Logo_Render.png" alt="Shadowstone" loading="lazy" />
         <p class="work-card__platform"><strong>Platform:</strong> PC (Early Access)</p>
         <p class="work-card__review"><strong>Steam Review:</strong> TBA</p>
-        <p class="work-card__role">Led combat, enemy, boss, and level design for Shadowstone, a co-op tactical roguelite, owning game balance and pacing and designing characters tailored to its Arcane Horror theme.</p>
+        <p class="work-card__role">Led combat and enemy design for Shadowstone, a co-op tactical roguelite, from core combat systems to individual enemies and bosses.</p>
       </div>
       <div class="work-card__pop" aria-hidden="true">
         <div class="pop-balloon">
@@ -1603,6 +1605,13 @@
       setTimeout(() => { location.href = url.href; }, COVER + LOAD_IN + HOLD);
     });
   })();
+</script>
+
+<script>
+  // Images: block the right-click menu (Open image in new tab / Save image as) and dragging
+  // them out of the page; delegated, so lightbox images added later are covered too
+  document.addEventListener('contextmenu', e => { if (e.target.closest('img')) e.preventDefault(); });
+  document.addEventListener('dragstart', e => { if (e.target.closest('img')) e.preventDefault(); });
 </script>
 
 </body>
