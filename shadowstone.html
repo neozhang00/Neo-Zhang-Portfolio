@@ -491,6 +491,9 @@
     transform: scale(0.97); transform-origin: 50% 45%;
   }
   .flow-video-wrap .flow-video { width: 90%; }
+  /* the clips use mt-3 (12px): the 0.97 scale drops the clip's top edge ~4px, so the
+     visible gap to the caption card above lands at the same 16px as the other
+     caption + media pairs */
   .flow-video-card {
     /* flush with the caption card's left edge: the x shift cancels the PNG's transparent
        left margin (13 of its 300px) */
@@ -695,18 +698,18 @@
         </p>
       </div>
 
-      <!-- Core combat design breakdown: caption box (left, 30%) + diagram (right, 70%) —
-           same layout as the Agnostic System's breakdown row -->
+      <!-- Core combat design breakdown: diagram (left, 70%) + caption box (right, 30%) —
+           the Agnostic System's breakdown row, mirrored -->
       <div class="flow-row mt-8 text-left">
+        <img src="WebsiteAssets/Dreamhaven_Shadowstone_2026/Shadowstone_Images/DesignProcess/Shadowstone_CombatSystem_DesignBreakdown.jpg"
+             alt="Core combat design breakdown: three product goals, and the pacing, foundation, and readability problems each traced to a solution and a design action"
+             class="flow-img flow-img--70 expandable-image" loading="lazy" />
         <aside class="bordercard" style="flex: 1 1 0; min-width: 0; margin: 0; --chip: #f5c0db;">
           <h2 class="text-[26px] leading-none" style="font-family:'Tungsten','Arial Black','Arial Bold',Arial,sans-serif; font-weight:700; letter-spacing:0.04em;">From Goals to Design</h2>
           <div class="mt-2 text-[16px] leading-[1.7] space-y-3" style="font-family:Arial,'Helvetica Neue',Helvetica,sans-serif; color:#324158;">
             <p>Shadowstone's core combat had to stay fast, scale with a growing roster, and remain readable at a glance. This breakdown shows how each product goal shaped the problems I tackled and the design decisions behind them.</p>
           </div>
         </aside>
-        <img src="WebsiteAssets/Dreamhaven_Shadowstone_2026/Shadowstone_Images/DesignProcess/Shadowstone_CombatSystem_DesignBreakdown.jpg"
-             alt="Core combat design breakdown: three product goals, and the pacing, foundation, and readability problems each traced to a solution and a design action"
-             class="flow-img flow-img--70 expandable-image" loading="lazy" />
       </div>
 
       <!-- Combat System Flowchart: flowchart (left) + caption box (right) — the caption uses
@@ -756,7 +759,7 @@
             <h2 class="text-[26px] leading-none" style="font-family:'Tungsten','Arial Black','Arial Bold',Arial,sans-serif; font-weight:700; letter-spacing:0.04em;">Example 1: Sludge</h2>
             <p class="mt-2 text-[16px] leading-[1.7]" style="font-family:Arial,'Helvetica Neue',Helvetica,sans-serif; color:#324158;">Its ranged attack pulls players off safe hexes and toward enemies that otherwise couldn't reach them.</p>
           </figcaption>
-          <div class="flow-video-wrap mt-6">
+          <div class="flow-video-wrap mt-3">
             <video class="flow-video" src="WebsiteAssets/Dreamhaven_Shadowstone_2026/Shadowstone_Video/Shadowstone_Sludge_Capture.mp4"
                    muted loop playsinline disablepictureinpicture preload="metadata" aria-label="Gameplay capture of the Sludge"></video>
             <img src="WebsiteAssets/Dreamhaven_Shadowstone_2026/Shadowstone_Images/Screenshots/Sludge_Card_Stretch.png"
@@ -769,7 +772,7 @@
             <h2 class="text-[26px] leading-none" style="font-family:'Tungsten','Arial Black','Arial Bold',Arial,sans-serif; font-weight:700; letter-spacing:0.04em;">Example 2: Sentinel</h2>
             <p class="mt-2 text-[16px] leading-[1.7]" style="font-family:Arial,'Helvetica Neue',Helvetica,sans-serif; color:#324158;">Its Throw action tosses players next to Spiders, letting a Spider use its first attack right away.</p>
           </figcaption>
-          <div class="flow-video-wrap mt-6">
+          <div class="flow-video-wrap mt-3">
             <video class="flow-video" src="WebsiteAssets/Dreamhaven_Shadowstone_2026/Shadowstone_Video/Shadowstone_Sentinel_Capture.mp4"
                    muted loop playsinline disablepictureinpicture preload="metadata" aria-label="Gameplay capture of the Sentinel"></video>
             <img src="WebsiteAssets/Dreamhaven_Shadowstone_2026/Shadowstone_Images/Screenshots/Sentinel_Card_Protocol33.png"
@@ -791,7 +794,7 @@
       </div>
       <img src="WebsiteAssets/Dreamhaven_Shadowstone_2026/Shadowstone_Images/DesignProcess/Shadowstone_CombatSystem_UtilityAI.jpg"
            alt="Rampager utility AI: its Throw and Move actions each score hexes in sequence, favoring lava tiles, nearby enemies, and players it hasn't thrown, with a fallback when no tile scores"
-           class="flow-img flow-img--full mt-8 expandable-image" loading="lazy" />
+           class="flow-img flow-img--full mt-4 expandable-image" loading="lazy" />   <!-- tucked closer (16px) to its caption card above -->
 
       <!-- Selling the Hit: full-width caption card -->
       <div class="bordercard mt-8 text-left" style="--chip: #f5c0db;">
@@ -802,8 +805,9 @@
         </div>
       </div>
 
-      <!-- Boss design: playtest board -> animation pass (left stack), polished capture (right) -->
-      <div class="flow-trio mt-8 text-left">
+      <!-- Boss design: playtest board -> animation pass (left stack), polished capture (right);
+           tucked closer (16px) to its Selling the Hit caption card above -->
+      <div class="flow-trio mt-4 text-left">
         <div class="flow-trio__stack">
           <img src="WebsiteAssets/Dreamhaven_Shadowstone_2026/Shadowstone_Images/DesignProcess/Shadowstone_CombatSystem_BossDesign.jpg"
                alt="Boss design board: the Act 1 boss's passive and three action cards, its utility AI scoring, and the playtest feedback behind each change"
