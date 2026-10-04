@@ -5,15 +5,15 @@
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <script>
   /* Mobile browsers scale a fixed-width viewport down to the screen natively and reliably.
-     CSS `zoom` + `min-width:1000px` is flaky on them (window.innerWidth is mis-reported, so
-     the whole 1000px design renders unscaled/overlapping). So on touch devices we hand the
-     1000px design to the browser's own viewport scaling instead. Runs before layout to avoid
+     CSS `zoom` + `min-width:1298px` is flaky on them (window.innerWidth is mis-reported, so
+     the whole 1298px design renders unscaled/overlapping). So on touch devices we hand the
+     1298px design to the browser's own viewport scaling instead. Runs before layout to avoid
      a flash. Desktop keeps device-width (+ CSS zoom for narrow windows) and, in any case,
      desktop browsers ignore the viewport tag — so the windowed site is unaffected. */
   (function () {
     try {
       if (window.matchMedia && window.matchMedia('(pointer: coarse)').matches) {
-        document.querySelector('meta[name="viewport"]').setAttribute('content', 'width=1000');
+        document.querySelector('meta[name="viewport"]').setAttribute('content', 'width=1298');
       }
     } catch (e) {}
   })();
@@ -28,7 +28,7 @@
     theme: {
       extend: {
         /* Force the md: breakpoint always-on so the desktop layout never reflows to its
-           mobile fallback — below 1000px the whole page just scales down uniformly (zoom)
+           mobile fallback — below 1298px the whole page just scales down uniformly (zoom)
            instead of re-stacking, so nothing jumps. */
         screens: { md: '1px' },
         colors: {
@@ -58,11 +58,12 @@
   }
 
   html { scroll-behavior: smooth; }
-  body { font-family: 'Inter', system-ui, sans-serif; color: #0c0c0d; background: #ece6df; -webkit-font-smoothing: antialiased; min-width: 1000px; scroll-padding-top: 55px; }
+  body { font-family: 'Inter', system-ui, sans-serif; color: #0c0c0d; background: #ece6df; -webkit-font-smoothing: antialiased; min-width: 1298px; scroll-padding-top: 55px; }
 
-  /* Below the design width (1000), JS sets --page-scale and adds .page-scaled.
-     We use CSS zoom which scales both layout and visuals (so scrollbars/heights
-     reflow to the scaled size, no horizontal scrollbar). */
+  /* Below the design width (1298: the Overview's 1180px container at its 1.1 zoom, so nothing
+     re-wraps), JS sets --page-scale and adds .page-scaled. We use CSS zoom which scales
+     both layout and visuals (so scrollbars/heights reflow to the scaled size, no
+     horizontal scrollbar). */
   body.page-scaled { zoom: var(--page-scale, 1); }
 
   /* header nav — text links sectioned off by divider lines */
@@ -93,9 +94,10 @@
     padding: 15px 36px 15px 15px;
   }
 
-  /* Overview cards wear the home page's segment motif: white card, navy rule,
-     offset shadow, and a pastel chip tab drawn inside the rounded corner. */
-  #summary .bordercard {
+  /* Overview (and blurred-section) cards wear the home page's segment motif: white card,
+     navy rule, offset shadow, and a pastel chip tab drawn inside the rounded corner. */
+  #summary .bordercard,
+  .section-blur-bg .bordercard {
     position: relative;
     overflow: hidden;                 /* clips the chip strip to the rounded corner */
     background: #ffffff;
@@ -105,7 +107,8 @@
     box-shadow: 3px 3px 0 0 #1f2b3c;
     padding: 18px 24px 18px 42px;
   }
-  #summary .bordercard::before {
+  #summary .bordercard::before,
+  .section-blur-bg .bordercard::before {
     content: '';
     position: absolute;
     left: 0; top: 0; bottom: 0;
@@ -426,74 +429,113 @@
     .jump-menu__label { display: none; }
     .jump-menu a { padding: 0 11px; letter-spacing: 0.08em; }   /* +10% (was 0 10) */
   }
-  /* ===== Let's Connect box (copied from index.html) ===== */
-  .about-seg {
-    position: relative;
-    overflow: hidden;                 /* clips the chip strip to the rounded corner */
-    display: flex; align-items: center;
-    text-align: left;
-    padding: 14px 18px 14px 38px;
-    background: #ffffff;
-    color: #324158;
-    border: 2.5px solid #324158;
-    border-radius: 10px;
-    box-shadow: 3px 3px 0 0 #1f2b3c;
-    font-family: Arial, 'Helvetica Neue', Helvetica, sans-serif;
-    font-size: 17.5px; line-height: 1.7;
-  }
-  .about-seg::before {                /* pastel chip drawn inside the border */
+  /* ===== Section_CombatSystem — fixed/blurred screenshot background (same treatment as
+     the Sunderfolk page's .section-rubble-bg): the image is pinned to the viewport, so the
+     section scrolls over it like a parallax layer ===== */
+  /* overflow: clip trims the blur halo at the section edge without adding scrollable width */
+  .section-blur-bg { position: relative; overflow: clip; background: #15121a; }
+  .section-blur-bg::before {
     content: '';
     position: absolute;
-    left: 0; top: 0; bottom: 0;
-    width: 20px;
-    background: var(--chip, #C4693B);
+    /* extend well past section bounds so blur halo lands outside the visible area */
+    inset: -40px;
+    background-color: #0c0c0d; /* dark backstop in case blur fades to transparent */
+    background-image: var(--blur-img);
+    background-size: cover;
+    background-position: center;
+    background-attachment: fixed;
+    filter: brightness(0.65) blur(8px);
+    z-index: 0;
+    pointer-events: none;
   }
-  .seg-nochip::before { display: none; }   /* segment variant without the left color tab */
-  .about-btn {
-    flex: 1 1 0;
-    display: flex; align-items: center; justify-content: center; gap: 10px;
-    height: 48px;
-    border: 2.5px solid #324158;
-    border-radius: 8px;
-    color: #324158; background: #ffffff;
-    font-family: Arial, 'Helvetica Neue', Helvetica, sans-serif;
-    font-weight: 700; letter-spacing: 0.16em; font-size: 12px;
-    text-decoration: none;
-    transition: background-color 180ms ease, border-color 180ms ease, color 180ms ease;
+  .section-blur-bg > * { position: relative; z-index: 1; }
+  /* over the dark blurred background, these sections' cards and diagrams swap the navy
+     rule and offset shadow for the Main color */
+  .section-blur-bg .bordercard { border-color: #EDE9E1; box-shadow: 3px 3px 0 0 #EDE9E1; }
+  /* diagram + caption rows: image and caption split 60/40 of the content width (after the
+     24px gap); narrower windows scale the whole page, so the split and line breaks hold */
+  .flow-row { display: flex; align-items: flex-start; gap: 24px; }
+  /* diagram image: framed like the cards around it (rule, offset shadow) */
+  .flow-img {
+    flex: 0 0 calc(60% - 14.4px); min-width: 0;   /* 60% of the row after the 24px gap; the caption takes the other 40% */
+    display: block; height: auto;
+    border: 2.5px solid #EDE9E1;
+    border-radius: 10px;
+    box-shadow: 3px 3px 0 0 #EDE9E1;
   }
-  .about-btn:hover, .about-btn:focus-visible { background: #C4693B; border-color: #C4693B; color: #EDE9E1; }
-  .about-btn:active { background: #A85830; border-color: #A85830; }
-  .about-btn svg { flex: 0 0 auto; }
-  button.about-btn { appearance: none; -webkit-appearance: none; margin: 0; padding: 0; cursor: pointer; line-height: 1; }
-  /* Coming Soon: the Let's Connect box from the home page, flanked by a hard hat
-     (left) and a hammer (right) that rock back and forth like a sign on a job site */
-  .contact-wrap { position: relative; max-width: 720px; margin: 44px auto 0; }
-  .contact-tool {
-    position: absolute; top: 50%; width: 84px; margin-top: -42px; z-index: 2;   /* in front of the card */
-    animation: tool-rock 1.6s cubic-bezier(.45, 0, .55, 1) infinite alternate;
+  .flow-img--70 { flex-basis: calc(70% - 16.8px); }   /* From Goals to Design: 30/70 split */
+  /* stand-in for a capture that isn't ready yet: same 60% slot and frame as .flow-img, 16:9 */
+  .flow-placeholder {
+    aspect-ratio: 16 / 9;
+    display: flex; align-items: center; justify-content: center;
+    background: #0c0c0d; color: #EDE9E1;
+    font-family: 'Tungsten', 'Arial Black', 'Arial Bold', Arial, sans-serif;
+    font-weight: 700; font-size: 34px; letter-spacing: 0.04em; text-transform: uppercase;
   }
-  .contact-tool svg { display: block; width: 100%; height: auto; }
-  .contact-tool--hat    { left: 28px; margin-top: -22px; transform-origin: 50% 85%; }   /* level with the hammer, 20px below center */
-  .contact-tool--hammer { right: 28px; margin-top: -22px; transform-origin: 70% 80%; animation-delay: -0.8s; }   /* 20px below center; half a beat off the hat */
-  .contact-tool--hammer svg { transform: scaleX(-1); }   /* mirrored: head on the left, handle toward the card */
-  @keyframes tool-rock {
-    from { transform: rotate(-16deg); }
-    to   { transform: rotate(16deg); }
+  /* enemy capture clips: two side by side, each with its caption card above; framed
+     like the diagrams (Main-color rule and offset shadow). The captions stretch to match the
+     taller one so both clips start on the same line */
+  .flow-videos { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; align-items: stretch; }
+  .flow-videos figure { display: flex; flex-direction: column; margin: 0; }
+  .flow-videos figcaption { flex: 1 1 auto; }
+  /* action card overlaid on each clip's left edge (Sludge, Sentinel; both PNGs are 300x450
+     with the same transparent margins); clicks pass through to the video. The wrap
+     keeps the full 16:9 clip footprint (so the card and the row hold their size) while the
+     clip inside shrinks to 90%, top-aligned and flush with the caption's right edge */
+  .flow-video-wrap {
+    position: relative; aspect-ratio: 16 / 9;
+    display: flex; align-items: flex-start; justify-content: flex-end;
+    /* clip + card shrink together by 3% around the pair's center (the clip spans the full
+       width and the top 90% of the wrap, so that center is 50% / 45%) */
+    transform: scale(0.97); transform-origin: 50% 45%;
   }
-  @media (prefers-reduced-motion: reduce) {
-    .contact-tool { animation: none; }
+  .flow-video-wrap .flow-video { width: 90%; }
+  .flow-video-card {
+    /* flush with the caption card's left edge: the x shift cancels the PNG's transparent
+       left margin (13 of its 300px) */
+    position: absolute; z-index: 1; left: 0; top: 45%; transform: translate(-4.33%, -50%);   /* centered on the clip's y axis (the 90% clip's middle sits at 45% of the wrap) */
+    height: 84.5%; width: auto; pointer-events: none;
+    filter: drop-shadow(0 6px 10px rgba(12, 12, 13, 0.55));
   }
-  .contact-card {
-    max-width: 720px;
-    margin: 0;
-    flex-direction: column;
-    text-align: center;
-    padding: 30px 34px 26px;
+  .flow-video {
+    display: block; width: 100%; height: auto;
+    aspect-ratio: 16 / 9;
+    background: #0c0c0d;
+    border: 2.5px solid #EDE9E1;
+    border-radius: 10px;
+    box-shadow: 3px 3px 0 0 #EDE9E1;
   }
-  .contact-card__lede { margin: 0; }
-  .contact-card__actions { display: flex; width: 100%; max-width: 420px; margin-top: 33px; }
-  /* Steam button filled in the Secondary color (hover still goes terracotta) */
-  .about-btn--solid { background: #324158; color: #EDE9E1; }
+  /* boss design row: playtest board above the animation pass (left stack), polished capture
+     on the right, all on the usual 24px gaps. The stack's width is solved so its height
+     (board + 24px + anim clip) matches the 16:9 polish clip: 1/ar of board + anim = 1.6414 */
+  .flow-trio { display: flex; gap: 24px; align-items: center; }
+  .flow-trio__stack {
+    flex: 0 0 calc(((100% - 24px) * 0.5625 - 24px) / 1.6414); min-width: 0;
+    display: flex; flex-direction: column; gap: 24px;
+  }
+  /* brush arrows overlaid across the items (anchored to the anim clip), layered above them;
+     clicks pass through to the items underneath. Each is a Main-color fill with a
+     2px Secondary border: the svgs draw 1 unit = 1px, and the 4-unit stroke is painted under
+     the fill, so only its outer 2px shows */
+  .flow-trio__anim { position: relative; }
+  .flow-trio__arrow {
+    position: absolute; z-index: 2; display: block; overflow: visible; pointer-events: none;
+    fill: #EDE9E1; stroke: #324158; stroke-width: 4; stroke-linejoin: round; paint-order: stroke fill;
+  }
+  .flow-trio__arrow--down { left: 10%; top: -46px; width: 80px; height: 100px; transform: rotate(10deg); }   /* from the board's lower left, hooking down into the clip */
+  .flow-trio__arrow--across { left: calc(100% - 50px); top: -50px; width: 110px; height: 70px; }   /* the clip's top-right corner sits at svg (50, 50) */
+  .flow-trio__polish { flex: 1 1 0; }
+  .flow-trio__media {
+    min-width: 0;
+    display: block; width: 100%; height: auto;
+    aspect-ratio: var(--ar);
+    background: #0c0c0d;
+    border: 2.5px solid #EDE9E1;
+    border-radius: 10px;
+    box-shadow: 3px 3px 0 0 #EDE9E1;
+  }
+  /* images: no drag-out or long-press save menu (right-click is blocked in the script at the end of the page) */
+  img { -webkit-user-drag: none; -webkit-touch-callout: none; user-select: none; }
 </style>
 </head>
 <body class="bg-paper text-ink">
@@ -615,12 +657,11 @@
       <article class="bordercard" style="flex: 1 1 0; min-width: 0; margin: 0; --chip: #bfd9ec;">
         <h2 class="text-[29px] md:text-[34px] leading-none" style="font-family:'Tungsten','Arial Black','Arial Bold',Arial,sans-serif; font-weight:700; letter-spacing:0.04em;">Summarized Contribution</h2>
         <ul class="resp-list list-disc pl-6 mt-3 text-[16px]" style="font-family:Arial,'Helvetica Neue',Helvetica,sans-serif;">
-          <li>Proposed and built the combat system behind our enemy design, replacing self-contained kits with mechanics and characters designed to interact with each other and with biome mechanics, turning each encounter into unique tactical experiences.</li>
-          <li>Balanced 30+ enemies and 5 boss encounters across 4 archetypes so that no single enemy dominated, while deliberately leaving room for interactions that make players feel clever.</li>
-          <li>Designed encounter pacing and readability across combat, puzzle, and narrative sequences, restructuring guidance cues so players could parse objectives without UI or written tutorial prompts.</li>
-          <li>Shipped balance and content patches on a 3-week cadence, reading live telemetry and feedback to identify problems and tune them without flattening the strategies players had already built.</li>
-          <li>Held and communicated the design vision for every character across Engineering, Art, UX, and QA through documents, references, and flowcharts, cutting hand-off clarification requests by 80%.</li>
-          <li>Playtested weekly with the full team, translating playtest feedback into specific, actionable card or design changes.</li>
+          <li>Defined, pitched, and implemented Shadowstone's core combat system and enemy/biome design ruleset, creating systemic interactions that generate fresh tactical situations every round and run.</li>
+          <li>Owned design of 30+ enemies and 5 boss encounters from concept to release in 4-week cycles, defining each mechanic's core visual cues and collaborating with Art, Animation, and VFX to bring them to life.</li>
+          <li>Designed and implemented opt-in escalation systems where player choice, not skill, drives late-game difficulty, preserving the core loop while keeping new content relevant across runs.</li>
+          <li>Shipped content and balance patches on a 4-week cadence driven by live telemetry and player feedback.</li>
+          <li>Established cross-discipline enemy production pipelines with Engineering, Art, UX, and QA.</li>
         </ul>
       </article>
       <!-- Team / Role box — same treatment as the What is Sunderfolk card -->
@@ -628,35 +669,204 @@
         <h2 class="text-[29px] md:text-[34px] leading-none" style="font-family:'Tungsten','Arial Black','Arial Bold',Arial,sans-serif; font-weight:700; letter-spacing:0.04em;">Team</h2>
         <p class="mt-2 text-[16px] leading-[1.7]" style="font-family:Arial,'Helvetica Neue',Helvetica,sans-serif; color:#324158;">Dreamhaven, Secret Door</p>
         <h2 class="mt-5 text-[29px] md:text-[34px] leading-none" style="font-family:'Tungsten','Arial Black','Arial Bold',Arial,sans-serif; font-weight:700; letter-spacing:0.04em;">Role</h2>
-        <p class="mt-2 text-[16px] leading-[1.7]" style="font-family:Arial,'Helvetica Neue',Helvetica,sans-serif; color:#324158;">Combat Design<br />System Design<br />Level Design<br />Enemy Design<br />Boss Design<br />Technical Design<br />Design Implementation<br />Balance and Tune</p>
+        <p class="mt-2 text-[16px] leading-[1.7]" style="font-family:Arial,'Helvetica Neue',Helvetica,sans-serif; color:#324158;">Combat Design<br />System Design<br />Enemy/Boss Design<br />In-Engine Implementation<br />Game Balancing</p>
       </aside>
     </div>
   </div>
 </section>
 
-<!-- ============================ Section_ComingSoon (placeholder name) ============================ -->
-<section id="coming-soon" class="anchor text-cream" style="background: #324158;">
+<!-- ============================ Section_CombatSystem ============================ -->
+<section id="combat-system" class="anchor relative text-cream section-blur-bg" style="clip-path: inset(0); --blur-img: url('WebsiteAssets/Dreamhaven_Shadowstone_2026/Shadowstone_Images/Screenshots/Shadowstone_Screenshot_001.jpg');">
   <!-- title strip -->
   <div class="py-12 md:py-14" style="min-height: calc(100vh - 55px);">   <!-- at least a screen tall so the jump link can land it under the header -->
     <div class="container-x text-center">
       <h2 class="flex items-center gap-[18px] text-[45px] md:text-[63px] tracking-wide uppercase -mt-[20px]" style="font-family:'Tungsten','Arial Black','Arial Bold',Arial,sans-serif; font-weight:700;">
         <span class="flex-1 h-[5px]" style="background:#EDE9E1;"></span>
-        <span>COMING SOON</span>
+        <span>COMBAT DESIGN</span>
         <span class="flex-1 h-[5px]" style="background:#EDE9E1;"></span>
       </h2>
 
-      <div class="contact-wrap">
-      <span class="contact-tool contact-tool--hat" aria-hidden="true"><svg viewBox="0 0 512 512" fill="none" stroke="#262626" stroke-width="22" stroke-linejoin="round" stroke-linecap="round"><path d="M50 362 C56 252 112 160 190 120 L324 120 C402 160 456 252 462 362 Z" fill="#F2B54A"/><path d="M136 362 L181 120 C185 101 199 92 216 92 L296 92 C313 92 327 101 331 120 L376 362 Z" fill="#FCC955"/><path d="M220 156 H294 L273 210 H302 L242 308 L250 252 H216 Z" fill="#FFE680" stroke-width="18"/><rect x="16" y="360" width="480" height="62" rx="22" fill="#E0A445" stroke="none"/><path d="M94 422 H474 Q496 422 496 400 V382 Q496 360 474 360 H38 Q16 360 16 382 V400 Q16 422 38 422 H62"/></svg></span>
-      <span class="contact-tool contact-tool--hammer" aria-hidden="true"><svg viewBox="0 0 512 512" fill="none" stroke-linejoin="round" stroke-linecap="round"><path d="M52 440 L402 112" stroke="#262626" stroke-width="92"/><path d="M52 440 L402 112" stroke="#C8784A" stroke-width="56"/><rect x="160" y="90" width="332" height="192" rx="32" transform="rotate(45 326 186)" fill="#343C58" stroke="#262626" stroke-width="20"/></svg></span>
-  
-      <div class="about-seg seg-nochip contact-card">
-        <p class="contact-card__lede">This page is under construction. Behind-the-scenes work and design breakdowns are on the way. <strong style="color: #C4693B;">Check back soon!</strong></p>
-        <div class="contact-card__actions">
-          <a href="https://store.steampowered.com/app/4180840/Shadowstone/" target="_blank" rel="noopener" class="about-btn about-btn--solid">
-            <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 4h6v6M20 4l-9 9M18 14v5a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1h5"/></svg>
-            See Shadowstone on Steam</a>
+      <!-- Design Thesis: the overview card that opens the combat breakdown -->
+      <div class="bordercard mt-8 text-left" style="--chip: #C4693B;">
+        <h2 class="text-[29px] md:text-[34px] leading-none" style="font-family:'Tungsten','Arial Black','Arial Bold',Arial,sans-serif; font-weight:700; letter-spacing:0.04em;">Design Thesis</h2>
+        <p class="mt-4 text-[16px] md:text-[17px] leading-[1.7]" style="font-family:Arial,'Helvetica Neue',Helvetica,sans-serif; color:#324158;">
+          Enemies are <strong style="color:#C4693B; font-weight:900;">an ecosystem</strong>, not a lineup of isolated threats. Every kit is built to <strong style="color:#C4693B; font-weight:900;">feed into the others</strong> and the biome mechanics, so any combination the game spawns becomes a <strong style="color:#C4693B; font-weight:900;">fresh, readable tactical puzzle</strong> every round and a new player story every run.
+        </p>
+      </div>
+
+      <!-- Combat System Flowchart: flowchart (left) + caption box (right) — the caption uses
+           the Overview's Team / Role box treatment -->
+      <div class="flow-row mt-8 text-left">
+        <img src="WebsiteAssets/Dreamhaven_Shadowstone_2026/Shadowstone_Images/DesignProcess/Shadowstone_CombatSystem_Flowchart.jpg"
+             alt="Combat System flowchart: the room budget drives the spawn director, Minions, Mobs, and Bruisers act in a fixed order on a shared board state, then the player counterplays"
+             class="flow-img expandable-image" loading="lazy" />
+        <aside class="bordercard" style="flex: 1 1 0; min-width: 0; margin: 0; --chip: #9BD3AE;">
+          <h2 class="text-[26px] leading-none" style="font-family:'Tungsten','Arial Black','Arial Bold',Arial,sans-serif; font-weight:700; letter-spacing:0.04em;">Combat System Overview</h2>
+          <div class="mt-2 text-[16px] leading-[1.7] space-y-3" style="font-family:Arial,'Helvetica Neue',Helvetica,sans-serif; color:#324158;">
+            <p>Every enemy belongs to one of three classes, each with its own design ruleset that gives it a clear role and goal.</p>
+            <ul class="list-disc pl-6">
+              <li>Minions are fragile but great at setting the board for the enemies that follow.</li>
+              <li>Mobs carry each biome's defining mechanics and synergize most with it.</li>
+              <li>Bruisers hit hardest and cash in on the setup, but move predictably.</li>
+            </ul>
+            <p>While enemies' strength lies in their synergy, every threat comes with built-in counterplay, giving players a way out of any sticky situation.</p>
+          </div>
+        </aside>
+      </div>
+
+      <!-- Biome synergy: caption box (left) + diagram (right) — mirrors the row above -->
+      <div class="flow-row mt-8 text-left">
+        <aside class="bordercard" style="flex: 1 1 0; min-width: 0; margin: 0; --chip: #f5c0db;">
+          <h2 class="text-[26px] leading-none" style="font-family:'Tungsten','Arial Black','Arial Bold',Arial,sans-serif; font-weight:700; letter-spacing:0.04em;">Ecosystem in Action</h2>
+          <div class="mt-2 text-[16px] leading-[1.7] space-y-3" style="font-family:Arial,'Helvetica Neue',Helvetica,sans-serif; color:#324158;">
+            <p>The Abandoned Laboratory's theme is Displacement. Every enemy kit plays off the biome's web-creation mechanic and off each other:</p>
+            <ul class="list-disc pl-6">
+              <li>Sludges pull players toward other enemies.</li>
+              <li>Sentinels throw players next to enemies or across webs.</li>
+              <li>Spiders leap over webs to reach players others can't.</li>
+            </ul>
+            <p>Players can turn the webs against enemies, using them as barriers that block attacks or keep enemies from completing parts of their kits.</p>
+          </div>
+        </aside>
+        <img src="WebsiteAssets/Dreamhaven_Shadowstone_2026/Shadowstone_Images/DesignProcess/Shadowstone_CombatSystem_Diagram.jpg"
+             alt="Displacement biome diagram: the Dust Bunny mechanic spreads Webs, and the Sludge (Minion), Sentinel (Mob), and Spider (Bruiser) kits pull, throw, and leap to set each other up"
+             class="flow-img expandable-image" loading="lazy" />
+      </div>
+
+      <!-- Enemy captures: Sludge (left) and Sentinel (right), each with a caption card
+           above; tabs use their class colors from the diagram (Minion salmon, Mob blue) -->
+      <div class="flow-videos mt-8 text-left">
+        <figure>
+          <figcaption class="bordercard" style="--chip: #fbc8c2;">
+            <h2 class="text-[26px] leading-none" style="font-family:'Tungsten','Arial Black','Arial Bold',Arial,sans-serif; font-weight:700; letter-spacing:0.04em;">Example 1: Sludge</h2>
+            <p class="mt-2 text-[16px] leading-[1.7]" style="font-family:Arial,'Helvetica Neue',Helvetica,sans-serif; color:#324158;">Its ranged attack pulls players off safe hexes and toward enemies that otherwise couldn't reach them.</p>
+          </figcaption>
+          <div class="flow-video-wrap mt-6">
+            <video class="flow-video" src="WebsiteAssets/Dreamhaven_Shadowstone_2026/Shadowstone_Video/Shadowstone_Sludge_Capture.mp4"
+                   muted loop playsinline disablepictureinpicture preload="metadata" aria-label="Gameplay capture of the Sludge"></video>
+            <img src="WebsiteAssets/Dreamhaven_Shadowstone_2026/Shadowstone_Images/Screenshots/Sludge_Card_Stretch.png"
+                 alt="Sludge's Stretch action card: Move 1, Attack 3 at Range 4, Pull 1"
+                 class="flow-video-card" loading="lazy" />
+          </div>
+        </figure>
+        <figure>
+          <figcaption class="bordercard" style="--chip: #bfd9ec;">
+            <h2 class="text-[26px] leading-none" style="font-family:'Tungsten','Arial Black','Arial Bold',Arial,sans-serif; font-weight:700; letter-spacing:0.04em;">Example 2: Sentinel</h2>
+            <p class="mt-2 text-[16px] leading-[1.7]" style="font-family:Arial,'Helvetica Neue',Helvetica,sans-serif; color:#324158;">Its Throw action tosses players next to Spiders, letting a Spider use its first attack right away.</p>
+          </figcaption>
+          <div class="flow-video-wrap mt-6">
+            <video class="flow-video" src="WebsiteAssets/Dreamhaven_Shadowstone_2026/Shadowstone_Video/Shadowstone_Sentinel_Capture.mp4"
+                   muted loop playsinline disablepictureinpicture preload="metadata" aria-label="Gameplay capture of the Sentinel"></video>
+            <img src="WebsiteAssets/Dreamhaven_Shadowstone_2026/Shadowstone_Images/Screenshots/Sentinel_Card_Protocol33.png"
+                 alt="Sentinel's Protocol 33 action card: Move 3, Attack 2, Throw 2"
+                 class="flow-video-card" loading="lazy" />
+          </div>
+        </figure>
+      </div>
+
+      <!-- Selling the Hit: full-width caption card -->
+      <div class="bordercard mt-8 text-left" style="--chip: #f5c0db;">
+        <h2 class="text-[26px] leading-none" style="font-family:'Tungsten','Arial Black','Arial Bold',Arial,sans-serif; font-weight:700; letter-spacing:0.04em;">Selling the Hit</h2>
+        <div class="mt-2 text-[16px] leading-[1.7] space-y-3" style="font-family:Arial,'Helvetica Neue',Helvetica,sans-serif; color:#324158;">
+          <p>Enemy design defines what each mechanic must communicate, such as a tongue or hook to telegraph a pull, while Engineering, Animation, and VFX decide how to bring it to life.</p>
+          <p>Together, we refine animation timing, camera shake, and VFX until every action reads clearly and lands with weight.</p>
         </div>
       </div>
+
+      <!-- Boss design: playtest board -> animation pass (left stack), polished capture (right) -->
+      <div class="flow-trio mt-8 text-left">
+        <div class="flow-trio__stack">
+          <img src="WebsiteAssets/Dreamhaven_Shadowstone_2026/Shadowstone_Images/DesignProcess/Shadowstone_CombatSystem_BossDesign.jpg"
+               alt="Boss design board: the Act 1 boss's passive and three action cards, its utility AI scoring, and the playtest feedback behind each change"
+               class="flow-trio__media expandable-image" style="--ar: 4594 / 2228;" loading="lazy" />
+          <div class="flow-trio__anim">
+            <video class="flow-video flow-trio__media" src="WebsiteAssets/Dreamhaven_Shadowstone_2026/Shadowstone_Video/Shadowstone_BossDesign_Anim_Capture.mp4"
+                   style="--ar: 1590 / 944;" muted loop playsinline disablepictureinpicture preload="metadata" aria-label="Animation pass capture of the Act 1 boss"></video>
+            <svg class="flow-trio__arrow flow-trio__arrow--down" viewBox="0 0 80 100" aria-hidden="true"><path d="M12.94 11.88 L15.04 11.25 L17.04 10.67 L18.96 10.23 L20.83 9.91 L22.62 9.73 L24.36 9.68 L26.03 9.75 L27.65 9.95 L29.21 10.26 L30.71 10.68 L32.17 11.21 L33.58 11.86 L34.95 12.61 L36.28 13.47 L37.57 14.45 L38.83 15.54 L40.05 16.74 L41.24 18.06 L42.38 19.49 L43.49 21.05 L44.56 22.72 L45.58 24.51 L46.56 26.42 L47.49 28.45 L48.36 30.59 L49.19 32.85 L49.95 35.22 L50.66 37.71 L51.31 40.31 L51.89 43.01 L52.4 45.83 L52.85 48.75 L53.22 51.78 L53.53 54.91 L53.75 58.14 L53.91 61.47 L53.98 64.9 L53.97 68.43 L53.88 72.05 L53.7 75.76 L42.48 63.22 L59.37 92.49 L74.69 68.86 L66.3 76.24 L66.33 72.24 L66.27 68.34 L66.13 64.52 L65.89 60.8 L65.57 57.18 L65.16 53.65 L64.66 50.22 L64.08 46.9 L63.42 43.67 L62.68 40.55 L61.85 37.53 L60.95 34.62 L59.97 31.82 L58.92 29.13 L57.78 26.56 L56.58 24.1 L55.29 21.75 L53.94 19.53 L52.51 17.43 L51.01 15.45 L49.44 13.6 L47.79 11.89 L46.08 10.31 L44.31 8.88 L42.47 7.59 L40.57 6.45 L38.61 5.47 L36.61 4.65 L34.56 4 L32.48 3.51 L30.36 3.19 L28.22 3.05 L26.07 3.07 L23.91 3.27 L21.74 3.64 L19.58 4.17 L17.42 4.88 L15.27 5.75 L13.13 6.81 L11.06 8.12 Z"/></svg>
+            <svg class="flow-trio__arrow flow-trio__arrow--across" viewBox="0 0 110 70" aria-hidden="true"><path d="M9.55 63.42 L11.4 61.93 L13.22 60.43 L15.07 58.99 L16.96 57.6 L18.88 56.27 L20.84 55 L22.84 53.79 L24.87 52.65 L26.93 51.57 L29.01 50.57 L31.12 49.62 L33.26 48.75 L35.41 47.94 L37.57 47.2 L39.74 46.53 L41.93 45.93 L44.11 45.4 L46.3 44.95 L48.49 44.56 L50.66 44.24 L52.83 44 L54.98 43.83 L57.12 43.73 L59.23 43.71 L61.31 43.75 L63.37 43.87 L65.39 44.07 L67.38 44.33 L69.32 44.67 L71.22 45.07 L73.07 45.55 L74.86 46.1 L76.61 46.72 L78.29 47.4 L79.91 48.16 L81.47 48.98 L82.97 49.86 L84.39 50.81 L85.75 51.82 L87.04 52.9 L70.27 54.38 L103.82 58.38 L94.08 31.96 L94.96 43.1 L93.03 41.72 L91.03 40.45 L88.97 39.29 L86.86 38.25 L84.7 37.32 L82.49 36.49 L80.25 35.77 L77.97 35.15 L75.65 34.63 L73.31 34.21 L70.95 33.88 L68.56 33.65 L66.16 33.51 L63.74 33.47 L61.31 33.51 L58.87 33.64 L56.42 33.85 L53.98 34.15 L51.53 34.54 L49.09 35.01 L46.65 35.56 L44.22 36.19 L41.81 36.89 L39.42 37.68 L37.04 38.55 L34.69 39.49 L32.36 40.51 L30.07 41.61 L27.8 42.78 L25.58 44.03 L23.4 45.35 L21.26 46.74 L19.17 48.21 L17.14 49.75 L15.16 51.36 L13.25 53.04 L11.41 54.79 L9.64 56.62 L7.96 58.53 L6.45 60.58 Z"/></svg>
+          </div>
+        </div>
+        <video class="flow-video flow-trio__media flow-trio__polish" src="WebsiteAssets/Dreamhaven_Shadowstone_2026/Shadowstone_Video/Shadowstone_BossDesign_PolishAnim_Capture.mp4"
+               style="--ar: 16 / 9;" muted loop playsinline disablepictureinpicture preload="metadata" aria-label="Polished in-game capture of the Act 1 boss"></video>
+      </div>
+      <script>
+        // capture clips: silent, control-less loops that only play while on screen
+        (function () {
+          var vids = document.querySelectorAll('.flow-video');
+          vids.forEach(function (v) { v.muted = true; v.volume = 0; });
+          if (!('IntersectionObserver' in window)) { vids.forEach(function (v) { v.play().catch(function () {}); }); return; }
+          var io = new IntersectionObserver(function (entries) {
+            entries.forEach(function (e) {
+              if (e.isIntersecting) { var p = e.target.play(); if (p && p.catch) p.catch(function () {}); }
+              else e.target.pause();
+            });
+          });
+          vids.forEach(function (v) { io.observe(v); });
+        })();
+      </script>
+    </div>
+  </div>
+</section>
+
+<!-- ============================ Section_BossNarrative ============================ -->
+<section id="boss-narrative" class="anchor relative text-cream section-blur-bg" style="clip-path: inset(0); --blur-img: url('WebsiteAssets/Dreamhaven_Shadowstone_2026/Shadowstone_Images/Screenshots/Shadowstone_Screenshot_002.jpg');">
+  <!-- Main-color divider line at the top edge, separating it from Combat Design (as on the Sunderfolk page) -->
+  <div style="height: 5px; background: #EDE9E1;"></div>
+  <!-- title strip -->
+  <div class="pt-12 md:pt-14 pb-[124px]" style="min-height: calc(100vh - 55px);">   <!-- at least a screen tall so the jump link can land it under the header; as the last section, the bottom pad is the usual 56px plus the ~68px jump menu so its content clears the menu -->
+    <div class="container-x text-center">
+      <h2 class="flex items-center gap-[18px] text-[45px] md:text-[63px] tracking-wide uppercase -mt-[20px]" style="font-family:'Tungsten','Arial Black','Arial Bold',Arial,sans-serif; font-weight:700;">
+        <span class="flex-1 h-[5px]" style="background:#EDE9E1;"></span>
+        <span>SYSTEMS DESIGN</span>
+        <span class="flex-1 h-[5px]" style="background:#EDE9E1;"></span>
+      </h2>
+
+      <!-- Design Thesis: the overview card that opens the systems breakdown -->
+      <div class="bordercard mt-8 text-left" style="--chip: #C4693B;">
+        <h2 class="text-[29px] md:text-[34px] leading-none" style="font-family:'Tungsten','Arial Black','Arial Bold',Arial,sans-serif; font-weight:700; letter-spacing:0.04em;">Design Thesis</h2>
+        <p class="mt-4 text-[16px] md:text-[17px] leading-[1.7]" style="font-family:Arial,'Helvetica Neue',Helvetica,sans-serif; color:#324158;">
+          Beyond the core systems, smaller systems are designed to <strong style="color:#C4693B; font-weight:900;">evolve a run without disrupting it</strong>. They add <strong style="color:#C4693B; font-weight:900;">mid-run challenge</strong> without changing familiar content, keep new content worth engaging with, and place <strong style="color:#C4693B; font-weight:900;">players in control of their run</strong>.
+        </p>
+      </div>
+
+      <!-- Agnostic System: capture placeholder (left) + caption box (right) -->
+      <div class="flow-row mt-8 text-left">
+        <div class="flow-img flow-placeholder" role="img" aria-label="Agnostic System capture coming soon">Capture coming soon</div>
+        <aside class="bordercard" style="flex: 1 1 0; min-width: 0; margin: 0; --chip: #9BD3AE;">
+          <h2 class="text-[26px] leading-none" style="font-family:'Tungsten','Arial Black','Arial Bold',Arial,sans-serif; font-weight:700; letter-spacing:0.04em;">Example: Agnostic System</h2>
+          <div class="mt-2 text-[16px] leading-[1.7] space-y-3" style="font-family:Arial,'Helvetica Neue',Helvetica,sans-serif; color:#324158;">
+            <p>The Agnostic System adds mid- to late-game content to Shadowstone. It shakes up runs with Unstable Rooms and the Sentry, a persistent enemy that scales with each act and follows players between rooms.</p>
+            <p>The system is optional and keeps the default game loop intact, while rewarding players who take the risk. It also sets up future content and story, starting with Act 4.</p>
+          </div>
+        </aside>
+      </div>
+
+      <!-- Agnostic System design breakdown: caption box (left) + diagram (right) — mirrors the row above -->
+      <div class="flow-row mt-8 text-left">
+        <aside class="bordercard" style="flex: 1 1 0; min-width: 0; margin: 0; --chip: #f5c0db;">
+          <h2 class="text-[26px] leading-none" style="font-family:'Tungsten','Arial Black','Arial Bold',Arial,sans-serif; font-weight:700; letter-spacing:0.04em;">From Goals to Design</h2>
+          <div class="mt-2 text-[16px] leading-[1.7] space-y-3" style="font-family:Arial,'Helvetica Neue',Helvetica,sans-serif; color:#324158;">
+            <p>The Agnostic System adds optional, high-reward content without changing the core game. This breakdown shows how each product goal shaped the problems I tackled and the design decisions behind them.</p>
+          </div>
+        </aside>
+        <img src="WebsiteAssets/Dreamhaven_Shadowstone_2026/Shadowstone_Images/DesignProcess/Shadowstone_AgnosticSystem_DesignBreakdown.jpg"
+             alt="Agnostic System design breakdown: three product goals, and the difficulty, identity, and motivation problems each traced to a solution and a design action"
+             class="flow-img flow-img--70 expandable-image" loading="lazy" />
+      </div>
+
+      <!-- Agnostic System Gameplay Flow: caption box (left, 30%) + flowchart (right, 70%) -->
+      <div class="flow-row mt-8 text-left">
+        <aside class="bordercard" style="flex: 1 1 0; min-width: 0; margin: 0; --chip: #9BD3AE;">
+          <h2 class="text-[26px] leading-none" style="font-family:'Tungsten','Arial Black','Arial Bold',Arial,sans-serif; font-weight:700; letter-spacing:0.04em;">Agnostic System Gameplay Flow</h2>
+          <div class="mt-2 text-[16px] leading-[1.7] space-y-3" style="font-family:Arial,'Helvetica Neue',Helvetica,sans-serif; color:#324158;">
+            <p>How the Agnostic System plays out in a run.</p>
+            <p>Unstable Rooms introduce the Sentry, a single persistent enemy that scales with each act and follows players between rooms.</p>
+            <p>Yellow notes show the design problem behind each step, from keeping difficulty optional to rewarding players who take the risk.</p>
+          </div>
+        </aside>
+        <img src="WebsiteAssets/Dreamhaven_Shadowstone_2026/Shadowstone_Images/DesignProcess/Shadowstone_AgnosticSystem_Flowchart.jpg"
+             alt="Agnostic System gameplay flow: Unstable Rooms on the map spawn or upgrade the Sentry, which carries over between rooms until defeated for permanent rewards, with design-problem notes beside each step"
+             class="flow-img flow-img--70 expandable-image" loading="lazy" />
       </div>
     </div>
   </div>
@@ -667,7 +877,8 @@
 <nav class="jump-menu" id="jump-menu" aria-hidden="true" aria-label="Jump to section">
   <span class="jump-menu__label">JUMP&nbsp;TO</span>
   <a href="#summary">OVERVIEW</a>
-  <a href="#coming-soon">COMING SOON</a>
+  <a href="#combat-system">COMBAT DESIGN</a>
+  <a href="#boss-narrative">SYSTEMS DESIGN</a>
   <a href="#top" class="jump-menu__top" onclick="event.preventDefault(); window.scrollTo({ top: 0, behavior: 'smooth' });" aria-label="Back to top"><svg width="22" height="10" viewBox="0 0 22 10" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M1 9 L11 1 L21 9"/></svg></a>
 </nav>
 <script>
@@ -730,11 +941,11 @@
 </script>
 
 <script>
-  // Below the design width (1000) the whole page scales down uniformly (CSS zoom):
+  // Below the design width (1298) the whole page scales down uniformly (CSS zoom):
   // everything shrinks together with the window, smoothly, with no reflow jumps.
   // (The md: breakpoint is forced always-on so the desktop layout never re-flows.)
   (() => {
-    const DESIGN_WIDTH = 1000;
+    const DESIGN_WIDTH = 1298;
     const root = document.documentElement;
     let raf = 0;
     function applyScale() {
@@ -779,10 +990,16 @@
     let activePointerId = null, didDrag = false;
     let dragStartX = 0, dragStartY = 0, dragStartTx = 0, dragStartTy = 0;
 
+    // Below the design width the body is CSS-zoomed (page-scaled): rects and pointer
+    // coordinates come back in screen px, but top/translate values are applied in the
+    // body's zoomed px, so divide by the zoom to land where the screen coordinates say.
+    function pageZoom() { return parseFloat(getComputedStyle(document.body).zoom) || 1; }
     function updateHintPosition() {
       if (!lightbox.classList.contains('is-open')) return;
       const r = activeEl.getBoundingClientRect();
-      hint.style.top = `${r.bottom + 5}px`;
+      // 5px under the image, but never past the bottom of the window
+      const top = Math.min(r.bottom + 5, window.innerHeight - hint.getBoundingClientRect().height - 5);
+      hint.style.top = `${top / pageZoom()}px`;
     }
     function applyTransform() {
       activeEl.style.transform = `translate(${tx}px, ${ty}px) scale(${scale})`;
@@ -879,8 +1096,8 @@
       if (overImg) {
         const cx = rect.left + rect.width / 2;
         const cy = rect.top  + rect.height / 2;
-        tx += (actualFactor - 1) * (cx - e.clientX);
-        ty += (actualFactor - 1) * (cy - e.clientY);
+        tx += (actualFactor - 1) * (cx - e.clientX) / pageZoom();
+        ty += (actualFactor - 1) * (cy - e.clientY) / pageZoom();
       }
       scale = newScale;
       applyTransform();
@@ -905,8 +1122,8 @@
       const dy = e.clientY - dragStartY;
       if (!didDrag && Math.hypot(dx, dy) > DRAG_THRESHOLD) didDrag = true;
       if (didDrag) {
-        tx = dragStartTx + dx;
-        ty = dragStartTy + dy;
+        tx = dragStartTx + dx / pageZoom();
+        ty = dragStartTy + dy / pageZoom();
         applyTransform();
       }
     });
@@ -1001,6 +1218,13 @@
       setTimeout(() => { location.href = url.href; }, COVER + LOAD_IN + HOLD);
     });
   })();
+</script>
+
+<script>
+  // Images: block the right-click menu (Open image in new tab / Save image as) and dragging
+  // them out of the page; delegated, so lightbox images added later are covered too
+  document.addEventListener('contextmenu', e => { if (e.target.closest('img')) e.preventDefault(); });
+  document.addEventListener('dragstart', e => { if (e.target.closest('img')) e.preventDefault(); });
 </script>
 
 </body>
