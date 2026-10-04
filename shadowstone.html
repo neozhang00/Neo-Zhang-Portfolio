@@ -463,7 +463,15 @@
     border-radius: 10px;
     box-shadow: 3px 3px 0 0 #EDE9E1;
   }
-  .flow-img--70 { flex-basis: calc(70% - 16.8px); }   /* Boss Encounter Flow: 70/30 split */
+  .flow-img--70 { flex-basis: calc(70% - 16.8px); }   /* From Goals to Design: 30/70 split */
+  /* stand-in for a capture that isn't ready yet: same 60% slot and frame as .flow-img, 16:9 */
+  .flow-placeholder {
+    aspect-ratio: 16 / 9;
+    display: flex; align-items: center; justify-content: center;
+    background: #0c0c0d; color: #EDE9E1;
+    font-family: 'Tungsten', 'Arial Black', 'Arial Bold', Arial, sans-serif;
+    font-weight: 700; font-size: 34px; letter-spacing: 0.04em; text-transform: uppercase;
+  }
   /* enemy capture clips: two side by side, each with its caption card above; framed
      like the diagrams (Main-color rule and offset shadow). The captions stretch to match the
      taller one so both clips start on the same line */
@@ -809,32 +817,56 @@
     <div class="container-x text-center">
       <h2 class="flex items-center gap-[18px] text-[45px] md:text-[63px] tracking-wide uppercase -mt-[20px]" style="font-family:'Tungsten','Arial Black','Arial Bold',Arial,sans-serif; font-weight:700;">
         <span class="flex-1 h-[5px]" style="background:#EDE9E1;"></span>
-        <span>SYSTEM DESIGN</span>
+        <span>SYSTEMS DESIGN</span>
         <span class="flex-1 h-[5px]" style="background:#EDE9E1;"></span>
       </h2>
 
-      <!-- Design Thesis: the overview card that opens the boss breakdown -->
+      <!-- Design Thesis: the overview card that opens the systems breakdown -->
       <div class="bordercard mt-8 text-left" style="--chip: #C4693B;">
         <h2 class="text-[29px] md:text-[34px] leading-none" style="font-family:'Tungsten','Arial Black','Arial Bold',Arial,sans-serif; font-weight:700; letter-spacing:0.04em;">Design Thesis</h2>
         <p class="mt-4 text-[16px] md:text-[17px] leading-[1.7]" style="font-family:Arial,'Helvetica Neue',Helvetica,sans-serif; color:#324158;">
-          Boss encounters should feel <strong style="color:#C4693B; font-weight:900;">impactful and challenging</strong>, pushing players to adapt as the fight escalates. Each boss's mechanics should <strong style="color:#C4693B; font-weight:900;">tell that character's story through play</strong> rather than exposition.
+          Beyond the core systems, smaller systems are designed to <strong style="color:#C4693B; font-weight:900;">evolve a run without disrupting it</strong>. They add <strong style="color:#C4693B; font-weight:900;">mid-run challenge</strong> without changing familiar content, keep new content worth engaging with, and place <strong style="color:#C4693B; font-weight:900;">players in control of their run</strong>.
         </p>
       </div>
 
-      <!-- Boss Encounter Flow: flowchart (left, 70%) + caption box (right, 30%); green tab to
-           pair it with the Combat Encounter Flow row -->
+      <!-- Agnostic System: capture placeholder (left) + caption box (right) -->
       <div class="flow-row mt-8 text-left">
-        <img src="WebsiteAssets/Dreamhaven_Shadowstone_2026/Shadowstone_Images/DesignProcess/Shadowstone_CombatSystem_Boss_Flowchart.jpg"
-             alt="Boss Encounter Flow flowchart: three design pillars drive a boss turn in which utility AI picks the boss's action, it builds toward its Ultimate, and telegraphs its next intent before the player turn"
-             class="flow-img flow-img--70 expandable-image" loading="lazy" />
+        <div class="flow-img flow-placeholder" role="img" aria-label="Agnostic System capture coming soon">Capture coming soon</div>
         <aside class="bordercard" style="flex: 1 1 0; min-width: 0; margin: 0; --chip: #9BD3AE;">
-          <h2 class="text-[26px] leading-none" style="font-family:'Tungsten','Arial Black','Arial Bold',Arial,sans-serif; font-weight:700; letter-spacing:0.04em;">Boss Encounter Flow</h2>
+          <h2 class="text-[26px] leading-none" style="font-family:'Tungsten','Arial Black','Arial Bold',Arial,sans-serif; font-weight:700; letter-spacing:0.04em;">Example: Agnostic System</h2>
           <div class="mt-2 text-[16px] leading-[1.7] space-y-3" style="font-family:Arial,'Helvetica Neue',Helvetica,sans-serif; color:#324158;">
-            <p>A simplified view of a Shadowstone boss fight.</p>
-            <p>Each boss is built on three pillars: unique challenges drawn from its kit and theme, an Ultimate that punishes players who ignore it but can be delayed through teamwork, and intents that stay consistent so players learn them over multiple runs.</p>
-            <p>Every boss turn, utility AI scores the board to choose the boss's action, the Ultimate builds, and the boss telegraphs its next move, giving players a turn to read it and respond.</p>
+            <p>The Agnostic System adds mid- to late-game content to Shadowstone. It shakes up runs with Unstable Rooms and the Sentry, a persistent enemy that scales with each act and follows players between rooms.</p>
+            <p>The system is optional and keeps the default game loop intact, while rewarding players who take the risk. It also sets up future content and story, starting with Act 4.</p>
           </div>
         </aside>
+      </div>
+
+      <!-- Agnostic System design breakdown: caption box (left) + diagram (right) — mirrors the row above -->
+      <div class="flow-row mt-8 text-left">
+        <aside class="bordercard" style="flex: 1 1 0; min-width: 0; margin: 0; --chip: #f5c0db;">
+          <h2 class="text-[26px] leading-none" style="font-family:'Tungsten','Arial Black','Arial Bold',Arial,sans-serif; font-weight:700; letter-spacing:0.04em;">From Goals to Design</h2>
+          <div class="mt-2 text-[16px] leading-[1.7] space-y-3" style="font-family:Arial,'Helvetica Neue',Helvetica,sans-serif; color:#324158;">
+            <p>The Agnostic System adds optional, high-reward content without changing the core game. This breakdown shows how each product goal shaped the problems I tackled and the design decisions behind them.</p>
+          </div>
+        </aside>
+        <img src="WebsiteAssets/Dreamhaven_Shadowstone_2026/Shadowstone_Images/DesignProcess/Shadowstone_AgnosticSystem_DesignBreakdown.jpg"
+             alt="Agnostic System design breakdown: three product goals, and the difficulty, identity, and motivation problems each traced to a solution and a design action"
+             class="flow-img flow-img--70 expandable-image" loading="lazy" />
+      </div>
+
+      <!-- Agnostic System Gameplay Flow: caption box (left, 30%) + flowchart (right, 70%) -->
+      <div class="flow-row mt-8 text-left">
+        <aside class="bordercard" style="flex: 1 1 0; min-width: 0; margin: 0; --chip: #9BD3AE;">
+          <h2 class="text-[26px] leading-none" style="font-family:'Tungsten','Arial Black','Arial Bold',Arial,sans-serif; font-weight:700; letter-spacing:0.04em;">Agnostic System Gameplay Flow</h2>
+          <div class="mt-2 text-[16px] leading-[1.7] space-y-3" style="font-family:Arial,'Helvetica Neue',Helvetica,sans-serif; color:#324158;">
+            <p>How the Agnostic System plays out in a run.</p>
+            <p>Unstable Rooms introduce the Sentry, a single persistent enemy that scales with each act and follows players between rooms.</p>
+            <p>Yellow notes show the design problem behind each step, from keeping difficulty optional to rewarding players who take the risk.</p>
+          </div>
+        </aside>
+        <img src="WebsiteAssets/Dreamhaven_Shadowstone_2026/Shadowstone_Images/DesignProcess/Shadowstone_AgnosticSystem_Flowchart.jpg"
+             alt="Agnostic System gameplay flow: Unstable Rooms on the map spawn or upgrade the Sentry, which carries over between rooms until defeated for permanent rewards, with design-problem notes beside each step"
+             class="flow-img flow-img--70 expandable-image" loading="lazy" />
       </div>
     </div>
   </div>
@@ -846,7 +878,7 @@
   <span class="jump-menu__label">JUMP&nbsp;TO</span>
   <a href="#summary">OVERVIEW</a>
   <a href="#combat-system">COMBAT DESIGN</a>
-  <a href="#boss-narrative">SYSTEM DESIGN</a>
+  <a href="#boss-narrative">SYSTEMS DESIGN</a>
   <a href="#top" class="jump-menu__top" onclick="event.preventDefault(); window.scrollTo({ top: 0, behavior: 'smooth' });" aria-label="Back to top"><svg width="22" height="10" viewBox="0 0 22 10" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M1 9 L11 1 L21 9"/></svg></a>
 </nav>
 <script>
