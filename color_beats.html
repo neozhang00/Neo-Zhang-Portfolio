@@ -729,6 +729,27 @@
     const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
     const COVER = 500, LOAD_IN = 280, HOLD = 420, SHRINK = 260, UNCOVER = 500;
 
+    // leaving: stop every video's download. On the live site all requests share one
+    // HTTP/2 connection, and an in-flight video stream can hold up the next page's
+    // request for 10+ seconds. The src is parked on the element so a back/forward
+    // cache return can put it back.
+    function parkVideos() {
+      document.querySelectorAll('video[src]').forEach(v => {
+        v.dataset.parkedSrc = v.getAttribute('src');
+        if (!v.paused) v.dataset.parkedPlaying = '';
+        v.pause();
+        v.removeAttribute('src');
+        v.load();                                    // aborts the pending fetch
+      });
+    }
+    function unparkVideos() {
+      document.querySelectorAll('video[data-parked-src]').forEach(v => {
+        v.setAttribute('src', v.dataset.parkedSrc);
+        delete v.dataset.parkedSrc;
+        if ('parkedPlaying' in v.dataset) { delete v.dataset.parkedPlaying; v.play().catch(() => {}); }
+      });
+    }
+
     // --- entrance: this page arrived under the curtain, so uncover it ---
     curtain.classList.add('is-covering', 'is-loading');
     function reveal() {
@@ -757,6 +778,7 @@
     // lift the curtain if it was left covering (mid-exit); never sweep it in again
     window.addEventListener('pageshow', (e) => {
       if (!e.persisted) return;
+      unparkVideos();
       curtain.classList.remove('is-loading');
       if (curtain.classList.contains('is-covering')) {
         curtain.classList.replace('is-covering', 'is-leaving');
@@ -781,9 +803,10 @@
         return;
       }
       e.preventDefault();
-      if (reduced) { location.href = url.href; return; }
+      if (reduced) { parkVideos(); location.href = url.href; return; }
       curtain.classList.add('is-covering');                      // panel sweeps in from the left
-      setTimeout(() => curtain.classList.add('is-loading'), COVER);
+      // stop the videos once the panel fully covers them, so none blanks on screen
+      setTimeout(() => { curtain.classList.add('is-loading'); parkVideos(); }, COVER);
       setTimeout(() => { location.href = url.href; }, COVER + LOAD_IN + HOLD);
     });
   })();
