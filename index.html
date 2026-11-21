@@ -550,10 +550,11 @@
   .work-card--frame { background: #bfd9ec; }
   .work-card--shadowstone { background: #D4C4F2; }   /* light tint of the brand's Champion purple #B797FF */
   .work-card--shadowstone .work-card__name-img { width: 96%; margin-top: -34px; }   /* taller than the Sunderfolk wordmark: sized and lifted 20px so the text below still fits the card */
-  /* the key art (five hero portraits side by side) has no title strip to hide and no
+  /* the key art (heroes before the portal eye) has no title strip to hide and no
      award column to clear, so it simply fills the window, centred, with none of the
-     Sunderfolk zoom and offset */
-  .work-card--frame.work-card--shadowstone .work-card__img { height: 100%; transform: none; object-position: 50% 50%; }
+     Sunderfolk zoom; it is nudged 20px right, and the gap that opens on the left
+     sits inside the slanted clip (30px+), so it never shows */
+  .work-card--frame.work-card--shadowstone .work-card__img { height: 100%; transform: translateX(20px); object-position: 50% 50%; }
   .work-card--shadowstone .work-card__pop { right: 73px; top: -25px; }   /* 95px left of and 30px above the shared spot (right -22px, top 5px) */
   .work-card + .work-card { margin-top: 40px; }   /* stacked project rows keep the card spacing, not the About rows' 14px */
   .work-card--frame .work-card__panel { background: transparent; }
@@ -984,7 +985,7 @@
           <span class="pop-balloon__text">Click to<br />Learn More</span>
         </div>
       </div>
-      <div class="work-card__imgbox"><img src="WebsiteAssets/Dreamhaven_Shadowstone_2026/Shadowstone_Images/PrimaryArt_Logo/Shadowstone_KeyArt_001.webp" width="1500" height="500" alt="Shadowstone key art: five hero portraits side by side" class="work-card__img" loading="lazy" /></div>
+      <div class="work-card__imgbox"><img src="WebsiteAssets/Dreamhaven_Shadowstone_2026/Shadowstone_Images/PrimaryArt_Logo/Shadowstone_KeyArt_002.webp" width="1600" height="1253" alt="Shadowstone key art: heroes silhouetted on a stairway before a giant crystal-ringed portal with a glowing eye" class="work-card__img" loading="lazy" /></div>
     </a>
 
     <a class="about-seg seg-nochip work-card work-card--frame" href="sunderfolk.html">
